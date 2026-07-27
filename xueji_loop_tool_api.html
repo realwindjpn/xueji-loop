@@ -1,0 +1,2717 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>学记教育闭环后台</title>
+  <style>
+    :root {
+      --ink: #1d2b32;
+      --muted: #637782;
+      --line: #d9e2e1;
+      --line-strong: #b9c9c5;
+      --panel: #ffffff;
+      --soft: #f4f8f6;
+      --soft-2: #eef6f1;
+      --green: #126a5f;
+      --green-2: #0d4f49;
+      --blue: #315f8f;
+      --amber: #b86620;
+      --warn: #946018;
+      --red: #a33f35;
+      --page: #f8faf9;
+      --page-tint: #edf7f3;
+      --surface-subtle: #fbfdfc;
+      --surface-muted: #f7faf9;
+      --success-soft: #f0f8f4;
+      --warn-soft: #fff8ed;
+      --input-line: #b8c5cc;
+      --radius: 8px;
+      --shadow: 0 10px 24px rgba(29, 43, 50, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--page);
+      line-height: 1.45;
+    }
+
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar {
+      width: 100%;
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 23px;
+      letter-spacing: 0;
+    }
+
+    .status {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: var(--soft);
+      min-height: 32px;
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pill strong {
+      color: var(--green);
+      margin-left: 6px;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1220px;
+      margin: 18px auto 36px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    nav {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      height: fit-content;
+    }
+
+    nav button {
+      width: 100%;
+      min-height: 46px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      text-align: left;
+      padding: 11px 14px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    nav button.active {
+      border-left: 4px solid var(--green);
+      padding-left: 10px;
+      background: var(--soft-2);
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .workarea {
+      min-width: 0;
+      display: grid;
+      gap: 16px;
+    }
+
+    .ops-brief {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .ops-brief h2 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .ops-brief p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 76ch;
+    }
+
+    .ops-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .ops-card {
+      border: 1px solid var(--line);
+      background: var(--surface-subtle);
+      padding: 12px;
+      min-height: 96px;
+    }
+
+    .ops-card strong {
+      display: block;
+      color: var(--green);
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .ops-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    section {
+      display: none;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    section.active { display: block; }
+
+    .section-head {
+      padding: 15px 16px 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 19px;
+      letter-spacing: 0;
+    }
+
+    .body {
+      padding: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 16px;
+    }
+
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--input-line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: var(--radius);
+      min-height: 38px;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 14px;
+      transition: border-color .16s ease, box-shadow .16s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus,
+    button:focus-visible {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(18, 106, 95, .16);
+    }
+
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .span2 { grid-column: 1 / -1; }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    button.primary,
+    button.secondary,
+    button.warn {
+      min-height: 38px;
+      border: 1px solid var(--green);
+      background: var(--green);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease;
+    }
+
+    button.secondary {
+      background: var(--panel);
+      color: var(--green);
+    }
+
+    button.warn {
+      border-color: var(--amber);
+      color: var(--amber);
+      background: var(--panel);
+    }
+
+    button.primary:hover {
+      background: var(--green-2);
+      border-color: var(--green-2);
+    }
+
+    button.secondary:hover {
+      background: var(--success-soft);
+    }
+
+    button.warn:hover {
+      background: var(--warn-soft);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: wait;
+      transform: none;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: var(--radius);
+      padding: 12px;
+      min-height: 112px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: var(--blue);
+    }
+
+    .card p {
+      margin: 5px 0;
+      font-size: 13px;
+    }
+
+    .muted { color: var(--muted); }
+    .good { color: var(--green); font-weight: 700; }
+    .danger { color: var(--red); font-weight: 700; }
+    .helper {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .section-helper {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      max-width: 72ch;
+    }
+
+    .card-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .meta-chip {
+      border: 1px solid var(--line);
+      background: var(--page);
+      border-radius: var(--radius);
+      padding: 7px 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .meta-chip strong {
+      display: block;
+      color: var(--ink);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .inline-tools {
+      display: inline-flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .inline-tools button {
+      min-height: 30px;
+      padding: 5px 8px;
+      font-size: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: var(--panel);
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+      word-break: break-word;
+    }
+
+    th {
+      background: var(--surface-muted);
+      font-weight: 700;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px;
+      min-height: 120px;
+      margin: 0;
+      font-size: 12px;
+      overflow: auto;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr);
+      gap: 16px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+      }
+    }
+
+    @media (max-width: 920px) {
+      .topbar, main, .split, .grid, .grid.three, .cards {
+        display: block;
+      }
+      main { margin-top: 12px; }
+      nav { margin-bottom: 14px; }
+      .ops-grid { display: block; }
+      .ops-card { min-height: 0; margin-top: 10px; }
+      .card-meta { grid-template-columns: 1fr; }
+      .grid > div, .cards > div { margin-bottom: 12px; }
+      .status { justify-content: flex-start; margin-top: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div>
+        <h1>学记教育闭环后台</h1>
+      </div>
+      <div class="status">
+        <span class="pill">服务 <strong id="serviceStatus">检查中</strong></span>
+        <span class="pill">学生 <strong id="studentCount">0</strong></span>
+        <span class="pill">待处理 <strong id="actionCount">0</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <nav>
+      <button class="active" data-view="intake">初始建档</button>
+      <button data-view="feedback">每日反馈</button>
+      <button data-view="students">学生列表</button>
+      <button data-view="actions">调整队列</button>
+      <button data-view="aiJobs">AI任务队列</button>
+      <button data-view="detail">学生详情</button>
+      <button data-view="voiceCheck">发音评测校准</button>
+      <button data-view="knowledgeBase">学科知识库</button>
+      <button data-view="parents">家长权益</button>
+      <button data-view="models">模型配置</button>
+    </nav>
+
+    <div class="workarea">
+      <div class="ops-brief">
+        <h2>老师工作台</h2>
+        <p>后台优先处理三件事：看学生风险、处理调整队列、发布前复核方案。AI 负责整理初稿，老师负责判断是否适合当前孩子。</p>
+        <div class="ops-grid" aria-label="后台处理优先级">
+          <div class="ops-card"><strong>先看风险</strong><span>学生列表和每日反馈里优先看抗拒、疲劳、未反馈和完成率低的学生。</span></div>
+          <div class="ops-card"><strong>再处理队列</strong><span>调整队列用于判断是否减量、错卡回炉、研学保温或生成下一版。</span></div>
+          <div class="ops-card"><strong>发布前确认</strong><span>方案、DOCX、权益和学生端状态确认后，再发给家长执行。</span></div>
+        </div>
+      </div>
+
+      <section id="intake" class="active">
+        <div class="section-head">
+          <h2>初始建档</h2>
+          <button class="secondary" id="fillSample">填入样例</button>
+        </div>
+        <div class="body split">
+          <form id="intakeForm">
+            <div class="grid">
+              <div>
+                <label for="student_name">学生称呼</label>
+                <input id="student_name" name="student_name" placeholder="如：小陈">
+              </div>
+              <div>
+                <label for="grade_region">年级/地区</label>
+                <input id="grade_region" name="grade_region" placeholder="如：初一/湖南">
+              </div>
+              <div>
+                <label for="goal">目标</label>
+                <input id="goal" name="goal" placeholder="如：期末基础抢分">
+              </div>
+              <div>
+                <label for="exam_date_text">最近考试时间</label>
+                <input id="exam_date_text" name="exam_date_text" placeholder="如：2周后">
+              </div>
+              <div>
+                <label for="time_budget">每天可用时间</label>
+                <select id="time_budget" name="time_budget">
+                  <option>5-10分钟</option>
+                  <option selected>15-25分钟</option>
+                  <option>30-40分钟</option>
+                </select>
+              </div>
+              <div>
+                <label for="cooperation">配合度</label>
+                <select id="cooperation" name="cooperation">
+                  <option>抗拒</option>
+                  <option selected>一般</option>
+                  <option>能接受</option>
+                  <option>比较配合</option>
+                </select>
+              </div>
+              <div class="span2">
+                <label for="priority_subjects">优先科目/考试</label>
+                <input id="priority_subjects" name="priority_subjects" placeholder="如：语文古诗、历史道法、英语基础词">
+              </div>
+              <div>
+                <label for="difficulties">最大困难</label>
+                <textarea id="difficulties" name="difficulties" placeholder="如：记不住、一问就慌、启动困难"></textarea>
+              </div>
+              <div>
+                <label for="parent_support">家长能做什么</label>
+                <textarea id="parent_support" name="parent_support" placeholder="如：每天微信问3张，拍照反馈"></textarea>
+              </div>
+              <div>
+                <label for="evidence_summary">已有证据</label>
+                <textarea id="evidence_summary" name="evidence_summary" placeholder="如：有错题照片、成绩单、已做卡片"></textarea>
+              </div>
+              <div>
+                <label for="extra_notes">补充情况</label>
+                <textarea id="extra_notes" name="extra_notes" placeholder="如：明后天研学，时间很碎"></textarea>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="primary" type="submit">提交建档并生成V1</button>
+              <button class="secondary" type="button" id="clearIntake">清空</button>
+            </div>
+          </form>
+          <div>
+            <pre id="intakeResult">等待提交建档。</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="feedback">
+        <div class="section-head">
+          <h2>每日反馈</h2>
+          <button class="secondary" id="loadLatestStudent">使用最新学生</button>
+        </div>
+        <div class="body split">
+          <form id="feedbackForm">
+            <div class="grid three">
+              <div>
+                <label for="student_id">学生ID</label>
+                <input id="student_id" name="student_id" type="number" min="1" required>
+              </div>
+              <div>
+                <label for="feedback_date">反馈日期</label>
+                <input id="feedback_date" name="feedback_date" type="date">
+              </div>
+              <div>
+                <label for="day_mode">今天模式</label>
+                <select id="day_mode" name="day_mode">
+                  <option>正常</option>
+                  <option>研学</option>
+                  <option>疲劳</option>
+                  <option>抗拒</option>
+                </select>
+              </div>
+              <div>
+                <label for="planned_cards">计划张数</label>
+                <input id="planned_cards" name="planned_cards" type="number" min="0" value="3">
+              </div>
+              <div>
+                <label for="completed_cards">完成张数</label>
+                <input id="completed_cards" name="completed_cards" type="number" min="0" value="2">
+              </div>
+              <div>
+                <label for="known_cards">会了几张</label>
+                <input id="known_cards" name="known_cards" type="number" min="0" value="1">
+              </div>
+              <div class="span2">
+                <label for="star_card_codes">★卡编号</label>
+                <input id="star_card_codes" name="star_card_codes" placeholder="如：D1-03、D2-01">
+              </div>
+              <div>
+                <label for="mood">情绪</label>
+                <select id="mood" name="mood">
+                  <option>轻松</option>
+                  <option selected>能接受</option>
+                  <option>有点烦</option>
+                  <option>明显抗拒</option>
+                </select>
+              </div>
+              <div>
+                <label for="evidence_type">证据</label>
+                <select id="evidence_type" name="evidence_type">
+                  <option>无</option>
+                  <option>照片</option>
+                  <option>语音</option>
+                  <option>视频</option>
+                </select>
+              </div>
+              <div class="span2">
+                <label for="parent_note">家长备注</label>
+                <textarea id="parent_note" name="parent_note" placeholder="如：路上语音答了两张，第三张不太想答"></textarea>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="primary" type="submit">提交反馈并生成建议</button>
+            </div>
+          </form>
+          <div>
+            <pre id="feedbackResult">等待提交反馈。</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="students">
+        <div class="section-head">
+          <div>
+            <h2>学生列表</h2>
+            <p class="section-helper">先看目标、当前档位、执行方式和最近状态；需要调整的学生再打开详情。</p>
+          </div>
+          <button class="secondary" id="refreshStudents">刷新</button>
+        </div>
+        <div class="body">
+          <div id="studentCards" class="cards"></div>
+        </div>
+      </section>
+
+      <section id="actions">
+        <div class="section-head">
+          <div>
+            <h2>调整队列</h2>
+            <p class="section-helper">这里是老师每天优先处理的入口：抗拒、疲劳、研学、错卡回炉和下一版方案都从这里确认。</p>
+          </div>
+          <button class="secondary" id="refreshActions">刷新</button>
+        </div>
+        <div class="body">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 82px;">优先级</th>
+                <th style="width: 130px;">学生</th>
+                <th>触发原因</th>
+                <th>建议动作</th>
+                <th style="width: 92px;">处理</th>
+              </tr>
+            </thead>
+            <tbody id="actionsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="aiJobs">
+        <div class="section-head">
+          <h2>AI任务队列</h2>
+          <div class="actions" style="margin:0;">
+            <select id="aiJobStatus" style="width:140px;">
+              <option value="all">全部任务</option>
+              <option value="queued">排队中</option>
+              <option value="running">生成中</option>
+              <option value="error">失败/已取消</option>
+              <option value="success">已完成</option>
+            </select>
+            <button class="secondary" id="refreshAiJobs">刷新</button>
+          </div>
+        </div>
+        <div class="body">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:70px;">ID</th>
+                <th style="width:95px;">状态</th>
+                <th>家长/学生</th>
+                <th style="width:130px;">任务</th>
+                <th>备注/错误</th>
+                <th style="width:150px;">时间</th>
+                <th style="width:130px;">处理</th>
+              </tr>
+            </thead>
+            <tbody id="aiJobsBody"></tbody>
+          </table>
+          <p class="helper">排队中的任务可以取消；失败或已取消的任务可以重新排队。正在生成的任务不强制中断，避免结果刚好返回时被打断。</p>
+        </div>
+      </section>
+
+      <section id="detail">
+        <div class="section-head">
+          <div>
+            <h2>学生详情</h2>
+            <p class="section-helper">发布前先核对档案、当前方案、反馈时间线、DOCX 文件和学生端可见状态。</p>
+          </div>
+          <div class="actions" style="margin:0;">
+            <input id="detailStudentId" type="number" min="1" placeholder="学生ID" style="width:120px;">
+            <button class="secondary" id="loadDetail">查看</button>
+            <button class="secondary" id="createNextPlan">生成V2</button>
+            <button class="secondary" id="publishCurrentPlan">发布当前方案</button>
+            <button class="secondary" id="makeWeeklyReport">周反馈</button>
+            <button class="secondary" id="bindCurrentDocx">上传并绑定DOCX</button>
+            <input id="currentDocxFile" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+            <button class="secondary" id="openCurrentFile">打开文件</button>
+            <button class="secondary" id="copyCurrentFile">复制链接</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="grid three" style="margin-bottom:14px;">
+            <div>
+              <label for="student_account_phone">学生手机号</label>
+              <input id="student_account_phone" autocomplete="tel" inputmode="numeric" placeholder="账号不存在时需填写">
+            </div>
+            <div>
+              <label for="student_new_password">学生新密码</label>
+              <input id="student_new_password" type="password" autocomplete="new-password" minlength="8" maxlength="64" placeholder="至少8位，含字母和数字">
+            </div>
+            <div>
+              <label>学生端账号</label>
+              <button class="warn" id="resetStudentPassword">重置学生密码</button>
+              <div class="helper">会清掉旧学生登录态；学生下次用新密码登录。</div>
+            </div>
+          </div>
+          <pre id="detailResult">输入学生ID查看档案、当前方案、反馈和调整动作。</pre>
+          <table style="margin-top:14px;">
+            <thead>
+              <tr>
+                <th style="width:110px;">依据类型</th>
+                <th>标题/范围</th>
+                <th>匹配原因</th>
+                <th style="width:90px;">来源</th>
+              </tr>
+            </thead>
+            <tbody id="planEvidenceRefsBody">
+              <tr><td colspan="4" class="muted">查看学生后显示当前方案引用的课标、资源、知识点和真题考法。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="voiceCheck">
+        <div class="section-head">
+          <h2>发音评测校准</h2>
+          <button class="secondary" id="refreshVoiceSamples">刷新样本</button>
+        </div>
+        <div class="body">
+          <div class="helper">只给老师后台使用：上传一段真实录音，或直接选最近一条系统里已有的真实录音，快速验收讯飞评测链路。本页不写入学生记录。</div>
+          <div class="grid three" style="margin-top:14px;">
+            <div class="span2">
+              <label for="voice_sample_id">最近真实录音</label>
+              <select id="voice_sample_id">
+                <option value="">手动上传一段音频</option>
+              </select>
+            </div>
+            <div>
+              <label for="voice_student_id">学生ID（可选）</label>
+              <input id="voice_student_id" type="number" min="1" placeholder="用于显示次数">
+            </div>
+            <div>
+              <label for="voice_target_type">题型</label>
+              <select id="voice_target_type">
+                <option value="word">单词</option>
+                <option value="phrase">短语</option>
+                <option value="sentence" selected>句子</option>
+              </select>
+            </div>
+            <div class="span2">
+              <label for="voice_target_text">目标文本</label>
+              <input id="voice_target_text" placeholder="例如 bike / ride a bike / I go to school by bike.">
+            </div>
+            <div class="span2">
+              <label for="voice_transcript">兜底文本（可选）</label>
+              <textarea id="voice_transcript" placeholder="如果讯飞不可用，且你希望看本地兜底分数，可补一段已知文本。"></textarea>
+            </div>
+            <div class="span2">
+              <label for="voice_source_file">上传音频</label>
+              <input id="voice_source_file" type="file" accept="audio/*">
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="runVoiceAssessment">执行校准</button>
+            <button class="secondary" id="clearVoiceAssessment">清空</button>
+          </div>
+          <div class="helper" id="voiceSampleHint">请选择一条样本，或上传一段录音。选择样本会自动带出学生ID、题型和目标文本。</div>
+          <pre id="voiceAssessmentResult" style="margin-top:14px;">等待选择录音并执行校准。</pre>
+        </div>
+      </section>
+
+      <section id="knowledgeBase">
+        <div class="section-head">
+          <div>
+            <h2>学科知识库</h2>
+            <p class="section-helper">先沉淀课标、教材、真题和老师整理的高频考点；AI生成计划时会优先引用这些依据。</p>
+          </div>
+          <button class="secondary" id="refreshKnowledgeResources">刷新</button>
+        </div>
+        <div class="body">
+          <div class="grid three">
+            <div>
+              <label for="kb_title">资源标题</label>
+              <input id="kb_title" placeholder="如：七下英语期末高频：一般过去时">
+            </div>
+            <div>
+              <label for="kb_source_type">类型</label>
+              <select id="kb_source_type">
+                <option value="official_platform">官方平台</option>
+                <option value="curriculum_standard">课标</option>
+                <option value="textbook_reference">教材</option>
+                <option value="exam_pattern">真题/考频</option>
+                <option value="teacher_curated">老师整理</option>
+              </select>
+            </div>
+            <div>
+              <label for="kb_authority_level">可信级别</label>
+              <select id="kb_authority_level">
+                <option value="official">官方</option>
+                <option value="publisher">出版社</option>
+                <option value="teacher_curated" selected>老师整理</option>
+                <option value="reference">参考</option>
+              </select>
+            </div>
+            <div>
+              <label for="kb_subject">学科</label>
+              <input id="kb_subject" placeholder="英语/生物/历史/全科">
+            </div>
+            <div>
+              <label for="kb_grade">年级</label>
+              <input id="kb_grade" placeholder="七下/义务教育">
+            </div>
+            <div>
+              <label for="kb_region">地区</label>
+              <input id="kb_region" placeholder="全国/湖南/本校">
+            </div>
+            <div>
+              <label for="kb_textbook_version">教材版本</label>
+              <input id="kb_textbook_version" placeholder="人教版/译林版/待确认">
+            </div>
+            <div class="span2">
+              <label for="kb_url">来源链接</label>
+              <input id="kb_url" placeholder="https://...">
+            </div>
+            <div class="span2">
+              <label for="kb_summary">摘要/考点说明</label>
+              <textarea id="kb_summary" placeholder="写清楚适用范围、常考题型、答题关键词、易错点。不要粘贴整本教材或整套试卷。"></textarea>
+            </div>
+            <div>
+              <label for="kb_tags">标签</label>
+              <textarea id="kb_tags" placeholder="七下,英语,期末,一般过去时"></textarea>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="saveKnowledgeResource">保存资源</button>
+            <button class="secondary" id="clearKnowledgeResource">清空</button>
+          </div>
+          <div class="grid three" style="margin-top:14px;">
+            <div>
+              <label for="kb_search">搜索</label>
+              <input id="kb_search" placeholder="学科/年级/考点/来源">
+            </div>
+            <div>
+              <label for="kb_filter_subject">筛选学科</label>
+              <input id="kb_filter_subject" placeholder="英语">
+            </div>
+            <div>
+              <label for="kb_filter_grade">筛选年级</label>
+              <input id="kb_filter_grade" placeholder="七下">
+            </div>
+          </div>
+          <table style="margin-top:14px;">
+            <thead>
+              <tr>
+                <th style="width:70px;">ID</th>
+                <th>资源</th>
+                <th style="width:150px;">范围</th>
+                <th>摘要</th>
+                <th style="width:90px;">级别</th>
+              </tr>
+            </thead>
+            <tbody id="knowledgeResourcesBody"></tbody>
+          </table>
+          <pre id="knowledgeResourceResult" style="margin-top:14px;">知识库会先保存官方资源入口；老师整理的考点和真题规律会逐步补齐。</pre>
+
+          <div class="section-head" style="margin:16px -16px 0;">
+            <div>
+              <h2>知识点索引</h2>
+              <p class="section-helper">把教材单元、课标要求、常见错法和记忆提示拆成可复用的小条目；生成学习计划时优先匹配这些点。</p>
+            </div>
+            <button class="secondary" id="refreshKnowledgePoints">刷新知识点</button>
+          </div>
+          <div class="grid three" style="margin-top:14px;">
+            <div>
+              <label for="kp_resource_id">资源ID</label>
+              <input id="kp_resource_id" type="number" min="1" placeholder="可选，关联上方资源">
+            </div>
+            <div>
+              <label for="kp_subject">学科</label>
+              <input id="kp_subject" placeholder="英语/生物/历史">
+            </div>
+            <div>
+              <label for="kp_grade">年级</label>
+              <input id="kp_grade" placeholder="七下/高三">
+            </div>
+            <div>
+              <label for="kp_textbook_version">教材版本</label>
+              <input id="kp_textbook_version" placeholder="人教版/译林版/待确认">
+            </div>
+            <div>
+              <label for="kp_unit_name">单元/模块</label>
+              <input id="kp_unit_name" placeholder="Unit 11 / 第四单元">
+            </div>
+            <div>
+              <label for="kp_importance">重要性</label>
+              <select id="kp_importance">
+                <option value="high">高频/必抓</option>
+                <option value="normal" selected>常规</option>
+                <option value="low">低频</option>
+              </select>
+            </div>
+            <div>
+              <label for="kp_point_name">知识点</label>
+              <input id="kp_point_name" placeholder="一般过去时 Did 问句">
+            </div>
+            <div>
+              <label for="kp_requirement_level">要求层级</label>
+              <input id="kp_requirement_level" placeholder="了解/理解/掌握/运用">
+            </div>
+            <div class="span2">
+              <label for="kp_common_errors">常见错法</label>
+              <textarea id="kp_common_errors" placeholder="学生常错在哪里；哪些去年考过可少放，哪些每年都考要重复复背。"></textarea>
+            </div>
+            <div>
+              <label for="kp_memory_hint">记忆提示</label>
+              <textarea id="kp_memory_hint" placeholder="短句、口诀、辨析提示，不粘贴教材大段原文。"></textarea>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="saveKnowledgePoint">保存知识点</button>
+            <button class="secondary" id="clearKnowledgePoint">清空</button>
+          </div>
+          <div class="grid three" style="margin-top:14px;">
+            <div>
+              <label for="kp_search">搜索知识点</label>
+              <input id="kp_search" placeholder="单元/知识点/易错/提示">
+            </div>
+            <div>
+              <label for="kp_filter_subject">筛选学科</label>
+              <input id="kp_filter_subject" placeholder="英语">
+            </div>
+            <div>
+              <label for="kp_filter_grade">筛选年级</label>
+              <input id="kp_filter_grade" placeholder="七下">
+            </div>
+          </div>
+          <table style="margin-top:14px;">
+            <thead>
+              <tr>
+                <th style="width:70px;">ID</th>
+                <th style="width:120px;">范围</th>
+                <th>知识点</th>
+                <th>常见错法/提示</th>
+                <th style="width:90px;">重要性</th>
+              </tr>
+            </thead>
+            <tbody id="knowledgePointsBody"></tbody>
+          </table>
+          <pre id="knowledgePointResult" style="margin-top:14px;">知识点用于让计划不只按年级匹配，还能按学生错法和考点精确命中。</pre>
+
+          <div class="section-head" style="margin:16px -16px 0;">
+            <div>
+              <h2>真题题型/考法</h2>
+              <p class="section-helper">记录历年常考题型、答题要点和来源；计划生成时会把“每年都考”和“近期高频”的依据带进去。</p>
+            </div>
+            <button class="secondary" id="refreshExamPatterns">刷新题型</button>
+          </div>
+          <div class="grid three" style="margin-top:14px;">
+            <div>
+              <label for="ep_knowledge_point_id">知识点ID</label>
+              <input id="ep_knowledge_point_id" type="number" min="1" placeholder="可选，关联上方知识点">
+            </div>
+            <div>
+              <label for="ep_resource_id">资源ID</label>
+              <input id="ep_resource_id" type="number" min="1" placeholder="可选，关联资源">
+            </div>
+            <div>
+              <label for="ep_frequency_level">考频</label>
+              <select id="ep_frequency_level">
+                <option value="must">每年必抓</option>
+                <option value="high" selected>高频</option>
+                <option value="medium">中频</option>
+                <option value="low">低频</option>
+                <option value="unknown">待确认</option>
+              </select>
+            </div>
+            <div>
+              <label for="ep_subject">学科</label>
+              <input id="ep_subject" placeholder="英语/生物/历史">
+            </div>
+            <div>
+              <label for="ep_grade">年级</label>
+              <input id="ep_grade" placeholder="七下/高三">
+            </div>
+            <div>
+              <label for="ep_region">地区</label>
+              <input id="ep_region" placeholder="全国/湖南/本校">
+            </div>
+            <div>
+              <label for="ep_exam_scope">考试范围</label>
+              <input id="ep_exam_scope" placeholder="期末/中考/高考/单元测">
+            </div>
+            <div>
+              <label for="ep_year_text">年份说明</label>
+              <input id="ep_year_text" placeholder="2022-2026常考/近三年">
+            </div>
+            <div>
+              <label for="ep_question_type">题型</label>
+              <input id="ep_question_type" placeholder="句型问答/材料分析/实验探究">
+            </div>
+            <div class="span2">
+              <label for="ep_pattern_text">题型/例题模式</label>
+              <textarea id="ep_pattern_text" placeholder="用自己的话概括题型模式、设问方式、常见陷阱。"></textarea>
+            </div>
+            <div>
+              <label for="ep_answer_points">答题要点</label>
+              <textarea id="ep_answer_points" placeholder="关键词、步骤、评分点。"></textarea>
+            </div>
+            <div class="span2">
+              <label for="ep_source_url">来源链接</label>
+              <input id="ep_source_url" placeholder="https://...">
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="saveExamPattern">保存题型</button>
+            <button class="secondary" id="clearExamPattern">清空</button>
+          </div>
+          <div class="grid three" style="margin-top:14px;">
+            <div>
+              <label for="ep_search">搜索题型</label>
+              <input id="ep_search" placeholder="题型/考点/答题点/来源">
+            </div>
+            <div>
+              <label for="ep_filter_subject">筛选学科</label>
+              <input id="ep_filter_subject" placeholder="英语">
+            </div>
+            <div>
+              <label for="ep_filter_grade">筛选年级</label>
+              <input id="ep_filter_grade" placeholder="七下">
+            </div>
+          </div>
+          <table style="margin-top:14px;">
+            <thead>
+              <tr>
+                <th style="width:70px;">ID</th>
+                <th style="width:120px;">范围</th>
+                <th style="width:110px;">题型</th>
+                <th>模式/答题点</th>
+                <th style="width:90px;">考频</th>
+              </tr>
+            </thead>
+            <tbody id="examPatternsBody"></tbody>
+          </table>
+          <pre id="examPatternResult" style="margin-top:14px;">题型库用于让知识卡生成时兼顾课标、教材和历年真题规律。</pre>
+
+          <div class="section-head" style="margin:16px -16px 0;">
+            <div>
+              <h2>资源覆盖率</h2>
+              <p class="section-helper">按 K12 年级/学科统计资源、知识点和题型数量；优先补 seed 和 empty 的范围。</p>
+            </div>
+            <button class="secondary" id="refreshLearningCoverage">刷新覆盖率</button>
+          </div>
+          <div class="grid three" style="margin-top:14px;">
+            <div>
+              <label for="coverage_stage">学段</label>
+              <select id="coverage_stage">
+                <option value="">全部</option>
+                <option value="小学">小学</option>
+                <option value="初中">初中</option>
+                <option value="高中">高中</option>
+              </select>
+            </div>
+            <div>
+              <label for="coverage_grade">年级</label>
+              <input id="coverage_grade" placeholder="七下/高三">
+            </div>
+            <div>
+              <label for="coverage_subject">学科</label>
+              <input id="coverage_subject" placeholder="英语/物理">
+            </div>
+          </div>
+          <table style="margin-top:14px;">
+            <thead>
+              <tr>
+                <th style="width:80px;">状态</th>
+                <th style="width:80px;">学段</th>
+                <th style="width:90px;">年级</th>
+                <th style="width:90px;">学科</th>
+                <th>数量</th>
+                <th>下一步</th>
+              </tr>
+            </thead>
+            <tbody id="learningCoverageBody"></tbody>
+          </table>
+          <pre id="learningCoverageResult" style="margin-top:14px;">ready=已有知识点和题型；partial=缺一边；seed=只有通用资源入口；empty=还没有任何可用依据。</pre>
+          <table style="margin-top:14px;">
+            <thead>
+              <tr>
+                <th style="width:86px;">优先级</th>
+                <th style="width:120px;">范围</th>
+                <th style="width:120px;">任务</th>
+                <th>要补什么</th>
+                <th style="width:150px;">当前数量</th>
+              </tr>
+            </thead>
+            <tbody id="learningCollectionTasksBody">
+              <tr><td colspan="5" class="muted">覆盖率刷新后显示待采集队列。</td></tr>
+            </tbody>
+          </table>
+          <pre id="learningCollectionTasksResult" style="margin-top:14px;">待采集队列从 partial、seed、empty 自动生成，用来安排下一批资料入库。</pre>
+          <div class="actions">
+            <button class="primary" id="syncCollectionTasks">保存当前缺口为任务</button>
+            <button class="secondary" id="refreshCollectionTaskRecords">刷新已保存任务</button>
+            <select id="collection_task_status_filter" style="width:150px;">
+              <option value="todo">待采集</option>
+              <option value="doing">采集中</option>
+              <option value="review">待审核</option>
+              <option value="blocked">需复查</option>
+              <option value="done">已完成</option>
+              <option value="all">全部</option>
+            </select>
+          </div>
+          <div class="grid three" style="margin-top:14px;">
+            <div>
+              <label for="collection_task_id">任务ID</label>
+              <input id="collection_task_id" type="number" min="1" placeholder="点击下方任务回填">
+            </div>
+            <div>
+              <label for="collection_task_status">状态</label>
+              <select id="collection_task_status">
+                <option value="todo">待采集</option>
+                <option value="doing">采集中</option>
+                <option value="review">待审核</option>
+                <option value="blocked">需复查</option>
+                <option value="done">已完成</option>
+              </select>
+            </div>
+            <div>
+              <label for="collection_task_assignee">负责人</label>
+              <input id="collection_task_assignee" placeholder="老师/采集人">
+            </div>
+            <div class="span2">
+              <label for="collection_task_source_url">来源URL</label>
+              <input id="collection_task_source_url" placeholder="https://...">
+            </div>
+            <div>
+              <label for="collection_task_review_note">审核备注</label>
+              <textarea id="collection_task_review_note" placeholder="来源是否可靠、是否已拆成资源/知识点/题型。"></textarea>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="saveCollectionTaskRecord">保存审核状态</button>
+          </div>
+          <table style="margin-top:14px;">
+            <thead>
+              <tr>
+                <th style="width:64px;">ID</th>
+                <th style="width:90px;">状态</th>
+                <th style="width:120px;">范围</th>
+                <th>任务</th>
+                <th style="width:130px;">负责人/来源</th>
+              </tr>
+            </thead>
+            <tbody id="collectionTaskRecordsBody">
+              <tr><td colspan="5" class="muted">保存缺口后显示可审核的采集任务。</td></tr>
+            </tbody>
+          </table>
+          <pre id="collectionTaskRecordResult" style="margin-top:14px;">采集任务完成后，再把资料拆入资源、知识点和题型库。</pre>
+
+          <div class="section-head" style="margin:16px -16px 0;">
+            <div>
+              <h2>K12范围索引</h2>
+              <p class="section-helper">这里不是具体考点，而是小学、初中、高中各年级各学科的检索骨架；后续教材、政策、真题和错题都挂到这个骨架下。</p>
+            </div>
+            <button class="secondary" id="refreshScopeIndex">刷新索引</button>
+          </div>
+          <div class="grid three" style="margin-top:14px;">
+            <div>
+              <label for="scope_stage">学段</label>
+              <select id="scope_stage">
+                <option value="">全部</option>
+                <option value="小学">小学</option>
+                <option value="初中">初中</option>
+                <option value="高中">高中</option>
+              </select>
+            </div>
+            <div>
+              <label for="scope_grade">年级</label>
+              <input id="scope_grade" placeholder="一年级/七下/高三">
+            </div>
+            <div>
+              <label for="scope_subject">学科</label>
+              <input id="scope_subject" placeholder="语文/英语/物理">
+            </div>
+          </div>
+          <table style="margin-top:14px;">
+            <thead>
+              <tr>
+                <th style="width:80px;">学段</th>
+                <th style="width:90px;">年级</th>
+                <th style="width:90px;">学科</th>
+                <th>资源类型</th>
+                <th>计划用途</th>
+              </tr>
+            </thead>
+            <tbody id="scopeIndexBody"></tbody>
+          </table>
+          <pre id="scopeIndexResult" style="margin-top:14px;">K12范围索引用于防止系统只围绕某个学生或某个年级建库。</pre>
+        </div>
+      </section>
+
+      <section id="parents">
+        <div class="section-head">
+          <h2>家长权益</h2>
+          <button class="secondary" id="refreshParents">刷新</button>
+        </div>
+        <div class="body">
+          <div class="grid three">
+            <div>
+              <label for="ent_parent_id">家长ID</label>
+              <input id="ent_parent_id" type="number" min="1">
+            </div>
+            <div>
+              <label for="ent_plan_name">套餐</label>
+              <select id="ent_plan_name">
+                <option value="trial">7天试用</option>
+                <option value="monthly">月卡</option>
+                <option value="quarterly">季卡</option>
+                <option value="annual">年卡</option>
+                <option value="custom">自定义</option>
+              </select>
+              <div class="helper" id="entPresetHint">选择套餐后会自动带出有效期和额度。</div>
+            </div>
+            <div>
+              <label for="ent_status">状态</label>
+              <select id="ent_status">
+                <option value="active">active</option>
+                <option value="paused">paused</option>
+                <option value="disabled">disabled</option>
+              </select>
+            </div>
+            <div>
+              <label for="ent_expires">有效期</label>
+              <input id="ent_expires" placeholder="YYYY-MM-DD">
+            </div>
+            <div>
+              <label for="ent_usage_limit">AI额度</label>
+              <input id="ent_usage_limit" type="number" min="0" placeholder="20">
+            </div>
+            <div>
+              <label for="ent_usage_used">已用</label>
+              <input id="ent_usage_used" type="number" min="0" placeholder="0">
+            </div>
+            <div>
+              <label for="ent_apply_preset">套餐规则</label>
+              <select id="ent_apply_preset">
+                <option value="1">按套餐自动设置</option>
+                <option value="0">只保存手动填写</option>
+              </select>
+            </div>
+            <div>
+              <label for="ent_reset_usage">已用额度</label>
+              <select id="ent_reset_usage">
+                <option value="1">开通时清零</option>
+                <option value="0">保留当前已用</option>
+              </select>
+            </div>
+            <div>
+              <label for="parent_new_password">家长新密码</label>
+              <input id="parent_new_password" type="password" autocomplete="new-password" minlength="8" maxlength="64" placeholder="至少8位，含字母和数字">
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="saveEntitlement">保存权益</button>
+            <button class="warn" id="resetParentPassword">重置家长密码</button>
+          </div>
+          <pre id="parentPasswordResult" style="margin-top:14px;">选中家长后，可由管理员重置登录密码。</pre>
+          <table style="margin-top:14px;">
+            <thead>
+              <tr>
+                <th style="width:80px;">ID</th>
+                <th>家长</th>
+                <th>套餐</th>
+                <th>有效期</th>
+                <th>额度</th>
+                <th>学生</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="parentsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="models">
+        <div class="section-head">
+          <h2>模型配置</h2>
+          <button class="secondary" id="refreshModels">刷新</button>
+        </div>
+        <div class="body">
+          <div class="grid three">
+            <div>
+              <label for="model_task_type">任务类型</label>
+              <select id="model_task_type">
+                <option value="initial_plan">初始学习规划</option>
+                <option value="daily_feedback">每日反馈分析</option>
+                <option value="followup">跟进建议</option>
+                <option value="weekly_adjustment">周调整方案</option>
+                <option value="card_generation">知识卡片生成</option>
+              </select>
+            </div>
+            <div>
+              <label for="model_provider">服务商</label>
+              <input id="model_provider" placeholder="OpenAI / DeepSeek / 通义 / 自建网关">
+            </div>
+            <div>
+              <label for="model_name">模型名</label>
+              <input id="model_name" placeholder="如：gpt-4.1-mini">
+            </div>
+            <div class="span2">
+              <label for="model_endpoint">Endpoint</label>
+              <input id="model_endpoint" placeholder="https://api.example.com/v1/chat/completions">
+            </div>
+            <div>
+              <label for="model_key_env">Key环境变量</label>
+              <input id="model_key_env" placeholder="OPENAI_API_KEY">
+            </div>
+            <div>
+              <label for="model_temperature">温度</label>
+              <input id="model_temperature" type="number" step="0.1" min="0" max="2" value="0.2">
+            </div>
+            <div>
+              <label for="model_enabled">启用</label>
+              <select id="model_enabled">
+                <option value="1">启用</option>
+                <option value="0">停用</option>
+              </select>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="saveModelConfig">保存模型配置</button>
+            <button class="secondary" id="configureXiaomi">一键配置小米</button>
+          </div>
+          <table style="margin-top:14px;">
+            <thead>
+              <tr>
+                <th>任务</th>
+                <th>服务商</th>
+                <th>模型</th>
+                <th>Endpoint</th>
+                <th>Key变量</th>
+                <th>Key状态</th>
+                <th>启用</th>
+              </tr>
+            </thead>
+            <tbody id="modelsBody"></tbody>
+          </table>
+          <pre id="modelResult" style="margin-top:14px;">API Key 请写入服务器环境变量，不要填在网页里。</pre>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const prefix = location.pathname.startsWith("/xueji") ? "/xueji" : "";
+    let adminKey = localStorage.getItem("xueji_admin_key") || "";
+    if (!adminKey && location.pathname.includes("/admin")) {
+      adminKey = prompt("请输入老师后台口令") || "";
+      if (adminKey) localStorage.setItem("xueji_admin_key", adminKey);
+    }
+    const api = async (path, options = {}) => {
+      const response = await fetch(prefix + path, {
+        headers: { "Content-Type": "application/json", "X-Admin-Key": adminKey },
+        ...options
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || data.detail || "请求失败");
+      return data;
+    };
+
+    const formJson = (form) => Object.fromEntries(new FormData(form).entries());
+    const mainlandMobilePattern = /^1[3-9]\d{9}$/;
+    const weakPasswords = new Set(["12345678", "123456789", "1234567890", "password1", "password123", "abc12345", "abcdefg1", "qwerty123"]);
+    const show = (el, data) => { el.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2); };
+    const h = (value) => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+    const safeHttpUrl = (value) => {
+      const text = String(value || "").trim();
+      if (!text) return "";
+      try {
+        const url = new URL(text);
+        return ["http:", "https:"].includes(url.protocol) ? h(url.href) : "";
+      } catch {
+        return "";
+      }
+    };
+    const pendingUiActions = new Set();
+    const entitlementPresets = {
+      trial: { label: "7天试用", days: 7, usage_limit: 20 },
+      monthly: { label: "月卡", days: 30, usage_limit: 120 },
+      quarterly: { label: "季卡", days: 90, usage_limit: 360 },
+      annual: { label: "年卡", days: 365, usage_limit: 1200 }
+    };
+    let currentDetail = null;
+    let voiceSampleRows = [];
+
+    function normalizePhoneInput(value) {
+      let phone = String(value || "").trim().replace(/[\s\-()（）]/g, "");
+      if (phone.startsWith("+86")) phone = phone.slice(3);
+      if (phone.startsWith("0086")) phone = phone.slice(4);
+      if (phone.startsWith("86") && phone.length === 13 && phone[2] === "1") phone = phone.slice(2);
+      return phone;
+    }
+
+    function validateMainlandPhone(value, label = "手机号") {
+      const phone = normalizePhoneInput(value);
+      if (!phone) throw new Error(`请输入${label}`);
+      if (!mainlandMobilePattern.test(phone)) throw new Error(`请输入有效的中国大陆11位${label}`);
+      return phone;
+    }
+
+    function validatePassword(value, phone = "", label = "密码") {
+      const password = String(value || "").trim();
+      if (!password) throw new Error(`请输入${label}`);
+      if (password.length < 8) throw new Error(`${label}至少8位`);
+      if (password.length > 64) throw new Error(`${label}不能超过64位`);
+      if (/\s/.test(password)) throw new Error(`${label}不能包含空格`);
+      if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) throw new Error(`${label}需同时包含字母和数字`);
+      if (new Set(password.toLowerCase()).size <= 2 || weakPasswords.has(password.toLowerCase())) throw new Error(`${label}过于简单，请换一个`);
+      if (phone && password === phone) throw new Error(`${label}不能和手机号相同`);
+      return password;
+    }
+
+    function syncStudentAccountFields(detail) {
+      const account = detail && detail.student_account ? detail.student_account : {};
+      $("student_account_phone").value = account.phone || "";
+      $("student_new_password").value = "";
+    }
+
+    function setButtonBusy(button, busy, label = "处理中...") {
+      if (!button) return;
+      if (!button.dataset.defaultText) button.dataset.defaultText = button.textContent;
+      button.disabled = busy;
+      button.textContent = busy ? label : button.dataset.defaultText;
+    }
+
+    async function runOnce(key, button, label, action) {
+      if (pendingUiActions.has(key)) return null;
+      pendingUiActions.add(key);
+      setButtonBusy(button, true, label);
+      try {
+        return await action();
+      } finally {
+        pendingUiActions.delete(key);
+        setButtonBusy(button, false);
+      }
+    }
+
+    function dateAfter(days) {
+      const d = new Date();
+      d.setDate(d.getDate() + Number(days || 0));
+      return d.toISOString().slice(0, 10);
+    }
+
+    function absoluteUrl(url) {
+      if (!url) return "";
+      if (/^https?:\/\//.test(url)) return url;
+      return location.origin + url;
+    }
+
+    function planEvidenceLabel(type) {
+      return {
+        learning_scope: "K12范围",
+        learning_resource: "资源",
+        knowledge_point: "知识点",
+        exam_pattern: "题型/考法"
+      }[type] || type || "";
+    }
+
+    function planEvidenceTitle(item) {
+      if (item.display_title) return item.display_title;
+      if (item.evidence_type === "learning_scope") return [item.stage, item.grade, item.subject].filter(Boolean).join(" / ");
+      if (item.evidence_type === "learning_resource") return item.title || "";
+      if (item.evidence_type === "knowledge_point") return item.point_name || "";
+      if (item.evidence_type === "exam_pattern") return item.question_type || item.pattern_text || "";
+      return `${item.evidence_type || "依据"} #${item.evidence_id || ""}`;
+    }
+
+    function planEvidenceSource(item) {
+      const url = safeHttpUrl(item.url || item.source_url);
+      if (url) return `<a href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">打开</a>`;
+      return item.evidence_id ? `#${h(item.evidence_id)}` : "";
+    }
+
+    function renderPlanEvidenceRefs(detail) {
+      const body = $("planEvidenceRefsBody");
+      const refs = detail && detail.current_plan_evidence_refs ? detail.current_plan_evidence_refs : [];
+      if (!refs.length) {
+        body.innerHTML = '<tr><td colspan="4" class="muted">当前方案还没有记录引用依据；新生成或重新发布后会自动写入。</td></tr>';
+        return;
+      }
+      body.innerHTML = refs.map(item => `
+        <tr>
+          <td>${h(planEvidenceLabel(item.evidence_type))}</td>
+          <td><strong>${h(planEvidenceTitle(item))}</strong><br><span class="muted">${[item.subject, item.grade, item.region, item.textbook_version, item.exam_scope, item.year_text].filter(Boolean).map(h).join(" / ")}</span></td>
+          <td>${h(item.reason || "")}</td>
+          <td>${planEvidenceSource(item)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error || new Error("文件读取失败"));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function activate(view) {
+      document.querySelectorAll("nav button").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
+      document.querySelectorAll("section").forEach(section => section.classList.toggle("active", section.id === view));
+    }
+
+    async function refreshCounts() {
+      try {
+        const health = await api("/health");
+        $("serviceStatus").textContent = health.status;
+      } catch {
+        $("serviceStatus").textContent = "异常";
+      }
+      try {
+        const students = await api("/api/students");
+        $("studentCount").textContent = students.items.length;
+        renderStudents(students.items);
+      } catch {
+        $("studentCount").textContent = "0";
+      }
+      try {
+        const actions = await api("/api/admin/adjustments?status=pending");
+        $("actionCount").textContent = actions.items.length;
+        renderActions(actions.items);
+      } catch {
+        $("actionCount").textContent = "0";
+      }
+    }
+
+    function renderStudents(items) {
+      const box = $("studentCards");
+      if (!items.length) {
+        box.innerHTML = '<div class="card"><h3>暂无学生</h3><p class="muted">先从初始建档开始。</p></div>';
+        return;
+      }
+      box.innerHTML = items.map(item => `
+        <div class="card">
+          <h3>${item.student_code}｜${item.display_name || ""}</h3>
+          <div class="card-meta">
+            <div class="meta-chip">目标<strong>${item.goal || "未填写"}</strong></div>
+            <div class="meta-chip">年级/地区<strong>${item.grade_region || "未填写"}</strong></div>
+            <div class="meta-chip">当前档位<strong>${item.current_level || "待判断"}｜${item.current_card_load || "待生成"}</strong></div>
+            <div class="meta-chip">执行方式<strong>${item.execution_mode || "待生成"}</strong></div>
+          </div>
+          <p class="muted">处理建议：先看详情里的反馈和调整动作，再决定是否发布下一版。</p>
+          <div class="actions">
+            <button class="secondary" onclick="openDetail(${item.id})">详情</button>
+            <button class="secondary" onclick="useStudent(${item.id})">填反馈</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderActions(items) {
+      const body = $("actionsBody");
+      if (!items.length) {
+        body.innerHTML = '<tr><td colspan="5" class="muted">暂无待处理动作。</td></tr>';
+        return;
+      }
+      body.innerHTML = items.map(item => `
+        <tr>
+          <td class="${item.priority === "high" ? "danger" : "good"}">${item.priority}</td>
+          <td>${item.student_code}<br>${item.display_name || ""}</td>
+          <td>${item.trigger_reason || ""}</td>
+          <td>${item.action_text || ""}</td>
+          <td><button class="secondary" onclick="handleAction(event, ${item.action_id})">完成</button></td>
+        </tr>
+      `).join("");
+    }
+
+    async function loadAiJobs() {
+      const status = $("aiJobStatus").value || "all";
+      const data = await api(`/api/admin/ai-jobs?status=${encodeURIComponent(status)}`);
+      renderAiJobs(data.items || []);
+    }
+
+    function renderAiJobs(items) {
+      const body = $("aiJobsBody");
+      if (!items.length) {
+        body.innerHTML = '<tr><td colspan="7" class="muted">暂无AI任务。</td></tr>';
+        return;
+      }
+      const statusClass = (status) => status === "success" ? "good" : (status === "error" ? "danger" : "muted");
+      body.innerHTML = items.map(item => `
+        <tr>
+          <td>${item.id}</td>
+          <td class="${statusClass(item.status)}">${item.status || ""}</td>
+          <td>${item.parent_label || ""}<br>${item.student_code || ""} ${item.display_name || ""}</td>
+          <td>${item.task_label || item.task_type || ""}</td>
+          <td>${item.note || ""}${item.error_text ? `<br><span class="danger">${item.error_text}</span>` : ""}</td>
+          <td>${item.created_at || ""}<br>${item.finished_at || item.started_at || ""}</td>
+          <td>
+            <span class="inline-tools">
+              <button class="secondary" onclick="openDetail(${item.student_id})">学生</button>
+              ${item.status === "queued" ? `<button class="warn" onclick="handleAiJob(event, ${item.id}, 'cancel')">取消</button>` : ""}
+              ${item.status === "error" ? `<button class="secondary" onclick="handleAiJob(event, ${item.id}, 'retry')">重试</button>` : ""}
+            </span>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    window.handleAiJob = async (event, id, action) => {
+      await runOnce(`ai-job-${id}-${action}`, event && event.currentTarget, "处理中...", async () => {
+        await api(`/api/admin/ai-jobs/${id}/handle`, {
+          method: "POST",
+          body: JSON.stringify({ action })
+        });
+        await loadAiJobs();
+      });
+    };
+
+    window.handleAction = async (event, id) => {
+      await runOnce(`adjustment-${id}`, event && event.currentTarget, "处理中...", async () => {
+        await api(`/api/admin/adjustments/${id}/handle`, {
+          method: "POST",
+          body: JSON.stringify({ status: "handled" })
+        });
+        await refreshCounts();
+      });
+    };
+
+    async function loadEntitlementPresets() {
+      try {
+        const data = await api("/api/admin/entitlement-presets");
+        (data.items || []).forEach(item => {
+          entitlementPresets[item.plan_name] = item;
+        });
+        updateEntitlementPreview();
+      } catch {
+        updateEntitlementPreview();
+      }
+    }
+
+    function updateEntitlementPreview() {
+      const plan = $("ent_plan_name").value;
+      const preset = entitlementPresets[plan];
+      if (!preset) {
+        $("entPresetHint").textContent = "自定义套餐不会自动改有效期和额度。";
+        return;
+      }
+      $("entPresetHint").textContent = `${preset.label || plan}：保存时自动设置 ${preset.days} 天，有效期到 ${dateAfter(preset.days)}，AI额度 ${preset.usage_limit} 次。`;
+      if ($("ent_apply_preset").value === "1") {
+        $("ent_expires").value = dateAfter(preset.days);
+        $("ent_usage_limit").value = preset.usage_limit;
+      }
+    }
+
+    async function loadParents() {
+      const data = await api("/api/admin/parents");
+      renderParents(data.items || []);
+    }
+
+    function renderParents(items) {
+      const body = $("parentsBody");
+      if (!items.length) {
+        body.innerHTML = '<tr><td colspan="7" class="muted">暂无家长帐号。</td></tr>';
+        return;
+      }
+      body.innerHTML = items.map(item => `
+        <tr onclick="fillEntitlement(${item.id})">
+          <td>${item.id}</td>
+          <td>${item.nickname || ""}<br>${item.phone || ""}</td>
+          <td>${item.plan_name || ""}</td>
+          <td class="${item.is_expired ? "danger" : "good"}">${item.service_expires_at || "未设置"}</td>
+          <td>${item.usage_used || 0}/${item.usage_limit == null ? "不限" : item.usage_limit}</td>
+          <td>${item.student_count || 0}</td>
+          <td>${item.status || ""}</td>
+        </tr>
+      `).join("");
+      window.parentRows = items;
+    }
+
+    window.fillEntitlement = (id) => {
+      const item = (window.parentRows || []).find(row => row.id === id);
+      if (!item) return;
+      $("ent_parent_id").value = item.id;
+      $("ent_plan_name").value = entitlementPresets[item.plan_name] ? item.plan_name : "custom";
+      $("ent_status").value = item.status || "active";
+      $("ent_expires").value = item.service_expires_at || "";
+      $("ent_usage_limit").value = item.usage_limit == null ? "" : item.usage_limit;
+      $("ent_usage_used").value = item.usage_used || 0;
+      $("ent_apply_preset").value = "0";
+      $("ent_reset_usage").value = "0";
+      $("parent_new_password").value = "";
+      updateEntitlementPreview();
+    };
+
+    async function loadModels() {
+      const data = await api("/api/admin/model-configs");
+      renderModels(data.items || []);
+    }
+
+    async function loadVoiceSamples() {
+      const data = await api("/api/admin/voice-practice/samples?limit=30");
+      renderVoiceSamples(data.items || []);
+    }
+
+    async function loadKnowledgeResources() {
+      const params = new URLSearchParams();
+      const q = $("kb_search").value.trim();
+      const subject = $("kb_filter_subject").value.trim();
+      const grade = $("kb_filter_grade").value.trim();
+      if (q) params.set("q", q);
+      if (subject) params.set("subject", subject);
+      if (grade) params.set("grade", grade);
+      const suffix = params.toString() ? `?${params.toString()}` : "";
+      const data = await api(`/api/admin/learning-resources${suffix}`);
+      renderKnowledgeResources(data.items || []);
+      $("knowledgeResourceResult").textContent = `已加载 ${data.total || 0} 条资源。`;
+    }
+
+    function renderKnowledgeResources(items) {
+      const body = $("knowledgeResourcesBody");
+      if (!items.length) {
+        body.innerHTML = '<tr><td colspan="5" class="muted">暂无资源；先保存课标、教材入口或老师整理的考点。</td></tr>';
+        return;
+      }
+      body.innerHTML = items.map(item => `
+        <tr onclick="fillKnowledgeResource(${item.id})">
+          <td>${h(item.id)}</td>
+          <td><strong>${h(item.title)}</strong><br>${h(item.source_type)}${safeHttpUrl(item.url) ? ` / <a href="${safeHttpUrl(item.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">来源</a>` : ""}</td>
+          <td>${[item.subject, item.grade, item.region, item.textbook_version].filter(Boolean).map(h).join("<br>")}</td>
+          <td>${h(item.summary)}<br><span class="muted">${h(item.tags)}</span></td>
+          <td>${h(item.authority_level)}</td>
+        </tr>
+      `).join("");
+      window.knowledgeResourceRows = items;
+    }
+
+    window.fillKnowledgeResource = (id) => {
+      const item = (window.knowledgeResourceRows || []).find(row => row.id === id);
+      if (!item) return;
+      $("kb_title").value = item.title || "";
+      $("kb_source_type").value = item.source_type || "teacher_curated";
+      $("kb_authority_level").value = item.authority_level || "reference";
+      $("kb_subject").value = item.subject || "";
+      $("kb_grade").value = item.grade || "";
+      $("kb_region").value = item.region || "";
+      $("kb_textbook_version").value = item.textbook_version || "";
+      $("kb_url").value = item.url || "";
+      $("kb_summary").value = item.summary || "";
+      $("kb_tags").value = item.tags || "";
+      $("knowledgeResourceResult").dataset.editingId = String(item.id);
+      $("knowledgeResourceResult").textContent = `正在编辑资源 #${item.id}`;
+    };
+
+    function clearKnowledgeResourceForm() {
+      ["kb_title", "kb_subject", "kb_grade", "kb_region", "kb_textbook_version", "kb_url", "kb_summary", "kb_tags"].forEach(id => { $(id).value = ""; });
+      $("kb_source_type").value = "teacher_curated";
+      $("kb_authority_level").value = "teacher_curated";
+      $("knowledgeResourceResult").dataset.editingId = "";
+      $("knowledgeResourceResult").textContent = "已清空，可以录入下一条资源。";
+    }
+
+    async function loadKnowledgePoints() {
+      const params = new URLSearchParams();
+      const q = $("kp_search").value.trim();
+      const subject = $("kp_filter_subject").value.trim();
+      const grade = $("kp_filter_grade").value.trim();
+      if (q) params.set("q", q);
+      if (subject) params.set("subject", subject);
+      if (grade) params.set("grade", grade);
+      const suffix = params.toString() ? `?${params.toString()}` : "";
+      const data = await api(`/api/admin/knowledge-points${suffix}`);
+      renderKnowledgePoints(data.items || []);
+      $("knowledgePointResult").textContent = `已加载 ${data.total || 0} 条知识点。`;
+    }
+
+    function renderKnowledgePoints(items) {
+      const body = $("knowledgePointsBody");
+      if (!items.length) {
+        body.innerHTML = '<tr><td colspan="5" class="muted">暂无知识点；先从教材目录、课标要求或高频错法录入。</td></tr>';
+        window.knowledgePointRows = [];
+        return;
+      }
+      body.innerHTML = items.map(item => `
+        <tr onclick="fillKnowledgePoint(${item.id})">
+          <td>${h(item.id)}</td>
+          <td>${[item.subject, item.grade, item.textbook_version, item.unit_name].filter(Boolean).map(h).join("<br>")}</td>
+          <td><strong>${h(item.point_name)}</strong><br><span class="muted">${h(item.requirement_level)}${item.resource_id ? ` / 资源#${h(item.resource_id)}` : ""}</span></td>
+          <td>${h(item.common_errors)}<br><span class="muted">${h(item.memory_hint)}</span></td>
+          <td>${h(item.importance)}</td>
+        </tr>
+      `).join("");
+      window.knowledgePointRows = items;
+    }
+
+    window.fillKnowledgePoint = (id) => {
+      const item = (window.knowledgePointRows || []).find(row => row.id === id);
+      if (!item) return;
+      $("kp_resource_id").value = item.resource_id || "";
+      $("kp_subject").value = item.subject || "";
+      $("kp_grade").value = item.grade || "";
+      $("kp_textbook_version").value = item.textbook_version || "";
+      $("kp_unit_name").value = item.unit_name || "";
+      $("kp_point_name").value = item.point_name || "";
+      $("kp_requirement_level").value = item.requirement_level || "";
+      $("kp_importance").value = item.importance || "normal";
+      $("kp_common_errors").value = item.common_errors || "";
+      $("kp_memory_hint").value = item.memory_hint || "";
+      $("knowledgePointResult").dataset.editingId = String(item.id);
+      $("knowledgePointResult").textContent = `正在编辑知识点 #${item.id}`;
+    };
+
+    function clearKnowledgePointForm() {
+      ["kp_resource_id", "kp_subject", "kp_grade", "kp_textbook_version", "kp_unit_name", "kp_point_name", "kp_requirement_level", "kp_common_errors", "kp_memory_hint"].forEach(id => { $(id).value = ""; });
+      $("kp_importance").value = "normal";
+      $("knowledgePointResult").dataset.editingId = "";
+      $("knowledgePointResult").textContent = "已清空，可以录入下一条知识点。";
+    }
+
+    async function loadExamPatterns() {
+      const params = new URLSearchParams();
+      const q = $("ep_search").value.trim();
+      const subject = $("ep_filter_subject").value.trim();
+      const grade = $("ep_filter_grade").value.trim();
+      if (q) params.set("q", q);
+      if (subject) params.set("subject", subject);
+      if (grade) params.set("grade", grade);
+      const suffix = params.toString() ? `?${params.toString()}` : "";
+      const data = await api(`/api/admin/exam-patterns${suffix}`);
+      renderExamPatterns(data.items || []);
+      $("examPatternResult").textContent = `已加载 ${data.total || 0} 条题型/考法。`;
+    }
+
+    function renderExamPatterns(items) {
+      const body = $("examPatternsBody");
+      if (!items.length) {
+        body.innerHTML = '<tr><td colspan="5" class="muted">暂无题型；先录入历年常考题型、答题点或老师整理规律。</td></tr>';
+        window.examPatternRows = [];
+        return;
+      }
+      body.innerHTML = items.map(item => `
+        <tr onclick="fillExamPattern(${item.id})">
+          <td>${h(item.id)}</td>
+          <td>${[item.subject, item.grade, item.region, item.exam_scope, item.year_text].filter(Boolean).map(h).join("<br>")}</td>
+          <td>${h(item.question_type)}<br><span class="muted">${item.knowledge_point_id ? `知识点#${h(item.knowledge_point_id)}` : ""}${item.resource_id ? ` / 资源#${h(item.resource_id)}` : ""}</span></td>
+          <td>${h(item.pattern_text)}<br><span class="muted">${h(item.answer_points)}${safeHttpUrl(item.source_url) ? ` / <a href="${safeHttpUrl(item.source_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">来源</a>` : ""}</span></td>
+          <td>${h(item.frequency_level)}</td>
+        </tr>
+      `).join("");
+      window.examPatternRows = items;
+    }
+
+    window.fillExamPattern = (id) => {
+      const item = (window.examPatternRows || []).find(row => row.id === id);
+      if (!item) return;
+      $("ep_knowledge_point_id").value = item.knowledge_point_id || "";
+      $("ep_resource_id").value = item.resource_id || "";
+      $("ep_subject").value = item.subject || "";
+      $("ep_grade").value = item.grade || "";
+      $("ep_region").value = item.region || "";
+      $("ep_exam_scope").value = item.exam_scope || "";
+      $("ep_year_text").value = item.year_text || "";
+      $("ep_question_type").value = item.question_type || "";
+      $("ep_frequency_level").value = item.frequency_level || "unknown";
+      $("ep_pattern_text").value = item.pattern_text || "";
+      $("ep_answer_points").value = item.answer_points || "";
+      $("ep_source_url").value = item.source_url || "";
+      $("examPatternResult").dataset.editingId = String(item.id);
+      $("examPatternResult").textContent = `正在编辑题型 #${item.id}`;
+    };
+
+    function clearExamPatternForm() {
+      ["ep_knowledge_point_id", "ep_resource_id", "ep_subject", "ep_grade", "ep_region", "ep_exam_scope", "ep_year_text", "ep_question_type", "ep_pattern_text", "ep_answer_points", "ep_source_url"].forEach(id => { $(id).value = ""; });
+      $("ep_frequency_level").value = "high";
+      $("examPatternResult").dataset.editingId = "";
+      $("examPatternResult").textContent = "已清空，可以录入下一条题型。";
+    }
+
+    async function loadLearningCoverage() {
+      const params = new URLSearchParams();
+      const stage = $("coverage_stage").value.trim();
+      const grade = $("coverage_grade").value.trim();
+      const subject = $("coverage_subject").value.trim();
+      if (stage) params.set("stage", stage);
+      if (grade) params.set("grade", grade);
+      if (subject) params.set("subject", subject);
+      const suffix = params.toString() ? `?${params.toString()}` : "";
+      const data = await api(`/api/admin/learning-coverage${suffix}`);
+      renderLearningCoverage(data.items || []);
+      const s = data.summary || {};
+      $("learningCoverageResult").textContent = `已加载 ${data.total || 0} 条范围。ready ${s.ready || 0} / partial ${s.partial || 0} / seed ${s.seed || 0} / empty ${s.empty || 0}`;
+      await loadLearningCollectionTasks(params);
+    }
+
+    function coverageNextStep(item) {
+      if (item.coverage_level === "ready") return "可用于计划生成；继续补地区真题。";
+      if (item.coverage_level === "partial") return item.knowledge_point_count ? "补真题题型/考法。" : "补具体知识点。";
+      if (item.coverage_level === "seed") return "从教材目录和高频考点开始补。";
+      return "先补官方/教材入口。";
+    }
+
+    function renderLearningCoverage(items) {
+      const body = $("learningCoverageBody");
+      if (!items.length) {
+        body.innerHTML = '<tr><td colspan="6" class="muted">没有匹配的覆盖率范围。</td></tr>';
+        return;
+      }
+      body.innerHTML = items.map(item => `
+        <tr>
+          <td class="${item.coverage_level === "ready" ? "good" : item.coverage_level === "empty" ? "danger" : "muted"}">${h(item.coverage_level)}</td>
+          <td>${h(item.stage)}</td>
+          <td>${h(item.grade)}</td>
+          <td>${h(item.subject)}</td>
+          <td>资源 ${h(item.resource_count)} / 知识点 ${h(item.knowledge_point_count)} / 题型 ${h(item.exam_pattern_count)}</td>
+          <td>${h(coverageNextStep(item))}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function loadLearningCollectionTasks(params = null) {
+      const current = params || new URLSearchParams();
+      if (!params) {
+        const stage = $("coverage_stage").value.trim();
+        const grade = $("coverage_grade").value.trim();
+        const subject = $("coverage_subject").value.trim();
+        if (stage) current.set("stage", stage);
+        if (grade) current.set("grade", grade);
+        if (subject) current.set("subject", subject);
+      }
+      const suffix = current.toString() ? `?${current.toString()}` : "";
+      const data = await api(`/api/admin/learning-collection-tasks${suffix}`);
+      renderLearningCollectionTasks(data.items || []);
+      $("learningCollectionTasksResult").textContent = `待采集 ${data.total || 0} 项。优先处理 high，再处理 seed 拆分。`;
+    }
+
+    function collectionTaskLabel(type) {
+      return {
+        collect_source: "补来源",
+        collect_foundation: "拆基础",
+        collect_knowledge_points: "补知识点",
+        collect_exam_patterns: "补题型"
+      }[type] || type || "";
+    }
+
+    function renderLearningCollectionTasks(items) {
+      const body = $("learningCollectionTasksBody");
+      if (!items.length) {
+        body.innerHTML = '<tr><td colspan="5" class="muted">当前筛选范围没有待采集任务。</td></tr>';
+        return;
+      }
+      body.innerHTML = items.map(item => `
+        <tr>
+          <td class="${item.priority === "high" ? "danger" : "muted"}">${h(item.priority)}</td>
+          <td>${h(item.stage)} / ${h(item.grade)} / ${h(item.subject)}<br><span class="muted">${h(item.coverage_level)}</span></td>
+          <td>${h(collectionTaskLabel(item.task_type))}</td>
+          <td>${h(item.task_text)}</td>
+          <td>资源 ${h(item.resource_count)}<br>知识点 ${h(item.knowledge_point_count)} / 题型 ${h(item.exam_pattern_count)}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function loadCollectionTaskRecords() {
+      const params = new URLSearchParams();
+      const status = $("collection_task_status_filter").value || "todo";
+      const stage = $("coverage_stage").value.trim();
+      const grade = $("coverage_grade").value.trim();
+      const subject = $("coverage_subject").value.trim();
+      params.set("status", status);
+      if (stage) params.set("stage", stage);
+      if (grade) params.set("grade", grade);
+      if (subject) params.set("subject", subject);
+      const data = await api(`/api/admin/learning-collection-task-records?${params.toString()}`);
+      renderCollectionTaskRecords(data.items || []);
+      $("collectionTaskRecordResult").textContent = `已加载 ${data.total || 0} 条已保存采集任务。`;
+    }
+
+    function renderCollectionTaskRecords(items) {
+      const body = $("collectionTaskRecordsBody");
+      if (!items.length) {
+        body.innerHTML = '<tr><td colspan="5" class="muted">当前筛选范围没有已保存任务。</td></tr>';
+        window.collectionTaskRows = [];
+        return;
+      }
+      body.innerHTML = items.map(item => `
+        <tr onclick="fillCollectionTaskRecord(${item.id})">
+          <td>${h(item.id)}</td>
+          <td class="${item.status === "done" ? "good" : item.status === "blocked" ? "danger" : "muted"}">${h(item.status)}<br><span class="muted">${h(item.priority)}</span></td>
+          <td>${h(item.stage)} / ${h(item.grade)} / ${h(item.subject)}<br><span class="muted">${h(item.coverage_level)}</span></td>
+          <td>${h(collectionTaskLabel(item.task_type))}｜${h(item.task_text)}<br><span class="muted">${h(item.review_note)}</span></td>
+          <td>${h(item.assignee)}<br>${safeHttpUrl(item.source_url) ? `<a href="${safeHttpUrl(item.source_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">来源</a>` : h(item.source_url)}</td>
+        </tr>
+      `).join("");
+      window.collectionTaskRows = items;
+    }
+
+    window.fillCollectionTaskRecord = (id) => {
+      const item = (window.collectionTaskRows || []).find(row => row.id === id);
+      if (!item) return;
+      $("collection_task_id").value = item.id || "";
+      $("collection_task_status").value = item.status || "todo";
+      $("collection_task_assignee").value = item.assignee || "";
+      $("collection_task_source_url").value = item.source_url || "";
+      $("collection_task_review_note").value = item.review_note || "";
+      $("collectionTaskRecordResult").textContent = `正在编辑采集任务 #${item.id}`;
+    };
+
+    async function loadScopeIndex() {
+      const params = new URLSearchParams();
+      const stage = $("scope_stage").value.trim();
+      const grade = $("scope_grade").value.trim();
+      const subject = $("scope_subject").value.trim();
+      if (stage) params.set("stage", stage);
+      if (grade) params.set("grade", grade);
+      if (subject) params.set("subject", subject);
+      const suffix = params.toString() ? `?${params.toString()}` : "";
+      const data = await api(`/api/admin/learning-scope-index${suffix}`);
+      renderScopeIndex(data.items || []);
+      $("scopeIndexResult").textContent = `已加载 ${data.total || 0} 条K12范围索引。`;
+    }
+
+    function renderScopeIndex(items) {
+      const body = $("scopeIndexBody");
+      if (!items.length) {
+        body.innerHTML = '<tr><td colspan="5" class="muted">没有匹配的范围索引。</td></tr>';
+        return;
+      }
+      body.innerHTML = items.map(item => `
+        <tr>
+          <td>${item.stage || ""}</td>
+          <td>${item.grade || ""}<br><span class="muted">${item.grade_aliases || ""}</span></td>
+          <td>${item.subject || ""}<br><span class="muted">${item.subject_aliases || ""}</span></td>
+          <td>${item.resource_types || ""}<br><span class="muted">${item.default_textbook_versions || ""}</span></td>
+          <td>${item.exam_focus || ""}<br><span class="muted">${item.intervention_modes || ""}</span></td>
+        </tr>
+      `).join("");
+    }
+
+    function renderVoiceSamples(items) {
+      voiceSampleRows = items;
+      const select = $("voice_sample_id");
+      const current = select.value;
+      select.innerHTML = ['<option value="">手动上传一段音频</option>'].concat(items.map(item => {
+        const parts = [
+          item.student_code || `学生${item.student_id || ""}`,
+          item.display_name || "",
+          item.target_text || "",
+          item.created_at || ""
+        ].filter(Boolean);
+        return `<option value="${item.id}">${parts.join(" / ")}</option>`;
+      })).join("");
+      if (current) select.value = current;
+      if (select.value) applyVoiceSample(select.value);
+    }
+
+    function applyVoiceSample(sampleId) {
+      const sample = voiceSampleRows.find(item => String(item.id) === String(sampleId));
+      if (!sample) return;
+      $("voice_sample_id").value = String(sample.id);
+      $("voice_student_id").value = sample.student_id || "";
+      $("voice_target_type").value = sample.target_type || "sentence";
+      $("voice_target_text").value = sample.target_text || "";
+      $("voice_transcript").value = sample.transcript || "";
+      $("voice_source_file").value = "";
+      $("voiceSampleHint").textContent = `${sample.student_code || ""}${sample.display_name ? ` / ${sample.display_name}` : ""} / ${sample.created_at || ""}${sample.audio_url ? ` / ${absoluteUrl(sample.audio_url)}` : ""}`;
+    }
+
+    function renderVoiceAssessmentResult(result) {
+      const source = result.source || {};
+      const xfyun = result.xfyun || {};
+      const assessment = result.assessment || {};
+      const scores = xfyun.scores || assessment.scores || {};
+      const quota = result.quota || null;
+      const lines = [];
+      const sourceBits = [source.kind || "上传"];
+      if (source.student_code) sourceBits.push(source.student_code);
+      if (source.display_name) sourceBits.push(source.display_name);
+      if (source.session_id) sourceBits.push(`样本#${source.session_id}`);
+      lines.push(`录音来源：${sourceBits.join(" / ")}`);
+      if (source.audio_url) lines.push(`录音链接：${absoluteUrl(source.audio_url)}`);
+      if (result.practice_date) lines.push(`次数日期：${result.practice_date}`);
+      lines.push(`目标文本：${result.target_text || ""}`);
+      lines.push(`题型：${result.target_type || ""}`);
+      if (result.transcript) lines.push(`兜底文本：${result.transcript}`);
+      lines.push("");
+      lines.push(`最终结果：${assessment.provider || "unknown"}${assessment.available ? " / 讯飞" : " / 兜底"}`);
+      lines.push(`总分：${assessment.score ?? "—"}`);
+      lines.push(`状态：${assessment.status || "—"}`);
+      lines.push(`反馈：${assessment.feedback || "—"}`);
+      if (scores.total_score != null || scores.accuracy_score != null || scores.standard_score != null || scores.fluency_score != null || scores.integrity_score != null) {
+        lines.push("");
+        lines.push("讯飞分项：");
+        lines.push(`总分 ${scores.total_score ?? "—"} / 准确度 ${scores.accuracy_score ?? "—"} / 流畅度 ${scores.fluency_score ?? "—"} / 标准度 ${scores.standard_score ?? "—"} / 完整度 ${scores.integrity_score ?? "—"}`);
+      }
+      if (scores.phones && scores.phones.length) {
+        const phones = scores.phones.slice(0, 3).map(item => `${item.content || ""}${item.message ? `(${item.message})` : ""}`).filter(Boolean);
+        if (phones.length) lines.push(`重点音素：${phones.join("，")}`);
+      }
+      if (xfyun.message) lines.push(`讯飞消息：${xfyun.message}`);
+      lines.push("");
+      lines.push(`是否走 fallback：${result.fallback_used ? "是" : "否"}`);
+      lines.push(`按正式流程是否消耗次数：${result.would_consume_quota === null ? "未知" : result.would_consume_quota ? "是" : "否"}`);
+      if (quota) {
+        lines.push(`次数：${quota.used}/${quota.limit}，剩余 ${quota.remaining}`);
+      }
+      show($("voiceAssessmentResult"), lines.join("\n"));
+      $("voiceSampleHint").textContent = result.fallback_used
+        ? "这次已经回退到本地兜底；如果你期待的是讯飞结果，请检查音频、环境变量，或当天次数。"
+        : "这次已经走到讯飞评测链路。";
+    }
+
+    function renderModels(items) {
+      const body = $("modelsBody");
+      if (!items.length) {
+        body.innerHTML = '<tr><td colspan="7" class="muted">暂无模型配置。</td></tr>';
+        return;
+      }
+      body.innerHTML = items.map(item => `
+        <tr onclick="fillModel('${item.task_type}')">
+          <td>${item.task_label || item.task_type}</td>
+          <td>${item.provider_name || ""}</td>
+          <td>${item.model_name || ""}</td>
+          <td>${item.endpoint_url || ""}</td>
+          <td>${item.api_key_env || ""}</td>
+          <td class="${item.api_key_available ? "good" : "danger"}">${item.api_key_available ? "已设置" : "未设置"}</td>
+          <td>${item.enabled ? "启用" : "停用"}</td>
+        </tr>
+      `).join("");
+      window.modelRows = items;
+    }
+
+    window.fillModel = (taskType) => {
+      const item = (window.modelRows || []).find(row => row.task_type === taskType);
+      if (!item) return;
+      $("model_task_type").value = item.task_type;
+      $("model_provider").value = item.provider_name || "";
+      $("model_name").value = item.model_name || "";
+      $("model_endpoint").value = item.endpoint_url || "";
+      $("model_key_env").value = item.api_key_env || "";
+      $("model_temperature").value = item.temperature ?? 0.2;
+      $("model_enabled").value = String(item.enabled ? 1 : 0);
+    };
+
+    window.runVoiceAssessment = async (event) => {
+      const sampleId = $("voice_sample_id").value;
+      const file = $("voice_source_file").files && $("voice_source_file").files[0];
+      const targetText = $("voice_target_text").value.trim();
+      const targetType = $("voice_target_type").value;
+      const transcript = $("voice_transcript").value.trim();
+      const studentId = $("voice_student_id").value.trim();
+      if (!sampleId && !file) {
+        show($("voiceAssessmentResult"), "请先选择一条样本，或者上传一段音频。");
+        return;
+      }
+      if (file && !targetText && !sampleId) {
+        show($("voiceAssessmentResult"), "上传音频时请先填写目标文本。");
+        return;
+      }
+      await runOnce("voice-assessment", event && event.currentTarget, "校准中...", async () => {
+        const payload = {
+          source_kind: file ? "upload" : "sample",
+          session_id: sampleId ? Number(sampleId) : 0,
+          student_id: studentId ? Number(studentId) : 0,
+          target_text: targetText,
+          target_type: targetType,
+          transcript
+        };
+        if (file) {
+          payload.audio_data_url = await readFileAsDataUrl(file);
+          payload.file_name = file.name;
+          payload.source_kind = "upload";
+        }
+        try {
+          const result = await api("/api/admin/voice-assessment/calibrate", {
+            method: "POST",
+            body: JSON.stringify(payload)
+          });
+          renderVoiceAssessmentResult(result);
+        } catch (error) {
+          show($("voiceAssessmentResult"), String(error.message || error));
+        }
+      });
+    };
+
+    window.clearVoiceAssessment = () => {
+      $("voice_sample_id").value = "";
+      $("voice_student_id").value = "";
+      $("voice_target_type").value = "sentence";
+      $("voice_target_text").value = "";
+      $("voice_transcript").value = "";
+      $("voice_source_file").value = "";
+      $("voiceSampleHint").textContent = "请选择一条样本，或上传一段录音。选择样本会自动带出学生ID、题型和目标文本。";
+      show($("voiceAssessmentResult"), "等待选择录音并执行校准。");
+    };
+
+    $("voice_sample_id").addEventListener("change", (event) => {
+      if (event.currentTarget.value) {
+        applyVoiceSample(event.currentTarget.value);
+      }
+    });
+
+    $("voice_source_file").addEventListener("change", () => {
+      if ($("voice_source_file").files && $("voice_source_file").files[0]) {
+        $("voice_sample_id").value = "";
+        $("voiceSampleHint").textContent = `已选择上传文件：${$("voice_source_file").files[0].name}`;
+      }
+    });
+
+    window.openDetail = async (id) => {
+      $("detailStudentId").value = id;
+      activate("detail");
+      currentDetail = await api(`/api/students/${id}`);
+      syncStudentAccountFields(currentDetail);
+      renderPlanEvidenceRefs(currentDetail);
+      show($("detailResult"), currentDetail);
+    };
+
+    window.useStudent = (id) => {
+      $("student_id").value = id;
+      activate("feedback");
+    };
+
+    document.querySelectorAll("nav button").forEach(btn => {
+      btn.addEventListener("click", () => activate(btn.dataset.view));
+    });
+
+    $("fillSample").addEventListener("click", () => {
+      const sample = {
+        student_name: "小陈",
+        grade_region: "初一/湖南",
+        goal: "期末基础抢分",
+        exam_date_text: "2周后",
+        time_budget: "15-25分钟",
+        cooperation: "抗拒",
+        priority_subjects: "语文古诗、历史道法、英语基础词",
+        difficulties: "记不住，一问就慌，背了3天有一点印象但不稳",
+        parent_support: "研学期间可以微信问3张，平时每天10分钟抽查",
+        evidence_summary: "已有3天卡片反馈",
+        extra_notes: "明后天研学，时间碎片化"
+      };
+      Object.entries(sample).forEach(([key, value]) => { if ($(key)) $(key).value = value; });
+    });
+
+    $("clearIntake").addEventListener("click", () => {
+      $("intakeForm").reset();
+      show($("intakeResult"), "等待提交建档。");
+    });
+
+    $("intakeForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await runOnce("admin-intake-submit", event.submitter, "提交中...", async () => {
+        const payload = { source: "local_tool", ...formJson(event.currentTarget) };
+        try {
+          const result = await api("/api/students/intake", {
+            method: "POST",
+            body: JSON.stringify(payload)
+          });
+          show($("intakeResult"), result);
+          $("student_id").value = result.student_id;
+          $("detailStudentId").value = result.student_id;
+          await refreshCounts();
+        } catch (error) {
+          show($("intakeResult"), String(error.message || error));
+        }
+      });
+    });
+
+    $("feedbackForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await runOnce("admin-feedback-submit", event.submitter, "提交中...", async () => {
+        const payload = formJson(event.currentTarget);
+        const studentId = payload.student_id;
+        delete payload.student_id;
+        ["planned_cards", "completed_cards", "known_cards"].forEach(key => payload[key] = Number(payload[key] || 0));
+        try {
+          const result = await api(`/api/students/${studentId}/daily-feedback`, {
+            method: "POST",
+            body: JSON.stringify(payload)
+          });
+          show($("feedbackResult"), result);
+          await refreshCounts();
+        } catch (error) {
+          show($("feedbackResult"), String(error.message || error));
+        }
+      });
+    });
+
+    $("refreshStudents").addEventListener("click", refreshCounts);
+    $("refreshActions").addEventListener("click", refreshCounts);
+    $("refreshAiJobs").addEventListener("click", loadAiJobs);
+    $("aiJobStatus").addEventListener("change", loadAiJobs);
+    $("refreshParents").addEventListener("click", loadParents);
+    $("refreshModels").addEventListener("click", loadModels);
+    $("refreshVoiceSamples").addEventListener("click", loadVoiceSamples);
+    $("refreshKnowledgeResources").addEventListener("click", loadKnowledgeResources);
+    $("refreshKnowledgePoints").addEventListener("click", loadKnowledgePoints);
+    $("refreshExamPatterns").addEventListener("click", loadExamPatterns);
+    $("refreshLearningCoverage").addEventListener("click", loadLearningCoverage);
+    $("refreshCollectionTaskRecords").addEventListener("click", loadCollectionTaskRecords);
+    $("collection_task_status_filter").addEventListener("change", loadCollectionTaskRecords);
+    $("kb_search").addEventListener("change", loadKnowledgeResources);
+    $("kb_filter_subject").addEventListener("change", loadKnowledgeResources);
+    $("kb_filter_grade").addEventListener("change", loadKnowledgeResources);
+    $("kp_search").addEventListener("change", loadKnowledgePoints);
+    $("kp_filter_subject").addEventListener("change", loadKnowledgePoints);
+    $("kp_filter_grade").addEventListener("change", loadKnowledgePoints);
+    $("ep_search").addEventListener("change", loadExamPatterns);
+    $("ep_filter_subject").addEventListener("change", loadExamPatterns);
+    $("ep_filter_grade").addEventListener("change", loadExamPatterns);
+    $("coverage_stage").addEventListener("change", loadLearningCoverage);
+    $("coverage_grade").addEventListener("change", loadLearningCoverage);
+    $("coverage_subject").addEventListener("change", loadLearningCoverage);
+    $("syncCollectionTasks").addEventListener("click", async (event) => {
+      await runOnce("collection-task-sync", event.currentTarget, "同步中...", async () => {
+        const result = await api("/api/admin/learning-collection-task-records/sync", {
+          method: "POST",
+          body: JSON.stringify({
+            stage: $("coverage_stage").value,
+            grade: $("coverage_grade").value,
+            subject: $("coverage_subject").value
+          })
+        });
+        show($("collectionTaskRecordResult"), result);
+        await loadCollectionTaskRecords();
+      });
+    });
+    $("saveCollectionTaskRecord").addEventListener("click", async (event) => {
+      const id = $("collection_task_id").value;
+      if (!id) {
+        show($("collectionTaskRecordResult"), "请先点击一条已保存采集任务。");
+        return;
+      }
+      await runOnce(`collection-task-save-${id}`, event.currentTarget, "保存中...", async () => {
+        const result = await api("/api/admin/learning-collection-task-records", {
+          method: "POST",
+          body: JSON.stringify({
+            id: Number(id),
+            status: $("collection_task_status").value,
+            source_url: $("collection_task_source_url").value,
+            assignee: $("collection_task_assignee").value,
+            review_note: $("collection_task_review_note").value
+          })
+        });
+        show($("collectionTaskRecordResult"), result);
+        await loadCollectionTaskRecords();
+      });
+    });
+    $("refreshScopeIndex").addEventListener("click", loadScopeIndex);
+    $("scope_stage").addEventListener("change", loadScopeIndex);
+    $("scope_grade").addEventListener("change", loadScopeIndex);
+    $("scope_subject").addEventListener("change", loadScopeIndex);
+    $("clearKnowledgeResource").addEventListener("click", clearKnowledgeResourceForm);
+    $("clearKnowledgePoint").addEventListener("click", clearKnowledgePointForm);
+    $("clearExamPattern").addEventListener("click", clearExamPatternForm);
+    $("saveKnowledgeResource").addEventListener("click", async (event) => {
+      await runOnce("knowledge-resource-save", event.currentTarget, "保存中...", async () => {
+        const payload = {
+          id: Number($("knowledgeResourceResult").dataset.editingId || 0),
+          title: $("kb_title").value,
+          source_type: $("kb_source_type").value,
+          authority_level: $("kb_authority_level").value,
+          subject: $("kb_subject").value,
+          grade: $("kb_grade").value,
+          region: $("kb_region").value,
+          textbook_version: $("kb_textbook_version").value,
+          url: $("kb_url").value,
+          summary: $("kb_summary").value,
+          tags: $("kb_tags").value
+        };
+        const result = await api("/api/admin/learning-resources", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        show($("knowledgeResourceResult"), result);
+        $("knowledgeResourceResult").dataset.editingId = String(result.resource.id || "");
+        await loadKnowledgeResources();
+      });
+    });
+    $("saveKnowledgePoint").addEventListener("click", async (event) => {
+      await runOnce("knowledge-point-save", event.currentTarget, "保存中...", async () => {
+        const payload = {
+          id: Number($("knowledgePointResult").dataset.editingId || 0),
+          resource_id: $("kp_resource_id").value,
+          subject: $("kp_subject").value,
+          grade: $("kp_grade").value,
+          textbook_version: $("kp_textbook_version").value,
+          unit_name: $("kp_unit_name").value,
+          point_name: $("kp_point_name").value,
+          requirement_level: $("kp_requirement_level").value,
+          importance: $("kp_importance").value,
+          common_errors: $("kp_common_errors").value,
+          memory_hint: $("kp_memory_hint").value
+        };
+        const result = await api("/api/admin/knowledge-points", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        show($("knowledgePointResult"), result);
+        $("knowledgePointResult").dataset.editingId = String(result.point.id || "");
+        await loadKnowledgePoints();
+      });
+    });
+    $("saveExamPattern").addEventListener("click", async (event) => {
+      await runOnce("exam-pattern-save", event.currentTarget, "保存中...", async () => {
+        const payload = {
+          id: Number($("examPatternResult").dataset.editingId || 0),
+          knowledge_point_id: $("ep_knowledge_point_id").value,
+          resource_id: $("ep_resource_id").value,
+          subject: $("ep_subject").value,
+          grade: $("ep_grade").value,
+          region: $("ep_region").value,
+          exam_scope: $("ep_exam_scope").value,
+          year_text: $("ep_year_text").value,
+          question_type: $("ep_question_type").value,
+          frequency_level: $("ep_frequency_level").value,
+          pattern_text: $("ep_pattern_text").value,
+          answer_points: $("ep_answer_points").value,
+          source_url: $("ep_source_url").value
+        };
+        const result = await api("/api/admin/exam-patterns", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        show($("examPatternResult"), result);
+        $("examPatternResult").dataset.editingId = String(result.pattern.id || "");
+        await loadExamPatterns();
+      });
+    });
+    $("runVoiceAssessment").addEventListener("click", window.runVoiceAssessment);
+    $("clearVoiceAssessment").addEventListener("click", window.clearVoiceAssessment);
+    $("ent_plan_name").addEventListener("change", () => {
+      $("ent_apply_preset").value = entitlementPresets[$("ent_plan_name").value] ? "1" : "0";
+      $("ent_reset_usage").value = "1";
+      updateEntitlementPreview();
+    });
+    $("ent_apply_preset").addEventListener("change", updateEntitlementPreview);
+    $("resetParentPassword").addEventListener("click", async (event) => {
+      const id = $("ent_parent_id").value;
+      if (!id) {
+        show($("parentPasswordResult"), "请先从家长列表选择一个家长。");
+        return;
+      }
+      const parent = (window.parentRows || []).find(row => String(row.id) === String(id));
+      try {
+        const password = validatePassword($("parent_new_password").value, parent && parent.phone ? normalizePhoneInput(parent.phone) : "", "家长新密码");
+        if (!confirm(`确定重置家长 #${id} 的登录密码吗？`)) return;
+        await runOnce(`parent-password-${id}`, event.currentTarget, "重置中...", async () => {
+          const result = await api(`/api/admin/parents/${id}/password`, {
+            method: "POST",
+            body: JSON.stringify({ password })
+          });
+          $("parent_new_password").value = "";
+          show($("parentPasswordResult"), result);
+          await loadParents();
+        });
+      } catch (error) {
+        show($("parentPasswordResult"), String(error.message || error));
+      }
+    });
+    $("saveEntitlement").addEventListener("click", async () => {
+      const id = $("ent_parent_id").value;
+      if (!id) return;
+      const payload = {
+        plan_name: $("ent_plan_name").value,
+        status: $("ent_status").value,
+        service_expires_at: $("ent_expires").value,
+        usage_limit: $("ent_usage_limit").value,
+        usage_used: $("ent_usage_used").value,
+        apply_preset: $("ent_apply_preset").value === "1",
+        reset_usage_used: $("ent_reset_usage").value === "1"
+      };
+      await api(`/api/admin/parents/${id}/entitlement`, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+      await loadParents();
+    });
+    $("saveModelConfig").addEventListener("click", async () => {
+      const payload = {
+        task_type: $("model_task_type").value,
+        provider_name: $("model_provider").value,
+        model_name: $("model_name").value,
+        endpoint_url: $("model_endpoint").value,
+        api_key_env: $("model_key_env").value,
+        temperature: Number($("model_temperature").value || 0.2),
+        enabled: $("model_enabled").value === "1"
+      };
+      const result = await api("/api/admin/model-configs", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+      show($("modelResult"), result);
+      await loadModels();
+    });
+    $("configureXiaomi").addEventListener("click", async () => {
+      const result = await api("/api/admin/model-configs/xiaomi", {
+        method: "POST",
+        body: JSON.stringify({
+          endpoint_url: "https://token-plan-cn.xiaomimimo.com/v1",
+          model_name: "mimo-v2.5-pro",
+          temperature: 0.2
+        })
+      });
+      show($("modelResult"), result);
+      await loadModels();
+    });
+    $("loadDetail").addEventListener("click", async () => {
+      const id = $("detailStudentId").value;
+      if (!id) return;
+      currentDetail = await api(`/api/students/${id}`);
+      syncStudentAccountFields(currentDetail);
+      renderPlanEvidenceRefs(currentDetail);
+      show($("detailResult"), currentDetail);
+    });
+    $("resetStudentPassword").addEventListener("click", async (event) => {
+      const id = $("detailStudentId").value;
+      if (!id) {
+        show($("detailResult"), "请先输入学生ID或从学生列表打开详情。");
+        return;
+      }
+      try {
+        const rawPhone = $("student_account_phone").value;
+        const phone = rawPhone ? validateMainlandPhone(rawPhone, "学生手机号") : "";
+        const password = validatePassword($("student_new_password").value, phone, "学生新密码");
+        if (!phone && !(currentDetail && currentDetail.student_account && currentDetail.student_account.phone)) {
+          throw new Error("学生还没有登录账号，请先填写学生手机号。");
+        }
+        if (!confirm(`确定重置学生 #${id} 的登录密码吗？`)) return;
+        await runOnce(`student-password-${id}`, event.currentTarget, "重置中...", async () => {
+          const result = await api(`/api/admin/students/${id}/password`, {
+            method: "POST",
+            body: JSON.stringify({ phone, password })
+          });
+          $("student_new_password").value = "";
+          currentDetail = await api(`/api/students/${id}`);
+          syncStudentAccountFields(currentDetail);
+          renderPlanEvidenceRefs(currentDetail);
+          show($("detailResult"), { reset: result, detail: currentDetail });
+        });
+      } catch (error) {
+        show($("detailResult"), String(error.message || error));
+      }
+    });
+    $("openCurrentFile").addEventListener("click", () => {
+      const url = currentDetail && currentDetail.current_plan && currentDetail.current_plan.file_url;
+      if (!url) {
+        show($("detailResult"), "当前学生还没有可下载文件。");
+        return;
+      }
+      window.open(absoluteUrl(url), "_blank");
+    });
+    $("copyCurrentFile").addEventListener("click", async () => {
+      const url = currentDetail && currentDetail.current_plan && currentDetail.current_plan.file_url;
+      if (!url) {
+        show($("detailResult"), "当前学生还没有可复制的文件链接。");
+        return;
+      }
+      const full = absoluteUrl(url);
+      await navigator.clipboard.writeText(full);
+      show($("detailResult"), `已复制文件链接：\n${full}`);
+    });
+    $("bindCurrentDocx").addEventListener("click", () => {
+      const id = $("detailStudentId").value;
+      if (!id) {
+        show($("detailResult"), "请先输入学生ID或从学生列表打开详情。");
+        return;
+      }
+      $("currentDocxFile").value = "";
+      $("currentDocxFile").click();
+    });
+    $("currentDocxFile").addEventListener("change", async (event) => {
+      const id = $("detailStudentId").value;
+      const file = event.currentTarget.files && event.currentTarget.files[0];
+      if (!id || !file) return;
+      if (!file.name.toLowerCase().endsWith(".docx")) {
+        show($("detailResult"), "请选择DOCX文件。");
+        return;
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        show($("detailResult"), "DOCX文件不能超过8MB。");
+        return;
+      }
+      const ok = confirm(`将把“${file.name}”绑定到当前方案，并覆盖当前方案文件链接。继续吗？`);
+      if (!ok) return;
+      try {
+        show($("detailResult"), "正在上传并绑定DOCX，请稍候。");
+        const dataUrl = await readFileAsDataUrl(file);
+        const result = await api(`/api/admin/students/${id}/current-plan-docx`, {
+          method: "POST",
+          body: JSON.stringify({
+            file_name: file.name,
+            data_url: dataUrl,
+            note: "老师后台上传并绑定现成DOCX"
+          })
+        });
+        currentDetail = await api(`/api/students/${id}`);
+        show($("detailResult"), {
+          ...result,
+          file_url_full: absoluteUrl(result.file_url),
+          current_plan: currentDetail.current_plan
+        });
+        await refreshCounts();
+      } catch (error) {
+        show($("detailResult"), String(error.message || error));
+      }
+    });
+    $("createNextPlan").addEventListener("click", async (event) => {
+      const id = $("detailStudentId").value;
+      if (!id) return;
+      await runOnce(`next-plan-${id}`, event.currentTarget, "生成中...", async () => {
+        const result = await api(`/api/students/${id}/plans`, {
+          method: "POST",
+          body: JSON.stringify({
+            plan_type: "adjustment",
+            reason: "老师根据反馈生成下一版执行方案。",
+            generate_files: true
+          })
+        });
+        show($("detailResult"), result);
+        await refreshCounts();
+      });
+    });
+    $("publishCurrentPlan").addEventListener("click", async (event) => {
+      const id = $("detailStudentId").value;
+      if (!id) return;
+      await runOnce(`publish-plan-${id}`, event.currentTarget, "发布中...", async () => {
+        const detail = await api(`/api/students/${id}`);
+        const planId = detail.current_plan && detail.current_plan.id;
+        if (!planId) throw new Error("当前学生没有方案");
+        const result = await api(`/api/plans/${planId}/publish`, {
+          method: "POST",
+          body: JSON.stringify({ notify_parent: true, generate_files: true })
+        });
+        currentDetail = await api(`/api/students/${id}`);
+        syncStudentAccountFields(currentDetail);
+        renderPlanEvidenceRefs(currentDetail);
+        show($("detailResult"), { publish: result, detail: currentDetail });
+        await refreshCounts();
+      });
+    });
+    $("makeWeeklyReport").addEventListener("click", async (event) => {
+      const id = $("detailStudentId").value;
+      if (!id) return;
+      await runOnce(`weekly-report-${id}`, event.currentTarget, "生成中...", async () => {
+        const today = new Date();
+        const start = new Date(today);
+        start.setDate(today.getDate() - 6);
+        const asDate = (d) => d.toISOString().slice(0, 10);
+        const result = await api(`/api/students/${id}/weekly-report`, {
+          method: "POST",
+          body: JSON.stringify({ week_start: asDate(start), week_end: asDate(today) })
+        });
+        show($("detailResult"), result);
+        await refreshCounts();
+      });
+    });
+    $("loadLatestStudent").addEventListener("click", async () => {
+      const students = await api("/api/students");
+      if (students.items[0]) $("student_id").value = students.items[0].id;
+    });
+
+    $("feedback_date").valueAsDate = new Date();
+    refreshCounts();
+    loadEntitlementPresets().catch(() => {});
+    loadParents().catch(() => {});
+    loadModels().catch(() => {});
+    loadVoiceSamples().catch(() => {});
+    loadKnowledgeResources().catch(() => {});
+    loadKnowledgePoints().catch(() => {});
+    loadExamPatterns().catch(() => {});
+    loadLearningCoverage().catch(() => {});
+    loadCollectionTaskRecords().catch(() => {});
+    loadScopeIndex().catch(() => {});
+    loadAiJobs().catch(() => {});
+  </script>
+</body>
+</html>
