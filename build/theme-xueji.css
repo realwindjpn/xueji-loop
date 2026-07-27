@@ -1,47 +1,60 @@
 /* ============================================================
-   学记 · 灯下书卷  v6
-   单文件主题：深墨底 + 暖金灯晕 + 衬线标题
-   - 不引入新依赖（零 JS、零 CSS 库）
-   - 全部色彩 / 间距 / 圆角走 token
-   - 装饰层靠 .fx-bg 容器，单一 source of truth
-   - 兼容旧 DOM（不动 .section / .card / #intakeForm 等命名）
+   学记 · 灯下书卷  v7
+   改动要点（相对 v6）：
+   - 降饱和度（金色 → 米金；墨色更中性，加冷暖层次）
+   - 文房五色入色板（黛蓝 / 竹绿 / 朱砂 / 墨青 / 藕粉），打破单黄调
+   - 真实台灯组件：SVG 灯 + 拉绳开关（可关闭灯，进入"熄灯阅读"模式）
+   - 加光标追光 / 磁吸按钮 / 字符渐显 / 鼠标光斑
+   - 修字体溢出：全局 min-width:0 + overflow-wrap anywhere
+   - 修家长端布局：左信息栏/右登录栏 align-items:start，登录卡不再拉长
+   - 宣纸纹理：feTurbulence 噪声贴底（极弱 0.04 不透明度）
    ============================================================ */
 
 :root {
-  /* 色板 · 深墨 */
-  --ink-0:        #0a0805;   /* 页面底色（最深处） */
-  --ink-1:        #0e0c08;   /* body 背景 */
-  --ink-2:        #16130d;   /* 容器底色 */
-  --ink-3:        #1f1a12;   /* 卡片底色 */
-  --ink-4:        #2a2418;   /* hover 浮起 / 浅一层 */
-  --ink-glass:    rgba(31, 26, 18, 0.72);
-  --ink-glass-2:  rgba(20, 16, 10, 0.55);
+  /* 色板 · 墨（中性深，留极弱暖） */
+  --ink-0:        #0c0a08;
+  --ink-1:        #141210;
+  --ink-2:        #1c1a17;
+  --ink-3:        #262320;
+  --ink-4:        #322e29;
+  --ink-glass:    rgba(28, 26, 23, 0.72);
+  --ink-glass-2:  rgba(20, 18, 16, 0.55);
 
-  /* 色板 · 暖金（灯下光晕） */
-  --gold-1:       #f3d089;   /* 浅金（高亮） */
-  --gold-2:       #e8b95c;   /* 主金（按钮、强调） */
-  --gold-3:       #d4a44c;   /* 深金（hover / 描边） */
-  --gold-4:       #b8862a;   /* 末金（disable 边） */
-  --gold-glow:    rgba(232, 185, 92, 0.35);
-  --gold-glow-s:  rgba(232, 185, 92, 0.18);
-  --gold-glow-xs: rgba(232, 185, 92, 0.10);
+  /* 色板 · 灯金（降饱和） */
+  --gold-1:       #ead9b4;
+  --gold-2:       #cfa86b;
+  --gold-3:       #b08d52;
+  --gold-4:       #84683e;
+  --gold-glow:    rgba(207, 168, 107, 0.30);
+  --gold-glow-s:  rgba(207, 168, 107, 0.16);
+  --gold-glow-xs: rgba(207, 168, 107, 0.08);
 
-  /* 色板 · 暖纸（文字） */
-  --paper-1:      #f0e6d2;   /* 正文 */
-  --paper-2:      #c8b89a;   /* 弱化 */
-  --paper-3:      #8a7d65;   /* 提示 */
-  --paper-4:      #4a4234;   /* 极弱（仅图标 / 占位） */
+  /* 色板 · 宣纸（文字） */
+  --paper-1:      #ece5d4;
+  --paper-2:      #b8ad97;
+  --paper-3:      #807866;
+  --paper-4:      #4a4538;
+
+  /* 文房五色（打破单调：3 张特点卡 / 5 步学习流 / 3 今日数据格各上不同色） */
+  --c-indigo:     #7a93ad;   /* 黛蓝 — 信息 / 链接 / 英语阅读 */
+  --c-bamboo:     #8aa88f;   /* 竹绿 — 完成 / 成功 / 知识卡 */
+  --c-cinnabar:   #c97b63;   /* 朱砂 — 重要 / 警告 / 学习提醒 */
+  --c-ink:        #5f7a72;   /* 墨青 — 次要 accent / 进度 */
+  --c-rose:       #b08a8f;   /* 藕粉 — 装饰 / 弱对比 */
 
   /* 语义 */
-  --good:         #8fb89a;
-  --warn:         #e8b95c;
-  --err:          #d4836a;
-  --info:         #9bb5cc;
+  --good:         var(--c-bamboo);
+  --warn:         var(--gold-2);
+  --err:          var(--c-cinnabar);
+  --info:         var(--c-indigo);
 
-  /* 线 */
-  --line:         rgba(232, 185, 92, 0.18);
-  --line-soft:    rgba(232, 185, 92, 0.08);
-  --line-strong:  rgba(232, 185, 92, 0.32);
+  /* 线 · 仍走金色但更克制 */
+  --line:         rgba(207, 168, 107, 0.18);
+  --line-soft:    rgba(207, 168, 107, 0.08);
+  --line-strong:  rgba(207, 168, 107, 0.30);
+
+  /* 宣纸纹理（feTurbulence 噪声 · 极弱） */
+  --paper-grain:  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 0.92 0 0 0 0 0.84 0 0 0 0 0.66 0 0 0 0.045 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 
   /* 间距 · 4 倍数 */
   --s-1:  4px;
@@ -68,6 +81,7 @@
   --shadow-3: 0 8px 32px rgba(0,0,0,.55);
   --shadow-amber: 0 4px 24px var(--gold-glow-s);
   --shadow-lamp: 0 0 80px var(--gold-glow-xs);
+  --shadow-card: 0 1px 0 rgba(255,255,255,.04) inset, 0 1px 3px rgba(0,0,0,.45);
 
   /* 动效曲线 */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -97,6 +111,13 @@ html, body {
   text-rendering: optimizeLegibility;
 }
 
+/* 防字体溢出（flex/grid 子项 + 任何文本节点） */
+.flex-min, main *, section *, header *, .workarea *, .ops-brief *, .today-overview *, .hero *, .student-trust * { min-width: 0; }
+p, li, dd, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .care-note, .trust-card span, .guide-card span, .ops-card span, .student-card p, .kv div, .auth-note, .route-note {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 /* 关键：body 退为纯色，装饰全在 .fx-bg 内 */
 body {
   margin: 0;
@@ -105,10 +126,15 @@ body {
   background: var(--ink-1);
   line-height: 1.6;
   min-height: 100vh;
+  /* 宣纸纹理贴底（极弱，不抢色） */
+  background-image: var(--paper-grain);
+  background-size: 180px 180px;
+  background-repeat: repeat;
+  background-attachment: fixed;
 }
 
 /* 内容层永远高于装饰层 */
-main, header, nav, footer, .workarea, section, .ops-brief { position: relative; z-index: 1; }
+main, header, nav, footer, .workarea, section, .ops-brief, .xueji-lamp, .xueji-cursor { position: relative; z-index: 1; }
 
 /* ====== 装饰层（单一 source of truth）====== */
 .fx-bg {
@@ -118,9 +144,16 @@ main, header, nav, footer, .workarea, section, .ops-brief { position: relative; 
   pointer-events: none;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 100% 70% at 50% -8%, rgba(232, 185, 92, 0.18), transparent 65%),
-    radial-gradient(ellipse 60% 40% at 12% 100%, rgba(232, 185, 92, 0.06), transparent 70%),
-    radial-gradient(ellipse 60% 40% at 88% 100%, rgba(212, 164, 76, 0.04), transparent 70%),
+    /* 灯下主光晕（顶部中央） */
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(207, 168, 107, 0.22), transparent 65%),
+    /* 远光（右下角，黛蓝） */
+    radial-gradient(ellipse 60% 45% at 95% 95%, rgba(122, 147, 173, 0.16), transparent 70%),
+    /* 远光（左下角，竹绿） */
+    radial-gradient(ellipse 60% 45% at 5% 95%, rgba(138, 168, 143, 0.14), transparent 70%),
+    /* 远光（右上角，朱砂） */
+    radial-gradient(ellipse 50% 40% at 100% 0%, rgba(201, 123, 99, 0.10), transparent 65%),
+    /* 远光（左上角，藕粉） */
+    radial-gradient(ellipse 50% 40% at 0% 0%, rgba(176, 138, 143, 0.10), transparent 65%),
     var(--ink-1);
 }
 
@@ -133,14 +166,14 @@ main, header, nav, footer, .workarea, section, .ops-brief { position: relative; 
   width: 1400px;
   height: 1000px;
   transform: translateX(-50%);
-  background: radial-gradient(circle, rgba(243, 208, 137, 0.10) 0%, rgba(232, 185, 92, 0.05) 30%, transparent 65%);
-  filter: blur(60px);   /* 装饰层可放心用 blur，禁用时整层隐藏 */
+  background: radial-gradient(circle, rgba(234, 217, 180, 0.10) 0%, rgba(207, 168, 107, 0.05) 30%, transparent 65%);
+  filter: blur(60px);
   animation: lamp-breath 12s var(--ease-out) infinite;
   will-change: opacity, transform;
 }
 @keyframes lamp-breath {
-  0%, 100% { opacity: .7; transform: translateX(-50%) scale(1); }
-  50%      { opacity: 1;  transform: translateX(-50%) scale(1.08); }
+  0%, 100% { opacity: .65; transform: translateX(-50%) scale(1); }
+  50%      { opacity: 1;   transform: translateX(-50%) scale(1.08); }
 }
 
 /* 细密灯纹（极弱） */
@@ -149,8 +182,8 @@ main, header, nav, footer, .workarea, section, .ops-brief { position: relative; 
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(232, 185, 92, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(232, 185, 92, 0.025) 1px, transparent 1px);
+    linear-gradient(rgba(207, 168, 107, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(207, 168, 107, 0.02) 1px, transparent 1px);
   background-size: 64px 64px;
   background-position: -1px -1px;
   mask-image: radial-gradient(ellipse 70% 50% at 50% 30%, black 30%, transparent 80%);
@@ -1387,6 +1420,325 @@ html { scroll-behavior: smooth; }
 
 /* ====== 安全区适配 ======= */
 header, .fab, .preview-badge { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+
+/* ============================================================
+   v7 新增组件
+   ============================================================ */
+
+/* ====== 真实台灯组件（v7 关键）====== */
+.xueji-lamp {
+  position: fixed;
+  top: 6px;
+  right: clamp(16px, 3vw, 36px);
+  width: 96px;
+  height: 110px;
+  z-index: 30;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--dur-base) var(--ease-out);
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,.4));
+}
+.xueji-lamp:hover { transform: translateY(-2px) rotate(-2deg); }
+.xueji-lamp:active { transform: translateY(0) rotate(0); }
+.xueji-lamp svg { width: 100%; height: 100%; overflow: visible; }
+
+/* 灯罩金属渐变 */
+.xueji-lamp .lamp-shade {
+  fill: url(#lampShadeGrad);
+  stroke: var(--gold-4);
+  stroke-width: 1;
+  filter: drop-shadow(0 0 6px var(--gold-glow));
+  transition: filter var(--dur-base);
+}
+.xueji-lamp:hover .lamp-shade { filter: drop-shadow(0 0 12px var(--gold-glow)); }
+.xueji-lamp .lamp-rim   { fill: var(--gold-3); }
+.xueji-lamp .lamp-base  { fill: url(#lampBaseGrad); stroke: var(--gold-4); stroke-width: 1; }
+.xueji-lamp .lamp-arm   { stroke: var(--gold-3); stroke-width: 5; stroke-linecap: round; fill: none; }
+.xueji-lamp .lamp-joint { fill: var(--gold-2); stroke: var(--gold-4); stroke-width: 1; }
+
+/* 灯泡（灯亮时） */
+.xueji-lamp .lamp-bulb {
+  fill: var(--gold-1);
+  filter: drop-shadow(0 0 10px var(--gold-glow));
+  animation: lamp-bulb-glow 3.4s var(--ease-out) infinite;
+}
+@keyframes lamp-bulb-glow {
+  0%, 100% { opacity: 1;   filter: drop-shadow(0 0 10px var(--gold-glow)); }
+  50%      { opacity: .82; filter: drop-shadow(0 0 18px var(--gold-glow)); }
+}
+
+/* 拉绳 */
+.xueji-lamp .lamp-cord       { stroke: var(--gold-4); stroke-width: 1.2; fill: none; }
+.xueji-lamp .lamp-cord-bead  { fill: var(--gold-2); stroke: var(--gold-4); stroke-width: 0.8; }
+.xueji-lamp.lamp-pulling .lamp-cord,
+.xueji-lamp.lamp-pulling .lamp-cord-bead {
+  transform-origin: 60px 70px;
+  animation: cord-swing .55s var(--ease-out);
+}
+@keyframes cord-swing {
+  0%   { transform: rotate(0); }
+  20%  { transform: rotate(18deg); }
+  55%  { transform: rotate(-6deg); }
+  100% { transform: rotate(0); }
+}
+
+/* 光锥（固定在 header 下方的金黄渐变锥） */
+.xueji-lamp .lamp-cone {
+  fill: url(#lampConeGrad);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  transform-origin: 50% 0%;
+  animation: lamp-cone-sway 6.4s var(--ease-out) infinite;
+}
+@keyframes lamp-cone-sway {
+  0%, 100% { transform: rotate(-1.2deg); }
+  50%      { transform: rotate(1.2deg); }
+}
+
+/* 熄灯模式：灯泡灭、光锥隐、台灯去色 */
+body.lamp-off .xueji-lamp .lamp-bulb { fill: var(--ink-4); filter: none; animation: none; }
+body.lamp-off .xueji-lamp .lamp-shade { filter: drop-shadow(0 0 2px rgba(0,0,0,.5)); }
+body.lamp-off .xueji-lamp .lamp-cone  { display: none; }
+body.lamp-off .fx-bg::before { opacity: .15; }
+body.lamp-off .fx-bg::after  { opacity: .4; }
+body.lamp-off .fx-bg .ember  { display: none; }
+body.lamp-off .fx-bg { background: var(--ink-0); }
+body.lamp-off main, body.lamp-off header, body.lamp-off .workarea { filter: brightness(.92) saturate(.85); }
+
+/* 熄灯提示 */
+body.lamp-off::after {
+  content: "夜深了，灯熄一盏，继续读也舒心。";
+  position: fixed;
+  bottom: 16px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: rgba(12, 10, 8, 0.85);
+  border: 1px solid var(--line);
+  color: var(--paper-2);
+  font-size: 12px;
+  font-family: var(--font-serif);
+  letter-spacing: .05em;
+  opacity: 0;
+  animation: lamp-off-hint 6s var(--ease-out) forwards;
+}
+@keyframes lamp-off-hint {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+}
+
+/* ====== 光标追光（桌面 + 细指针）====== */
+.xueji-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 360px; height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(207, 168, 107, 0.10) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  transition: opacity var(--dur-base);
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+.xueji-cursor.is-on { opacity: 1; }
+body.lamp-off .xueji-cursor { opacity: 0 !important; }
+
+/* ====== 磁吸按钮（v7 加在主按钮上）====== */
+button.primary { transform-style: preserve-3d; }
+
+/* ====== 字符渐显 · 标题分字入场 ======= */
+.title-letters {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.title-letters > span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(.7em) rotate(6deg);
+  animation: letter-rise .8s var(--ease-out) forwards;
+}
+@keyframes letter-rise {
+  to { opacity: 1; transform: translateY(0) rotate(0); }
+}
+
+/* ====== 文房五色 · 分布式上色（打破单调）====== */
+/* 3 张特点卡（trust-strip）— 大色块底色 + 左侧彩条 + 顶部彩条 */
+.trust-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-2);
+  margin: var(--s-3) 0 var(--s-4);
+}
+.trust-strip > :nth-child(1) {
+  border-top: 4px solid var(--c-indigo);
+  border-left: 4px solid var(--c-indigo);
+  background:
+    linear-gradient(135deg, rgba(122,147,173,.22) 0%, rgba(122,147,173,.04) 70%, transparent 100%),
+    var(--ink-glass-2);
+  box-shadow: inset 4px 0 0 var(--c-indigo), 0 1px 0 rgba(122,147,173,.25) inset;
+}
+.trust-strip > :nth-child(2) {
+  border-top: 4px solid var(--c-bamboo);
+  border-left: 4px solid var(--c-bamboo);
+  background:
+    linear-gradient(135deg, rgba(138,168,143,.22) 0%, rgba(138,168,143,.04) 70%, transparent 100%),
+    var(--ink-glass-2);
+  box-shadow: inset 4px 0 0 var(--c-bamboo), 0 1px 0 rgba(138,168,143,.25) inset;
+}
+.trust-strip > :nth-child(3) {
+  border-top: 4px solid var(--c-cinnabar);
+  border-left: 4px solid var(--c-cinnabar);
+  background:
+    linear-gradient(135deg, rgba(201,123,99,.22) 0%, rgba(201,123,99,.04) 70%, transparent 100%),
+    var(--ink-glass-2);
+  box-shadow: inset 4px 0 0 var(--c-cinnabar), 0 1px 0 rgba(201,123,99,.25) inset;
+}
+.trust-strip > :nth-child(1) strong { color: var(--c-indigo); }
+.trust-strip > :nth-child(2) strong { color: var(--c-bamboo); }
+.trust-strip > :nth-child(3) strong { color: var(--c-cinnabar); }
+
+/* 5 步学习流（student steps） */
+.steps .step:nth-child(1)::before { background: linear-gradient(180deg, var(--c-indigo), var(--c-ink)); }
+.steps .step:nth-child(2)::before { background: linear-gradient(180deg, var(--c-bamboo), var(--c-ink)); }
+.steps .step:nth-child(3)::before { background: linear-gradient(180deg, var(--gold-1), var(--gold-3)); }
+.steps .step:nth-child(4)::before { background: linear-gradient(180deg, var(--c-rose), var(--c-cinnabar)); }
+.steps .step:nth-child(5)::before { background: linear-gradient(180deg, var(--c-cinnabar), var(--gold-4)); }
+.steps .step[data-active="1"] {
+  border-color: var(--c-indigo);
+  background: linear-gradient(135deg, rgba(122,147,173,.15), transparent 70%), var(--ink-3);
+}
+.steps .step[data-active="2"] {
+  border-color: var(--c-bamboo);
+  background: linear-gradient(135deg, rgba(138,168,143,.15), transparent 70%), var(--ink-3);
+}
+.steps .step[data-active="3"] {
+  border-color: var(--gold-2);
+  background: linear-gradient(135deg, rgba(207,168,107,.15), transparent 70%), var(--ink-3);
+}
+.steps .step[data-active="4"] {
+  border-color: var(--c-rose);
+  background: linear-gradient(135deg, rgba(176,138,143,.15), transparent 70%), var(--ink-3);
+}
+.steps .step[data-active="5"] {
+  border-color: var(--c-cinnabar);
+  background: linear-gradient(135deg, rgba(201,123,99,.15), transparent 70%), var(--ink-3);
+}
+
+/* 3 今日数据格（today-cell）— 大色块 + 数字着色 */
+.today-grid > :nth-child(1) {
+  border-left: 5px solid var(--c-indigo);
+  background:
+    linear-gradient(135deg, rgba(122,147,173,.20) 0%, rgba(122,147,173,.04) 60%, transparent 100%),
+    var(--ink-glass-2);
+  box-shadow: inset 5px 0 0 var(--c-indigo);
+}
+.today-grid > :nth-child(2) {
+  border-left: 5px solid var(--c-bamboo);
+  background:
+    linear-gradient(135deg, rgba(138,168,143,.20) 0%, rgba(138,168,143,.04) 60%, transparent 100%),
+    var(--ink-glass-2);
+  box-shadow: inset 5px 0 0 var(--c-bamboo);
+}
+.today-grid > :nth-child(3) {
+  border-left: 5px solid var(--c-cinnabar);
+  background:
+    linear-gradient(135deg, rgba(201,123,99,.20) 0%, rgba(201,123,99,.04) 60%, transparent 100%),
+    var(--ink-glass-2);
+  box-shadow: inset 5px 0 0 var(--c-cinnabar);
+}
+.today-grid > :nth-child(1) strong { color: var(--c-indigo); }
+.today-grid > :nth-child(2) strong { color: var(--c-bamboo); }
+.today-grid > :nth-child(3) strong { color: var(--c-cinnabar); }
+
+/* 后台 ops-card 4 步 — 大色块底色 */
+.ops-grid > :nth-child(1) {
+  border-left: 5px solid var(--c-indigo);
+  background:
+    linear-gradient(135deg, rgba(122,147,173,.18) 0%, rgba(122,147,173,.04) 60%, transparent 100%),
+    var(--ink-glass-2);
+  box-shadow: inset 5px 0 0 var(--c-indigo);
+}
+.ops-grid > :nth-child(2) {
+  border-left: 5px solid var(--c-bamboo);
+  background:
+    linear-gradient(135deg, rgba(138,168,143,.18) 0%, rgba(138,168,143,.04) 60%, transparent 100%),
+    var(--ink-glass-2);
+  box-shadow: inset 5px 0 0 var(--c-bamboo);
+}
+.ops-grid > :nth-child(3) {
+  border-left: 5px solid var(--gold-2);
+  background:
+    linear-gradient(135deg, rgba(207,168,107,.18) 0%, rgba(207,168,107,.04) 60%, transparent 100%),
+    var(--ink-glass-2);
+  box-shadow: inset 5px 0 0 var(--gold-2);
+}
+.ops-grid > :nth-child(4) {
+  border-left: 5px solid var(--c-rose);
+  background:
+    linear-gradient(135deg, rgba(176,138,143,.18) 0%, rgba(176,138,143,.04) 60%, transparent 100%),
+    var(--ink-glass-2);
+  box-shadow: inset 5px 0 0 var(--c-rose);
+}
+
+/* 后台 5 tab 用 5 色描边 */
+.tabs button:nth-child(1).active { border-bottom-color: var(--c-indigo); color: var(--c-indigo); }
+.tabs button:nth-child(2).active { border-bottom-color: var(--c-bamboo); color: var(--c-bamboo); }
+.tabs button:nth-child(3).active { border-bottom-color: var(--gold-2);  color: var(--gold-1); }
+.tabs button:nth-child(4).active { border-bottom-color: var(--c-rose);  color: var(--c-rose); }
+.tabs button:nth-child(5).active { border-bottom-color: var(--c-cinnabar); color: var(--c-cinnabar); }
+
+/* 学生 hero 三个特色 */
+.student-trust > :nth-child(1) {
+  border-left: 5px solid var(--c-indigo);
+  background: linear-gradient(135deg, rgba(122,147,173,.18), transparent 70%), var(--ink-glass-2);
+  box-shadow: inset 5px 0 0 var(--c-indigo);
+}
+.student-trust > :nth-child(2) {
+  border-left: 5px solid var(--c-bamboo);
+  background: linear-gradient(135deg, rgba(138,168,143,.18), transparent 70%), var(--ink-glass-2);
+  box-shadow: inset 5px 0 0 var(--c-bamboo);
+}
+.student-trust > :nth-child(3) {
+  border-left: 5px solid var(--c-cinnabar);
+  background: linear-gradient(135deg, rgba(201,123,99,.18), transparent 70%), var(--ink-glass-2);
+  box-shadow: inset 5px 0 0 var(--c-cinnabar);
+}
+.student-trust > :nth-child(1) strong { color: var(--c-indigo); }
+.student-trust > :nth-child(2) strong { color: var(--c-bamboo); }
+.student-trust > :nth-child(3) strong { color: var(--c-cinnabar); }
+
+/* ====== 标题字符渐显 ====== */
+
+/* 表格状态色 */
+.status-dot.dot-good     { color: var(--c-bamboo); }
+.status-dot.dot-warn     { color: var(--gold-2); }
+.status-dot.dot-err      { color: var(--c-cinnabar); }
+.status-dot.dot-info     { color: var(--c-indigo); }
+
+/* ====== 修家长端布局：登录卡不拉长 ======= */
+.service-brief { align-items: start; }
+.service-brief .auth-panel { align-self: start; height: auto; }
+
+/* ====== 修字体溢出：徽章 / 工具条 ======= */
+.preview-badge,
+.status .pill,
+.status .tag {
+  max-width: min(340px, calc(100vw - 32px));
+  white-space: normal;
+  word-break: break-word;
+  text-align: left;
+  line-height: 1.4;
+}
+
+/* ====== 鼠标光斑（magnetic 已就位）====== */
+.is-magnetic { transition: transform var(--dur-base) var(--ease-out); }
 
 /* ====== 降级 · reduced motion ======= */
 @media (prefers-reduced-motion: reduce) {

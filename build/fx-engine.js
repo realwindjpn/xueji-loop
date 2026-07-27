@@ -1,7 +1,10 @@
 /* ============================================================
-   学记 · 灯下书卷  v6 — fx-engine.js
+   学记 · 灯下书卷  v7 — fx-engine.js
    - PREVIEW_MODE：拦截 fetch 返回 503 + 占位数据
-   - 装饰层：自动注入 .fx-bg (灯晕 + 12 颗灯尘)
+   - 装饰层：自动注入 .fx-bg（灯晕 + 灯尘 + 远光渐变）
+   - v7 新增：真实台灯组件（拉绳交互 + 熄灯态 + localStorage 持久化）
+   - v7 新增：桌面端光标追光 + 主按钮磁吸
+   - v7 新增：标题字符渐显（.title-letters）
    - 动效：reveal / count-up / ripple / tilt / preview-badge
    - 首屏低密度：buildQuickCarousel 注入横向滑动卡片
    - 全部带 prefers-reduced-motion 降级
@@ -32,11 +35,12 @@
   function pickApiMock(url, method) {
     if (!previewOn) return null;
     const m = String(url || "");
-    const isApi = /\/api\//.test(m);
-    if (!isApi) return null;
     const path = m.replace(/^https?:\/\/[^/]+/, "").replace(/^\/xueji/, "");
+    // 仅匹配后端 API 入口：/api/* 和 /xueji/api/* 以及显式的 /xueji/health
+    const isApi = /\/api\//.test(path) || /\/xueji\/health$/.test(m) || /\/xueji\/api\//.test(m);
+    if (!isApi) return null;
 
-    // 健康检查
+    // 健康检查（兼容 /api/health 和 /xueji/health）
     if (/health|ping|status/.test(path)) return placeholder.ok({ status: "ok", mode: "preview" });
 
     // 学生端
@@ -260,6 +264,191 @@
     const body = document.body;
     if (body.firstChild) body.insertBefore(bg, body.firstChild);
     else body.appendChild(bg);
+  }
+
+  /* ===========================================================
+   * 2.5 真实台灯组件（v7 关键）
+   * - 在右上角注入 <aside class="xueji-lamp"> 包含内联 SVG
+   * - 点击拉绳 → 切换 body.lamp-off + 拉绳摆动 + localStorage 持久化
+   * - 渐变通过 SVG <defs> 内联，避免外部资源
+   * =========================================================== */
+  function lampSvgMarkup() {
+    return `
+<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="lampShadeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#ead9b4" />
+      <stop offset="55%"  stop-color="#cfa86b" />
+      <stop offset="100%" stop-color="#8a6a3a" />
+    </linearGradient>
+    <linearGradient id="lampBaseGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#5a4426" />
+      <stop offset="100%" stop-color="#2a1f10" />
+    </linearGradient>
+    <linearGradient id="lampConeGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%"   stop-color="rgba(234,217,180,0.55)" />
+      <stop offset="60%"  stop-color="rgba(207,168,107,0.18)" />
+      <stop offset="100%" stop-color="rgba(207,168,107,0)" />
+    </linearGradient>
+    <radialGradient id="lampBulbGrad" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%"   stop-color="#fff7df" />
+      <stop offset="60%"  stop-color="#ead9b4" />
+      <stop offset="100%" stop-color="#cfa86b" />
+    </radialGradient>
+  </defs>
+
+  <!-- 底座 -->
+  <ellipse class="lamp-base" cx="50" cy="104" rx="20" ry="4" />
+  <rect class="lamp-base" x="44" y="92" width="12" height="12" rx="2" />
+
+  <!-- 灯杆：底座 → 关节 → 灯罩 -->
+  <line class="lamp-arm" x1="50" y1="92" x2="50" y2="74" />
+  <circle class="lamp-joint" cx="50" cy="74" r="3" />
+  <line class="lamp-arm" x1="50" y1="74" x2="60" y2="36" />
+  <circle class="lamp-joint" cx="60" cy="36" r="3" />
+
+  <!-- 灯罩：梯形 + 描边 -->
+  <path class="lamp-shade" d="M44 36 L76 36 L70 16 L50 16 Z" />
+  <rect class="lamp-rim" x="46" y="36" width="28" height="2" rx="1" />
+  <rect class="lamp-rim" x="46" y="14" width="28" height="2" rx="1" />
+
+  <!-- 灯泡：圆形 + 中心高光 -->
+  <circle class="lamp-bulb" cx="60" cy="26" r="5" />
+  <circle cx="60" cy="26" r="5" fill="url(#lampBulbGrad)" opacity="0.7" />
+
+  <!-- 光锥：梯形，向下投出 -->
+  <polygon class="lamp-cone" points="44,38 76,38 100,108 20,108" />
+
+  <!-- 拉绳：从灯罩底部垂下 -->
+  <line class="lamp-cord" x1="60" y1="36" x2="60" y2="70" />
+  <circle class="lamp-cord-bead" cx="60" cy="72" r="2" />
+</svg>
+    `.trim();
+  }
+
+  function injectLamp() {
+    if (document.querySelector(".xueji-lamp")) return;
+    const aside = document.createElement("aside");
+    aside.className = "xueji-lamp";
+    aside.setAttribute("role", "button");
+    aside.setAttribute("aria-label", "台灯开关 · 拉绳切换");
+    aside.setAttribute("tabindex", "0");
+    aside.innerHTML = lampSvgMarkup();
+    document.body.appendChild(aside);
+  }
+
+  function setupLamp() {
+    // 还原上次状态
+    try {
+      if (localStorage.getItem("xueji_lamp_off") === "1") {
+        document.body.classList.add("lamp-off");
+      }
+    } catch (e) { /* localStorage 不可用时静默 */ }
+
+    const lamp = document.querySelector(".xueji-lamp");
+    if (!lamp) return;
+
+    const toggle = (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      // 拉绳摆动动画（先 remove 强制重启）
+      lamp.classList.remove("lamp-pulling");
+      void lamp.offsetWidth;
+      lamp.classList.add("lamp-pulling");
+
+      const nextOff = !document.body.classList.contains("lamp-off");
+      document.body.classList.toggle("lamp-off", nextOff);
+      try { localStorage.setItem("xueji_lamp_off", nextOff ? "1" : "0"); } catch (e) {}
+
+      if (window.xuejiToast) {
+        window.xuejiToast(nextOff ? "夜深了，灯熄一盏" : "灯亮了，灯下书卷开始", {
+          type: nextOff ? "info" : "good",
+          pos: "tr",
+          dur: 1800
+        });
+      }
+    };
+
+    lamp.addEventListener("click", toggle);
+    lamp.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") toggle(e);
+    });
+  }
+
+  /* ===========================================================
+   * 2.6 桌面端光标追光（仅桌面 + 细指针）
+   * =========================================================== */
+  function setupCursorGlow() {
+    if (reducedMotion || isMobile || isWeChat) return;
+    if (!window.matchMedia || !window.matchMedia("(pointer: fine)").matches) return;
+    if (document.querySelector(".xueji-cursor")) return;
+
+    const dot = document.createElement("div");
+    dot.className = "xueji-cursor";
+    dot.setAttribute("aria-hidden", "true");
+    document.body.appendChild(dot);
+
+    let x = -400, y = -400, tx = -400, ty = -400, raf = 0, armed = false;
+    const onMove = (e) => {
+      tx = e.clientX; ty = e.clientY;
+      if (!armed) { x = tx; y = ty; dot.classList.add("is-on"); armed = true; }
+    };
+    const tick = () => {
+      x += (tx - x) * 0.18;
+      y += (ty - y) * 0.18;
+      dot.style.transform = `translate(${x - 180}px, ${y - 180}px)`;
+      raf = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    document.addEventListener("mouseleave", () => { dot.classList.remove("is-on"); armed = false; });
+    document.addEventListener("mouseenter", () => { dot.classList.add("is-on"); armed = true; });
+    raf = requestAnimationFrame(tick);
+  }
+
+  /* ===========================================================
+   * 2.7 主按钮磁吸（仅桌面 + 细指针）
+   * =========================================================== */
+  function setupMagneticButtons() {
+    if (reducedMotion || isMobile || isWeChat) return;
+    if (!window.matchMedia || !window.matchMedia("(pointer: fine)").matches) return;
+    document.querySelectorAll("button.primary, a.primary, .btn-primary").forEach(btn => {
+      btn.classList.add("is-magnetic");
+      let raf = 0;
+      const reset = () => { btn.style.transform = ""; };
+      btn.addEventListener("pointermove", (e) => {
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          const rect = btn.getBoundingClientRect();
+          const dx = ((e.clientX - rect.left) / rect.width - 0.5) * 6;
+          const dy = ((e.clientY - rect.top) / rect.height - 0.5) * 4;
+          btn.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+        });
+      });
+      btn.addEventListener("pointerleave", () => { if (raf) cancelAnimationFrame(raf); reset(); });
+    });
+  }
+
+  /* ===========================================================
+   * 2.8 标题字符渐显（为 [data-title-letters] 的元素自动分字）
+   * =========================================================== */
+  function setupTitleLetters() {
+    if (reducedMotion) return;
+    document.querySelectorAll("[data-title-letters]").forEach(el => {
+      if (el.dataset.lettered === "1") return;
+      el.dataset.lettered = "1";
+      const text = el.textContent || "";
+      el.textContent = "";
+      el.classList.add("title-letters");
+      [...text].forEach((ch, i) => {
+        const span = document.createElement("span");
+        span.textContent = ch === " " ? "\u00A0" : ch;
+        span.style.animationDelay = (i * 60) + "ms";
+        el.appendChild(span);
+      });
+    });
   }
 
   /* ===========================================================
@@ -515,6 +704,11 @@
      =========================================================== */
   function init() {
     injectFxBg();
+    injectLamp();
+    setupLamp();
+    setupCursorGlow();
+    setupMagneticButtons();
+    setupTitleLetters();
     injectPreviewBadge();
     setupReveal();
     setupCountUp();

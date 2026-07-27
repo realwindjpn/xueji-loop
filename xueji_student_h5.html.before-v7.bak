@@ -1,0 +1,1155 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>学记教育学生端</title>
+  <style>
+    :root {
+      --ink: #1d2b32;
+      --muted: #637782;
+      --line: #d9e2e1;
+      --line-strong: #b9c9c5;
+      --soft: #f4f8f6;
+      --soft-2: #eef6f1;
+      --panel: #ffffff;
+      --green: #126a5f;
+      --green-2: #0d4f49;
+      --blue: #315f8f;
+      --amber: #b86620;
+      --warn: #946018;
+      --red: #a33f35;
+      --page: #f8faf9;
+      --page-tint: #edf7f3;
+      --surface-subtle: #fbfdfc;
+      --success-soft: #f0f8f4;
+      --warn-soft: #fff8ed;
+      --input-line: #b8c5cc;
+      --meter: #e6eeee;
+      --radius: 8px;
+      --shadow: 0 14px 36px rgba(29, 43, 50, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(180deg, var(--page-tint), var(--page) 340px);
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+      line-height: 1.55;
+    }
+
+    header {
+      padding: 18px 14px 10px;
+    }
+
+    main {
+      width: 100%;
+      max-width: 880px;
+      margin: 0 auto 36px;
+      padding: 0 12px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      font-size: 28px;
+      line-height: 1.18;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: 20px;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 16px;
+      color: var(--blue);
+      margin-bottom: 8px;
+    }
+
+    .hero,
+    section {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .94);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 18px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      position: relative;
+      background:
+        linear-gradient(135deg, rgba(18, 106, 95, .08), rgba(49, 95, 143, .08)),
+        rgba(255, 255, 255, .96);
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .student-badge {
+      flex: 0 0 auto;
+      border: 1px solid var(--line-strong);
+      background: var(--panel);
+      color: var(--green);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .hero p,
+    .hint {
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+
+    .student-promise {
+      max-width: 58ch;
+    }
+
+    .student-trust {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .trust-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .82);
+      padding: 10px;
+      min-height: 80px;
+    }
+
+    .trust-item strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--blue);
+      font-size: 14px;
+    }
+
+    .trust-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    section {
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .today-overview {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .today-overview h2 {
+      margin-bottom: 4px;
+    }
+
+    .today-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .today-cell {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-subtle);
+      padding: 10px;
+      min-height: 78px;
+    }
+
+    .today-cell strong {
+      display: block;
+      color: var(--green);
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .today-cell span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .route-note {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-left: 3px solid var(--green);
+      background: var(--success-soft);
+      color: var(--green-2);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+      background: var(--surface-subtle);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .voice-list,
+    .card-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .voice-card,
+    .knowledge-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 12px;
+      transition: border-color .16s ease, background .16s ease;
+    }
+
+    .knowledge-card {
+      cursor: pointer;
+    }
+
+    .knowledge-card:hover {
+      border-color: var(--line-strong);
+      background: var(--surface-subtle);
+    }
+
+    .target {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .target strong {
+      font-size: 23px;
+      line-height: 1.2;
+    }
+
+    .target span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    button {
+      min-height: 42px;
+      border: 1px solid var(--green);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      background: var(--green);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease;
+    }
+
+    button.secondary {
+      background: var(--panel);
+      color: var(--green);
+    }
+
+    button:hover {
+      background: var(--green-2);
+      border-color: var(--green-2);
+    }
+
+    button.secondary:hover {
+      background: var(--success-soft);
+      border-color: var(--green);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button:focus-visible,
+    input:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(18, 106, 95, .16);
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: wait;
+      transform: none;
+    }
+
+    .hold-button {
+      flex: 1 1 180px;
+      min-height: 52px;
+      background: var(--green);
+      color: #fff;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .hold-button.recording {
+      background: var(--red);
+      border-color: var(--red);
+    }
+
+    .hold-button.recording:hover {
+      background: var(--red);
+      border-color: var(--red);
+    }
+
+    .login-panel {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.78);
+    }
+
+    .care-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-left: 3px solid var(--amber);
+      background: var(--warn-soft);
+      color: var(--warn);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .login-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .login-form button {
+      min-height: 42px;
+      white-space: nowrap;
+    }
+
+    .login-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .login-meta .status {
+      margin-top: 0;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .history-day {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .history-day summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+
+    .history-day summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .history-body {
+      padding: 0 12px 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .history-card-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .history-voice-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .history-voice-title {
+      color: var(--blue);
+      font-weight: 700;
+      margin: 10px 0 0;
+    }
+
+    input {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--input-line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--ink);
+      padding: 8px 10px;
+      font: inherit;
+      transition: border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .meter {
+      height: 8px;
+      background: var(--meter);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .meter span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--green);
+    }
+
+    .status {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .memory {
+      background: var(--warn-soft);
+      border-color: var(--amber);
+    }
+
+    .answer {
+      display: none;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--line);
+      color: var(--muted);
+    }
+
+    .knowledge-card.open .answer {
+      display: block;
+    }
+
+    .warn { color: var(--warn); font-weight: 700; }
+    .err { color: var(--red); font-weight: 700; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+      }
+    }
+
+    @media (max-width: 720px) {
+      h1 { font-size: 24px; }
+      main { width: 100%; min-width: 0; }
+      .hero,
+      .hero * { min-width: 0; }
+      .hero-top { display: block; }
+      .student-promise { width: 100%; max-width: none; word-break: break-all; overflow-wrap: anywhere; }
+      .student-badge { display: inline-block; max-width: 100%; margin-bottom: 10px; white-space: normal; }
+      .student-trust { grid-template-columns: 1fr; }
+      .trust-item { min-height: 0; }
+      .today-grid { grid-template-columns: 1fr; }
+      .today-cell { min-height: 0; }
+      .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .actions button { flex: 1 1 130px; }
+      .login-form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <main>
+      <div class="hero">
+        <div class="hero-top">
+          <div>
+            <h1 id="title">学记学生端</h1>
+            <p class="student-promise" id="subtitle">登录后查看今天的学习任务：先听、再练、再复习，一次只做眼前这一小步。</p>
+          </div>
+          <span class="student-badge">家长端已确认的学习安排</span>
+        </div>
+        <div class="student-trust" aria-label="今日学习说明">
+          <div class="trust-item">
+            <strong>只看今天</strong>
+            <span>不用翻整套计划，打开就是当天该做的内容。</span>
+          </div>
+          <div class="trust-item">
+            <strong>先听再说</strong>
+            <span>英语跟读会保留练习记录，方便之后回看。</span>
+          </div>
+          <div class="trust-item">
+            <strong>错卡回炉</strong>
+            <span>知识卡可展开答案，按反馈进入下一轮复习。</span>
+          </div>
+        </div>
+        <div class="steps" id="steps"></div>
+        <div class="login-panel">
+          <form class="login-form" id="loginForm">
+            <input id="phone" autocomplete="username" inputmode="numeric" placeholder="手机号">
+            <input id="password" autocomplete="current-password" type="password" placeholder="密码">
+            <button id="loginSubmitBtn" type="submit">登录</button>
+            <button class="secondary" id="logoutBtn" type="button" hidden>退出</button>
+          </form>
+          <div class="login-meta">
+            <p class="hint" id="loginHint">请输入学生手机号和密码，或由家长端进入。</p>
+            <div class="status" id="accountStatus"></div>
+          </div>
+          <div class="care-note">学生端只呈现学习任务和复习卡，不展示家长管理信息。遇到不会、太累或完成不了，可以让家长在每日反馈里说明。</div>
+        </div>
+      </div>
+    </main>
+  </header>
+
+  <main>
+    <div id="studentContent" hidden>
+      <div class="today-overview" aria-label="今日学习概览">
+        <h2>今日安排</h2>
+        <p class="hint" id="todaySummary">登录后会显示今天的学习顺序和任务数量。</p>
+        <div class="today-grid">
+          <div class="today-cell">
+            <strong id="todayVoiceCount">0句</strong>
+            <span>英语跟读：先听标准音，再按住说一遍。</span>
+          </div>
+          <div class="today-cell">
+            <strong id="todayCardCount">0张</strong>
+            <span>知识卡：先自己想，再点开答案确认。</span>
+          </div>
+          <div class="today-cell">
+            <strong id="todayReviewCount">0天</strong>
+            <span>往日回顾：只复习系统安排的旧卡。</span>
+          </div>
+        </div>
+        <div class="route-note" id="todayRoute">建议顺序：英语跟读 → 记忆故事 → 知识卡 → 往日回顾。</div>
+      </div>
+
+      <section>
+        <h2>英语跟读</h2>
+        <p class="hint">先听标准音，再按住说话，最后提交练习。</p>
+        <div class="voice-list" id="voiceList"></div>
+      </section>
+
+      <section class="memory">
+        <h2>记忆故事</h2>
+        <p id="memoryStory">暂无记忆故事...</p>
+      </section>
+
+      <section id="reviewSection" hidden>
+        <h2>今日回炉</h2>
+        <p class="hint" id="reviewHint">按 D1/D3/D7 间隔复习，优先处理★卡。</p>
+        <div class="card-list" id="reviewList"></div>
+      </section>
+
+      <section>
+        <h2>知识卡</h2>
+        <p class="hint">点击卡片可以展开答案，每天先复习今天的卡。</p>
+        <div class="card-list" id="cardList"></div>
+      </section>
+
+      <section>
+        <h2>往日回顾</h2>
+        <p class="hint">这里可以复习以前每天的知识卡。</p>
+        <div class="history-list" id="historyList"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const prefix = location.pathname.startsWith("/xueji") ? "/xueji" : "";
+    const queryToken = new URLSearchParams(location.search).get("token") || "";
+    const tokenStorageKey = "xueji_student_token";
+    let token = queryToken || localStorage.getItem(tokenStorageKey) || "";
+    let today = null;
+    let attempts = {};
+    let currentAccount = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(prefix + path, {
+        ...options,
+        headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || data.detail || "请求失败");
+      return data;
+    }
+
+    function renderSteps(steps) {
+      $("steps").innerHTML = (steps || []).map((item, idx) => `<div class="step">${idx + 1}. ${escapeHtml(item)}</div>`).join("");
+    }
+
+    function renderTodayOverview() {
+      const student = today?.student || {};
+      const voiceCount = today?.voice?.items?.length || 0;
+      const cards = today?.knowledge?.cards || [];
+      const reviewCards = today?.knowledge?.review_cards || [];
+      const historyDays = today?.knowledge?.history_days || [];
+      const guideSteps = today?.guide?.steps || [];
+      $("todaySummary").textContent = `${student.display_name || "同学"}，今天按顺序完成就好：先开口，再复习，不需要一次做很多。`;
+      $("todayVoiceCount").textContent = `${voiceCount}句`;
+      $("todayCardCount").textContent = `${cards.length + reviewCards.length}张`;
+      $("todayReviewCount").textContent = `${historyDays.length}天`;
+      $("todayRoute").textContent = guideSteps.length
+        ? `建议顺序：${guideSteps.join(" → ")}`
+        : "建议顺序：英语跟读 → 记忆故事 → 知识卡 → 往日回顾。";
+    }
+
+    function renderVoice(items) {
+      const quota = today?.assessment?.quota || {};
+      const quotaText = quota.limit
+        ? `今日还可专业评测 ${Number(quota.remaining || 0)}/${Number(quota.limit || 0)} 次，普通练习不占额度。`
+        : "普通练习可直接提交，专业评测按配置额度扣减。";
+      $("voiceList").innerHTML = `<div class="status">${escapeHtml(quotaText)}</div>` + (items || []).map((item, idx) => `
+        <div class="voice-card">
+          <div class="target">
+            <strong>${escapeHtml(item.target_text)}</strong>
+            <span>${escapeHtml(item.target_meaning || "")}</span>
+            <span>${escapeHtml(item.scenario || "")}</span>
+          </div>
+          <div class="actions">
+            <button class="secondary" id="play_${idx}" data-voice-play="1" data-voice-label="听标准音" type="button" onclick="playTarget(${idx})">听标准音</button>
+            <button class="hold-button" id="hold_${idx}" type="button"
+              onpointerdown="startHoldRecord(event, ${idx})"
+              onpointerup="stopHoldRecord(${idx}, true)"
+              onpointercancel="stopHoldRecord(${idx}, true)"
+              onpointerleave="stopHoldRecord(${idx}, false)">按住说话</button>
+            <button class="secondary" type="button" onclick="submitTarget(${idx})">普通提交</button>
+            <button class="secondary" type="button" onclick="submitTarget(${idx}, 'professional')">专业评测</button>
+          </div>
+          <input id="transcript_${idx}" placeholder="也可以手动输入你刚才读的句子">
+          <div class="status" id="status_${idx}">等待练习</div>
+          <div class="meter"><span id="meter_${idx}"></span></div>
+        </div>
+      `).join("");
+    }
+
+    function knowledgeCardHtml(card, idx) {
+      return `
+        <div class="knowledge-card" onclick="this.classList.toggle('open')">
+          <h3>${escapeHtml(card.tag || `知识点 ${idx + 1}`)}</h3>
+          ${card.audio_url ? `<button class="secondary" type="button" onclick="event.stopPropagation(); playCardAudio('${escapeHtml(card.audio_url)}')">播放讲解</button>` : ""}
+          <p><strong>问：</strong>${escapeHtml(card.q || "")}</p>
+          <div class="answer"><strong>答：</strong>${escapeHtml(card.a || "")}</div>
+        </div>
+      `;
+    }
+
+    function renderCards(cards) {
+      $("cardList").innerHTML = (cards || []).map((card, idx) => knowledgeCardHtml(card, idx)).join("") || `<p class="hint">今天暂时没有知识卡，请让家长端先生成或上传。</p>`;
+    }
+
+    function renderReviewCards(cards) {
+      const items = cards || [];
+      $("reviewSection").hidden = !items.length;
+      $("reviewList").innerHTML = items.map((card, idx) => knowledgeCardHtml(card, idx)).join("");
+      $("reviewHint").textContent = today?.knowledge?.adjustment_note || "按 D1/D3/D7 间隔复习，优先处理★卡。";
+    }
+
+    let historyVoiceItems = [];
+
+    function historyEnglishHtml(items) {
+      const targets = items || [];
+      if (!targets.length) return "";
+      const cards = targets.map((item) => {
+        const voiceIdx = historyVoiceItems.push(item) - 1;
+        return `
+          <div class="voice-card">
+            <div class="target">
+              <strong>${escapeHtml(item.target_text || "")}</strong>
+              <span>${escapeHtml(item.target_meaning || "")}</span>
+              <span>${escapeHtml(item.scenario || "")}</span>
+            </div>
+            <div class="actions">
+              <button class="secondary" id="history_play_${voiceIdx}" data-voice-play="1" data-voice-label="听英语" type="button" onclick="playHistoryVoice(${voiceIdx})">听英语</button>
+            </div>
+            <div class="status" id="history_status_${voiceIdx}">可复听</div>
+          </div>
+        `;
+      }).join("");
+      return `
+        <p class="history-voice-title">英语回顾</p>
+        <div class="history-voice-list">${cards}</div>
+      `;
+    }
+
+    function renderHistory(days) {
+      historyVoiceItems = [];
+      const items = (days || []).map((day) => {
+        const cards = (day.cards || []).map((card, idx) => knowledgeCardHtml(card, idx)).join("");
+        const english = historyEnglishHtml(day.english_targets || []);
+        return `
+          <details class="history-day" ${today?.knowledge?.current_day_index === day.index ? "open" : ""}>
+            <summary>
+              <span>${escapeHtml(day.title || `Day ${Number(day.index || 0) + 1}`)}</span>
+              <span>${escapeHtml(day.module || "")}</span>
+            </summary>
+            <div class="history-body">
+              <p class="hint">${escapeHtml(day.memory_story || "")}</p>
+              ${english}
+              <div class="history-card-list">${cards || `<p class="hint">这一天暂无卡片。</p>`}</div>
+            </div>
+          </details>
+        `;
+      }).join("");
+      $("historyList").innerHTML = items || `<p class="hint">暂时没有历史记录。</p>`;
+    }
+
+    function setPortalState(authed) {
+      $("studentContent").hidden = !authed;
+      $("phone").hidden = authed;
+      $("password").hidden = authed;
+      $("loginSubmitBtn").hidden = authed;
+      $("logoutBtn").hidden = !authed;
+      $("loginHint").textContent = authed ? "已登录，今天的任务已加载。" : "请输入学生手机号和密码，或由家长端进入。";
+      if (authed) {
+        $("password").value = "";
+      }
+      if (!authed) {
+        $("accountStatus").textContent = "";
+      }
+    }
+
+    const learningSpeechRate = 0.8;
+    let currentLearningAudio = null;
+
+    function setVoicePlayButtonsBusy(activeButtonId, busy, label = "播放中...") {
+      document.querySelectorAll("[data-voice-play]").forEach((button) => {
+        const defaultLabel = button.dataset.voiceLabel || "听标准音";
+        button.disabled = busy;
+        button.textContent = busy && button.id === activeButtonId ? label : defaultLabel;
+      });
+    }
+
+    async function playAudioUrl(url, playbackRate = 1) {
+      if (currentLearningAudio) {
+        currentLearningAudio.pause();
+        currentLearningAudio = null;
+      }
+      const audio = new Audio(url);
+      currentLearningAudio = audio;
+      audio.preload = "auto";
+      audio.playbackRate = playbackRate;
+      return new Promise(async (resolve, reject) => {
+        const cleanup = () => {
+          audio.onended = null;
+          audio.onerror = null;
+          if (currentLearningAudio === audio) currentLearningAudio = null;
+        };
+        audio.onended = () => {
+          cleanup();
+          resolve(audio);
+        };
+        audio.onerror = () => {
+          cleanup();
+          reject(new Error("audio playback failed"));
+        };
+        try {
+          await audio.play();
+        } catch (error) {
+          cleanup();
+          reject(error);
+        }
+      });
+    }
+
+    window.playCardAudio = async (url) => {
+      if (!url) return;
+      try {
+        await playAudioUrl(url, learningSpeechRate);
+      } catch {}
+    };
+
+    let cachedBrowserVoice = null;
+
+    function pickBrowserVoice() {
+      if (!("speechSynthesis" in window)) return null;
+      const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+      if (!voices.length) return null;
+      if (cachedBrowserVoice && voices.includes(cachedBrowserVoice)) return cachedBrowserVoice;
+      const preferredNames = ["Google US English", "Microsoft David", "Microsoft Mark", "Alex", "Samantha"];
+      cachedBrowserVoice = voices.find(voice => preferredNames.some(name => voice.name === name))
+        || voices.find(voice => (voice.lang || "").toLowerCase().startsWith("en"))
+        || voices[0]
+        || null;
+      return cachedBrowserVoice;
+    }
+
+    function browserSpeak(text) {
+      if (!("speechSynthesis" in window)) return Promise.resolve(false);
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = learningSpeechRate;
+      const voice = pickBrowserVoice();
+      if (voice) utterance.voice = voice;
+      return new Promise((resolve) => {
+        utterance.onend = () => resolve(true);
+        utterance.onerror = () => resolve(false);
+        window.speechSynthesis.speak(utterance);
+      });
+    }
+
+    window.playTarget = async (idx) => {
+      const item = today?.voice?.items?.[idx];
+      if (!item) return;
+      const status = $(`status_${idx}`);
+      const playButton = $(`play_${idx}`);
+      if (playButton?.disabled) return;
+      setVoicePlayButtonsBusy(playButton?.id || "", true, "准备中...");
+      status.textContent = "正在播放标准音...";
+      try {
+        const result = await api(`/api/student-access/${encodeURIComponent(token)}/voice-practice/tts`, {
+          method: "POST",
+          body: JSON.stringify({ text: item.target_text })
+        });
+        if (result.audio_url) {
+          try {
+            setVoicePlayButtonsBusy(playButton?.id || "", true, "播放中...");
+            await playAudioUrl(result.audio_url, Number(result.playback_rate || 1));
+            status.textContent = "已播放标准音（0.8倍）。";
+          } catch {
+            setVoicePlayButtonsBusy(playButton?.id || "", true, "慢速朗读中...");
+            await browserSpeak(item.target_text);
+            status.textContent = "手机未能播放服务器音频，已改用浏览器慢速朗读。";
+          }
+        } else {
+          setVoicePlayButtonsBusy(playButton?.id || "", true, "慢速朗读中...");
+          await browserSpeak(item.target_text);
+          status.textContent = result.message || "已使用浏览器朗读。";
+        }
+      } catch {
+        setVoicePlayButtonsBusy(playButton?.id || "", true, "慢速朗读中...");
+        await browserSpeak(item.target_text);
+        status.textContent = "已使用浏览器朗读。";
+      } finally {
+        setVoicePlayButtonsBusy(playButton?.id || "", false);
+      }
+    };
+
+    window.playHistoryVoice = async (idx) => {
+      const item = historyVoiceItems[idx];
+      if (!item) return;
+      const status = $(`history_status_${idx}`);
+      const playButton = $(`history_play_${idx}`);
+      if (playButton?.disabled) return;
+      setVoicePlayButtonsBusy(playButton?.id || "", true, "准备中...");
+      if (status) status.textContent = "正在播放英语回顾...";
+      try {
+        const result = await api(`/api/student-access/${encodeURIComponent(token)}/voice-practice/tts`, {
+          method: "POST",
+          body: JSON.stringify({ text: item.target_text })
+        });
+        if (result.audio_url) {
+          try {
+            setVoicePlayButtonsBusy(playButton?.id || "", true, "播放中...");
+            await playAudioUrl(result.audio_url, Number(result.playback_rate || 1));
+            if (status) status.textContent = "已播放英语回顾（0.8倍）。";
+          } catch {
+            setVoicePlayButtonsBusy(playButton?.id || "", true, "慢速朗读中...");
+            await browserSpeak(item.target_text);
+            if (status) status.textContent = "服务器音频未播放，已改用浏览器慢速朗读。";
+          }
+        } else {
+          setVoicePlayButtonsBusy(playButton?.id || "", true, "慢速朗读中...");
+          await browserSpeak(item.target_text);
+          if (status) status.textContent = result.message || "已使用浏览器朗读。";
+        }
+      } catch {
+        setVoicePlayButtonsBusy(playButton?.id || "", true, "慢速朗读中...");
+        await browserSpeak(item.target_text);
+        if (status) status.textContent = "已使用浏览器朗读。";
+      } finally {
+        setVoicePlayButtonsBusy(playButton?.id || "", false);
+      }
+    };
+
+    function blobToDataUrl(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    function score(target, transcript) {
+      const clean = (value) => String(value || "").toLowerCase().replace(/[^a-z0-9'\s]/g, " ").replace(/\s+/g, " ").trim();
+      const words = clean(target).split(" ").filter(Boolean);
+      const heard = new Set(clean(transcript).split(" ").filter(Boolean));
+      if (!words.length || !heard.size) return 0;
+      return Math.round(words.filter(word => heard.has(word)).length / words.length * 92);
+    }
+
+    function correctionHint(target, transcript) {
+      const clean = (value) => String(value || "").toLowerCase().replace(/[^a-z0-9'\s]/g, " ").replace(/\s+/g, " ").trim();
+      const words = clean(target).split(" ").filter(Boolean);
+      const heard = new Set(clean(transcript).split(" ").filter(Boolean));
+      const missing = words.filter(word => !heard.has(word));
+      if (!transcript) return "正在听。先不要急，慢慢把这一句读完。";
+      if (!missing.length) return "关键词都听到了。松开后我来给你打分。";
+      return `还差：${missing.slice(0, 3).join("、")}。先慢读这些词，再连起来。`;
+    }
+
+    let recording = null;
+
+    window.startHoldRecord = async (event, idx) => {
+      event.preventDefault();
+      if (recording) return;
+      const item = today?.voice?.items?.[idx];
+      if (!item) return;
+      const status = $(`status_${idx}`);
+      const input = $(`transcript_${idx}`);
+      const button = $(`hold_${idx}`);
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let recognizer = null;
+      if (SpeechRecognition) {
+        recognizer = new SpeechRecognition();
+        recognizer.lang = "en-US";
+        recognizer.interimResults = true;
+        recognizer.continuous = false;
+        recognizer.onresult = (event) => {
+          let finalText = "";
+          let interimText = "";
+          for (let i = 0; i < event.results.length; i += 1) {
+            const result = event.results[i];
+            if (result.isFinal) finalText += result[0].transcript;
+            else interimText += result[0].transcript;
+          }
+          const heard = (finalText || interimText || "").trim();
+          input.value = heard;
+          const liveScore = score(item.target_text, heard);
+          $(`meter_${idx}`).style.width = `${liveScore}%`;
+          status.textContent = `听到：${heard || "..." }。${correctionHint(item.target_text, heard)}`;
+        };
+      }
+      status.textContent = "正在听，请读这一句；松开后自动提交。";
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const chunks = [];
+        const recorder = new MediaRecorder(stream);
+        recorder.ondataavailable = event => { if (event.data && event.data.size) chunks.push(event.data); };
+        const stopped = new Promise(resolve => { recorder.onstop = resolve; });
+        recording = { idx, item, status, input, button, stream, chunks, recorder, recognizer, stopped, startedAt: Date.now() };
+        recorder.start();
+        button.classList.add("recording");
+        button.textContent = "松开结束";
+        if (recognizer) {
+          try { recognizer.start(); } catch {}
+        }
+      } catch {
+        status.textContent = "无法打开麦克风。请检查微信/浏览器权限，或手动输入后提交。";
+      }
+    };
+
+    window.stopHoldRecord = async (idx, shouldSubmit) => {
+      if (!recording || recording.idx !== idx) return;
+      const current = recording;
+      recording = null;
+      const elapsed = Date.now() - current.startedAt;
+      current.button.classList.remove("recording");
+      current.button.textContent = "按住说话";
+      if (elapsed < 500) {
+        current.status.textContent = "按住时间太短了，请读完整一句。";
+        try { current.recorder.stop(); } catch {}
+        current.stream.getTracks().forEach(track => track.stop());
+        if (current.recognizer) {
+          try { current.recognizer.stop(); } catch {}
+        }
+        return;
+      }
+      current.status.textContent = "正在识别...";
+      try {
+        current.recorder.stop();
+      } catch {}
+      current.stream.getTracks().forEach(track => track.stop());
+      if (current.recognizer) {
+        try { current.recognizer.stop(); } catch {}
+      }
+      await current.stopped;
+      const audioDataUrl = current.chunks.length ? await blobToDataUrl(new Blob(current.chunks, { type: "audio/webm" })) : "";
+      const value = current.input.value;
+      const localScore = score(current.item.target_text, value);
+      attempts[idx] = { audioDataUrl, score: localScore };
+      $(`meter_${idx}`).style.width = `${localScore}%`;
+      if (!value) {
+        current.status.textContent = "没有识别到内容，可以手动输入后提交。";
+        return;
+      }
+      current.status.textContent = `识别：${value}。${correctionHint(current.item.target_text, value)} 正在提交...`;
+      if (shouldSubmit) {
+        await submitTarget(idx, "local");
+      }
+    };
+
+    window.submitTarget = async (idx, mode = "local") => {
+      const item = today?.voice?.items?.[idx];
+      if (!item) return;
+      const input = $(`transcript_${idx}`);
+      const status = $(`status_${idx}`);
+      const professional = mode === "professional";
+      status.textContent = professional ? "正在提交专业评测..." : "正在记录本次练习...";
+      try {
+        const result = await api(`/api/student-access/${encodeURIComponent(token)}/voice-practice/submissions`, {
+          method: "POST",
+          body: JSON.stringify({
+            ...item,
+            practice_date: today.date,
+            transcript: input.value,
+            score: attempts[idx]?.score || score(item.target_text, input.value),
+            assessment_mode: professional ? "professional" : "local",
+            audio_data_url: professional ? attempts[idx]?.audioDataUrl || "" : ""
+          })
+        });
+        $(`meter_${idx}`).style.width = `${Number(result.score || 0)}%`;
+        status.textContent = `${result.score}分：${result.feedback}`;
+      } catch (error) {
+        status.textContent = error.message || "提交失败";
+      }
+    };
+
+    async function load() {
+      if (!token) {
+        today = null;
+        currentAccount = null;
+        setPortalState(false);
+        $("subtitle").textContent = "登录后查看今天的学习任务：先听、再练、再复习，一次只做眼前这一小步。";
+        renderSteps([]);
+        renderVoice([]);
+        $("memoryStory").textContent = "暂无记忆故事...";
+        renderReviewCards([]);
+        renderCards([]);
+        renderHistory([]);
+        return;
+      }
+      try {
+        today = await api(`/api/student-access/${encodeURIComponent(token)}/today`);
+        currentAccount = today.account || null;
+        localStorage.setItem(tokenStorageKey, token);
+        $("title").textContent = `${today.student.display_name || "同学"}的今日学习`;
+        $("subtitle").textContent = `${today.student.grade_region || ""}｜${today.student.goal || ""}｜${today.date}`;
+        renderSteps(today.guide?.steps || []);
+        renderTodayOverview();
+        renderVoice(today.voice?.items || []);
+        $("memoryStory").textContent = today.knowledge?.memory_story || "";
+        renderReviewCards(today.knowledge?.review_cards || []);
+        renderCards(today.knowledge?.cards || []);
+        renderHistory(today.knowledge?.history_days || []);
+        setPortalState(true);
+        $("accountStatus").textContent = currentAccount?.phone ? `账号：${currentAccount.phone}` : `学生：${today.student.display_name || "同学"}`;
+      } catch (error) {
+        token = "";
+        localStorage.removeItem(tokenStorageKey);
+        today = null;
+        currentAccount = null;
+        setPortalState(false);
+        $("subtitle").innerHTML = `<span class="err">${escapeHtml(error.message || error)}</span>`;
+        renderSteps([]);
+        renderVoice([]);
+        $("memoryStory").textContent = "登录后再查看记忆故事。";
+        renderReviewCards([]);
+        renderCards([]);
+        renderHistory([]);
+      }
+    }
+
+    $("loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const phone = $("phone").value.trim();
+      const password = $("password").value;
+      $("loginHint").textContent = "登录中...";
+      try {
+        const result = await api("/api/students/login", {
+          method: "POST",
+          body: JSON.stringify({ phone, password })
+        });
+        token = result.token || "";
+        currentAccount = result.account || null;
+        if (token) localStorage.setItem(tokenStorageKey, token);
+        await load();
+      } catch (error) {
+        $("loginHint").innerHTML = `<span class="err">${escapeHtml(error.message || error)}</span>`;
+      }
+    });
+
+    $("logoutBtn").addEventListener("click", async () => {
+      try {
+        if (token) {
+          await api("/api/students/logout", { method: "POST", body: "{}" });
+        }
+      } catch {}
+      token = "";
+      currentAccount = null;
+      localStorage.removeItem(tokenStorageKey);
+      $("phone").value = "";
+      $("password").value = "";
+      await load();
+    });
+
+
+    load();
+  </script>
+</body>
+</html>
