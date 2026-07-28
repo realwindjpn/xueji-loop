@@ -1,12 +1,13 @@
 /* ============================================================
-   学记 · 灯下书卷  v7 — fx-engine.js
-   - PREVIEW_MODE：拦截 fetch 返回 503 + 占位数据
-   - 装饰层：自动注入 .fx-bg（灯晕 + 灯尘 + 远光渐变）
-   - v7 新增：真实台灯组件（拉绳交互 + 熄灯态 + localStorage 持久化）
-   - v7 新增：桌面端光标追光 + 主按钮磁吸
-   - v7 新增：标题字符渐显（.title-letters）
-   - 动效：reveal / count-up / ripple / tilt / preview-badge
-   - 首屏低密度：buildQuickCarousel 注入横向滑动卡片
+   学记 · 灯下书卷  v8 — fx-engine.js
+   - PREVIEW_MODE：拦截 fetch 返回 503 + 占位数据（沿用 v7）
+   - v8 全新：像素 RPG 视觉层
+     · 标题屏 PRESS START（点击/Enter 进入主屏）
+     · Canvas 像素星点背景
+     · 主屏包裹 <main> 为 .frame（角色卡 / 任务日志 / 成就墙）
+     · 任务日志 tab：主线 / 支线 / 图鉴 / 传说
+     · 详情对话框：点击任务条目弹出，含 ◀ / ▶ / 关闭
+   - 沿用：reveal / count-up / ripple / title-letters / preview-badge / toast
    - 全部带 prefers-reduced-motion 降级
    ============================================================ */
 
@@ -36,11 +37,9 @@
     if (!previewOn) return null;
     const m = String(url || "");
     const path = m.replace(/^https?:\/\/[^/]+/, "").replace(/^\/xueji/, "");
-    // 仅匹配后端 API 入口：/api/* 和 /xueji/api/* 以及显式的 /xueji/health
     const isApi = /\/api\//.test(path) || /\/xueji\/health$/.test(m) || /\/xueji\/api\//.test(m);
     if (!isApi) return null;
 
-    // 健康检查（兼容 /api/health 和 /xueji/health）
     if (/health|ping|status/.test(path)) return placeholder.ok({ status: "ok", mode: "preview" });
 
     // 学生端
@@ -238,7 +237,6 @@
       const method = (init && init.method) || (input && input.method) || "GET";
       const mock = pickApiMock(url, method);
       if (mock) {
-        // 模拟 80-180ms 网络延迟
         await new Promise(r => setTimeout(r, 80 + Math.random() * 100));
         return mock;
       }
@@ -247,212 +245,434 @@
   }
 
   /* ===========================================================
-     2. 注入装饰层
+     2. v8 像素 RPG 视觉层
      =========================================================== */
-  function injectFxBg() {
-    if (document.querySelector(".fx-bg")) return;
-    const bg = document.createElement("div");
-    bg.className = "fx-bg";
-    bg.setAttribute("aria-hidden", "true");
-    // 12 颗灯尘
-    for (let i = 0; i < 12; i++) {
-      const ember = document.createElement("span");
-      ember.className = "ember";
-      bg.appendChild(ember);
-    }
-    // 装饰层永远垫底
-    const body = document.body;
-    if (body.firstChild) body.insertBefore(bg, body.firstChild);
-    else body.appendChild(bg);
-  }
 
-  /* ===========================================================
-   * 2.5 真实台灯组件（v7 关键）
-   * - 在右上角注入 <aside class="xueji-lamp"> 包含内联 SVG
-   * - 点击拉绳 → 切换 body.lamp-off + 拉绳摆动 + localStorage 持久化
-   * - 渐变通过 SVG <defs> 内联，避免外部资源
-   * =========================================================== */
-  function lampSvgMarkup() {
-    return `
-<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-  <defs>
-    <linearGradient id="lampShadeGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="#ead9b4" />
-      <stop offset="55%"  stop-color="#cfa86b" />
-      <stop offset="100%" stop-color="#8a6a3a" />
-    </linearGradient>
-    <linearGradient id="lampBaseGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="#5a4426" />
-      <stop offset="100%" stop-color="#2a1f10" />
-    </linearGradient>
-    <linearGradient id="lampConeGrad" x1="0.5" y1="0" x2="0.5" y2="1">
-      <stop offset="0%"   stop-color="rgba(234,217,180,0.55)" />
-      <stop offset="60%"  stop-color="rgba(207,168,107,0.18)" />
-      <stop offset="100%" stop-color="rgba(207,168,107,0)" />
-    </linearGradient>
-    <radialGradient id="lampBulbGrad" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0%"   stop-color="#fff7df" />
-      <stop offset="60%"  stop-color="#ead9b4" />
-      <stop offset="100%" stop-color="#cfa86b" />
-    </radialGradient>
-  </defs>
-
-  <!-- 底座 -->
-  <ellipse class="lamp-base" cx="50" cy="104" rx="20" ry="4" />
-  <rect class="lamp-base" x="44" y="92" width="12" height="12" rx="2" />
-
-  <!-- 灯杆：底座 → 关节 → 灯罩 -->
-  <line class="lamp-arm" x1="50" y1="92" x2="50" y2="74" />
-  <circle class="lamp-joint" cx="50" cy="74" r="3" />
-  <line class="lamp-arm" x1="50" y1="74" x2="60" y2="36" />
-  <circle class="lamp-joint" cx="60" cy="36" r="3" />
-
-  <!-- 灯罩：梯形 + 描边 -->
-  <path class="lamp-shade" d="M44 36 L76 36 L70 16 L50 16 Z" />
-  <rect class="lamp-rim" x="46" y="36" width="28" height="2" rx="1" />
-  <rect class="lamp-rim" x="46" y="14" width="28" height="2" rx="1" />
-
-  <!-- 灯泡：圆形 + 中心高光 -->
-  <circle class="lamp-bulb" cx="60" cy="26" r="5" />
-  <circle cx="60" cy="26" r="5" fill="url(#lampBulbGrad)" opacity="0.7" />
-
-  <!-- 光锥：梯形，向下投出 -->
-  <polygon class="lamp-cone" points="44,38 76,38 100,108 20,108" />
-
-  <!-- 拉绳：从灯罩底部垂下 -->
-  <line class="lamp-cord" x1="60" y1="36" x2="60" y2="70" />
-  <circle class="lamp-cord-bead" cx="60" cy="72" r="2" />
-</svg>
-    `.trim();
-  }
-
-  function injectLamp() {
-    if (document.querySelector(".xueji-lamp")) return;
-    const aside = document.createElement("aside");
-    aside.className = "xueji-lamp";
-    aside.setAttribute("role", "button");
-    aside.setAttribute("aria-label", "台灯开关 · 拉绳切换");
-    aside.setAttribute("tabindex", "0");
-    aside.innerHTML = lampSvgMarkup();
-    document.body.appendChild(aside);
-  }
-
-  function setupLamp() {
-    // 还原上次状态
-    try {
-      if (localStorage.getItem("xueji_lamp_off") === "1") {
-        document.body.classList.add("lamp-off");
-      }
-    } catch (e) { /* localStorage 不可用时静默 */ }
-
-    const lamp = document.querySelector(".xueji-lamp");
-    if (!lamp) return;
-
-    const toggle = (e) => {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      // 拉绳摆动动画（先 remove 强制重启）
-      lamp.classList.remove("lamp-pulling");
-      void lamp.offsetWidth;
-      lamp.classList.add("lamp-pulling");
-
-      const nextOff = !document.body.classList.contains("lamp-off");
-      document.body.classList.toggle("lamp-off", nextOff);
-      try { localStorage.setItem("xueji_lamp_off", nextOff ? "1" : "0"); } catch (e) {}
-
-      if (window.xuejiToast) {
-        window.xuejiToast(nextOff ? "夜深了，灯熄一盏" : "灯亮了，灯下书卷开始", {
-          type: nextOff ? "info" : "good",
-          pos: "tr",
-          dur: 1800
-        });
-      }
-    };
-
-    lamp.addEventListener("click", toggle);
-    lamp.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") toggle(e);
-    });
-  }
-
-  /* ===========================================================
-   * 2.6 桌面端光标追光（仅桌面 + 细指针）
-   * =========================================================== */
-  function setupCursorGlow() {
-    if (reducedMotion || isMobile || isWeChat) return;
-    if (!window.matchMedia || !window.matchMedia("(pointer: fine)").matches) return;
-    if (document.querySelector(".xueji-cursor")) return;
-
-    const dot = document.createElement("div");
-    dot.className = "xueji-cursor";
-    dot.setAttribute("aria-hidden", "true");
-    document.body.appendChild(dot);
-
-    let x = -400, y = -400, tx = -400, ty = -400, raf = 0, armed = false;
-    const onMove = (e) => {
-      tx = e.clientX; ty = e.clientY;
-      if (!armed) { x = tx; y = ty; dot.classList.add("is-on"); armed = true; }
-    };
-    const tick = () => {
-      x += (tx - x) * 0.18;
-      y += (ty - y) * 0.18;
-      dot.style.transform = `translate(${x - 180}px, ${y - 180}px)`;
-      raf = requestAnimationFrame(tick);
-    };
-
-    window.addEventListener("pointermove", onMove, { passive: true });
-    document.addEventListener("mouseleave", () => { dot.classList.remove("is-on"); armed = false; });
-    document.addEventListener("mouseenter", () => { dot.classList.add("is-on"); armed = true; });
-    raf = requestAnimationFrame(tick);
-  }
-
-  /* ===========================================================
-   * 2.7 主按钮磁吸（仅桌面 + 细指针）
-   * =========================================================== */
-  function setupMagneticButtons() {
-    if (reducedMotion || isMobile || isWeChat) return;
-    if (!window.matchMedia || !window.matchMedia("(pointer: fine)").matches) return;
-    document.querySelectorAll("button.primary, a.primary, .btn-primary").forEach(btn => {
-      btn.classList.add("is-magnetic");
-      let raf = 0;
-      const reset = () => { btn.style.transform = ""; };
-      btn.addEventListener("pointermove", (e) => {
-        if (raf) cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(() => {
-          const rect = btn.getBoundingClientRect();
-          const dx = ((e.clientX - rect.left) / rect.width - 0.5) * 6;
-          const dy = ((e.clientY - rect.top) / rect.height - 0.5) * 4;
-          btn.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
-        });
-      });
-      btn.addEventListener("pointerleave", () => { if (raf) cancelAnimationFrame(raf); reset(); });
-    });
-  }
-
-  /* ===========================================================
-   * 2.8 标题字符渐显（为 [data-title-letters] 的元素自动分字）
-   * =========================================================== */
-  function setupTitleLetters() {
+  /* --- 2.1 像素星点背景 canvas --- */
+  function injectStars() {
+    if (document.querySelector(".xueji-stars")) return;
+    const canvas = document.createElement("canvas");
+    canvas.className = "xueji-stars";
+    canvas.setAttribute("aria-hidden", "true");
+    document.body.appendChild(canvas);
     if (reducedMotion) return;
-    document.querySelectorAll("[data-title-letters]").forEach(el => {
-      if (el.dataset.lettered === "1") return;
-      el.dataset.lettered = "1";
-      const text = el.textContent || "";
-      el.textContent = "";
-      el.classList.add("title-letters");
-      [...text].forEach((ch, i) => {
-        const span = document.createElement("span");
-        span.textContent = ch === " " ? "\u00A0" : ch;
-        span.style.animationDelay = (i * 60) + "ms";
-        el.appendChild(span);
-      });
-    });
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let w = 0, h = 0, dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    let stars = [];
+
+    const COLORS = ["#FFD23F", "#5BC0EB", "#7BC950", "#FF6EC7", "#FFF8E7"];
+
+    function resize() {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.min(120, Math.max(60, Math.floor((w * h) / 18000)));
+      stars = [];
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.floor(Math.random() * w),
+          y: Math.floor(Math.random() * h),
+          size: Math.random() < 0.85 ? 1 : 2,
+          c: COLORS[Math.floor(Math.random() * COLORS.length)],
+          tw: Math.random() * Math.PI * 2,
+          sp: 0.02 + Math.random() * 0.04
+        });
+      }
+    }
+
+    function tick() {
+      ctx.clearRect(0, 0, w, h);
+      const t = performance.now() / 1000;
+      for (const s of stars) {
+        const a = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(t * s.sp * 6 + s.tw));
+        ctx.globalAlpha = a;
+        ctx.fillStyle = s.c;
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(tick);
+    }
+
+    resize();
+    if (!reducedMotion) requestAnimationFrame(tick);
+    else {
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalAlpha = 0.6;
+      for (const s of stars) {
+        ctx.fillStyle = s.c;
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+      }
+      ctx.globalAlpha = 1;
+    }
+    let resizeT = 0;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeT);
+      resizeT = setTimeout(resize, 200);
+    }, { passive: true });
   }
 
+  /* --- 2.2 标题屏（PRESS START）--- */
+  function detectPageMeta() {
+    const path = (location.pathname || "").toLowerCase();
+    if (path.includes("parent")) return { code: "PARENT", name: "家长终端", subtitle: "PARENT · 灯下书卷" };
+    if (path.includes("student")) return { code: "STUDENT", name: "学生终端", subtitle: "STUDENT · 灯下书卷" };
+    if (path.includes("loop_tool") || path.includes("tool")) return { code: "ADMIN", name: "调度终端", subtitle: "ADMIN · 灯下书卷" };
+    return { code: "XUEJI", name: "灯下书卷", subtitle: "XUEJI · 灯下书卷" };
+  }
+
+  function injectTitleScreen() {
+    if (new URLSearchParams(location.search).get("skip-title") === "1") return;
+    if (document.querySelector(".title-screen")) return;
+    const meta = detectPageMeta();
+    const screen = document.createElement("div");
+    screen.className = "title-screen";
+    screen.setAttribute("role", "button");
+    screen.setAttribute("tabindex", "0");
+    screen.setAttribute("aria-label", "点击开始进入 " + meta.name);
+    screen.innerHTML = `
+      <div class="console">
+        <div class="logo">学记 · 灯下书卷</div>
+        <div class="subtitle">${meta.subtitle} · v8</div>
+        <div class="press-start">▶ PRESS START · 按 ENTER 开始</div>
+        <div class="hint">点击屏幕 / 敲击空格 / 按 ENTER 键 · 继续冒险</div>
+        <div class="copy">© 2026 灯下书卷 · RPG QUEST LOG</div>
+      </div>
+    `;
+    document.body.appendChild(screen);
+    return screen;
+  }
+
+  function setupTitleScreen() {
+    const screen = document.querySelector(".title-screen");
+    if (!screen) return;
+    let started = false;
+    const start = () => {
+      if (started) return;
+      started = true;
+      screen.classList.add("fade-out");
+      setTimeout(() => {
+        screen.setAttribute("hidden", "");
+        if (window.xuejiToast) {
+          window.xuejiToast("冒险开始 · 灯下书卷已就绪", { type: "good", pos: "tr", dur: 1800 });
+        }
+      }, 380);
+    };
+    screen.addEventListener("click", start);
+    screen.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        start();
+      }
+    });
+    const onceKey = (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        start();
+        document.removeEventListener("keydown", onceKey);
+      }
+    };
+    setTimeout(() => document.addEventListener("keydown", onceKey), 50);
+  }
+
+  /* --- 2.3 主屏包裹为 .frame --- */
+  function wrapAsFrame() {
+    const main = document.querySelector("main, .workarea");
+    if (!main || main.classList.contains("frame")) return;
+    const frame = document.createElement("div");
+    frame.className = "frame";
+    const top = document.createElement("div");
+    top.className = "frame-top";
+    const meta = detectPageMeta();
+    top.textContent = "★ QUEST LOG · " + meta.name + " ★";
+    const foot = document.createElement("div");
+    foot.className = "frame-foot";
+    foot.textContent = "v8 · 像素 RPG · 灯下书卷";
+    while (main.firstChild) frame.appendChild(main.firstChild);
+    main.appendChild(top);
+    main.appendChild(frame);
+    main.appendChild(foot);
+  }
+
+  /* --- 2.4 任务日志 tab + 详情对话框 --- */
+  const QUEST_CATEGORIES = [
+    { key: "all",    label: "全部",   cn: "全部" },
+    { key: "main",   label: "主线",   cn: "主线" },
+    { key: "side",   label: "支线",   cn: "支线" },
+    { key: "codex",  label: "图鉴",   cn: "图鉴" },
+    { key: "legend", label: "传说",   cn: "传说" }
+  ];
+
+  // 把现有元素按子节点位置 → 任务分类
+  function classifyRow(el, indexInParent, totalInParent) {
+    // 顺序：前 50% 视为主线；之后 30% 支线；最后 20% 传说
+    const ratio = totalInParent <= 1 ? 0 : (indexInParent / (totalInParent - 1));
+    if (ratio < 0.5) return "main";
+    if (ratio < 0.8) return "side";
+    return "legend";
+  }
+
+  // 过滤掉不合格的"任务条目"——例如隐藏的 tab content、纯数字标签、空标题
+  function isValidQuest(el) {
+    // 1) 不能在隐藏元素里
+    if (el.closest('[hidden], .hidden, [style*="display: none"], [style*="display:none"]')) return false;
+    // 2) 不能在 .tab-content 容器里（学生端每个标签页的内容）—— 避免重复任务
+    if (el.closest('.tab-content, .tab-pane, [role="tabpanel"][aria-hidden="true"]')) return false;
+    // 3) 元素可见
+    const rect = el.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return false;
+    // 4) 不能是 input/button/form 本身
+    if (el.matches('input, button, form, select, textarea, label, a[href]')) return false;
+    return true;
+  }
+
+  // 提取更好的标题
+  function pickTitle(el) {
+    // 优先取 strong
+    const strong = el.querySelector("strong, .quick-name, .title, .name, h1, h2, h3, h4");
+    if (strong) {
+      const t = strong.textContent.trim();
+      if (t && t.length >= 2) return t;
+    }
+    // 退而取元素的纯文本（去掉数字干扰）
+    const text = (el.textContent || "").replace(/\s+/g, " ").trim();
+    return text.slice(0, 20);
+  }
+
+  // 描述
+  function pickDesc(el) {
+    const descEl = el.querySelector("p, .desc, .quick-desc, .sub, .label, span");
+    return (descEl ? descEl.textContent.replace(/\s+/g, " ").trim() : "").slice(0, 80);
+  }
+
+  function buildQuestList() {
+    const sels = [
+      ".trust-strip > *",
+      ".today-grid > *",
+      ".ops-grid > *",
+      ".steps > *",
+      ".student-trust > *",
+      ".quick-tile",
+      ".guide-card",
+      ".student-card",
+      ".knowledge-card",
+      ".voice-card"
+    ];
+    const seen = new Set();
+    const rows = [];
+    sels.forEach(sel => {
+      document.querySelectorAll(sel).forEach((el) => {
+        if (el.dataset.questBound === "1") return;
+        if (!isValidQuest(el)) return;
+        // 去重：相同 strong 文本的只取一次
+        const title = pickTitle(el);
+        if (!title || title.length < 2) return;
+        // 过滤纯数字/单字标签（如 "0问"、"3"）
+        if (/^[\d\s\.,:·、，：。]+$/.test(title)) return;
+        if (seen.has(title)) return;
+        seen.add(title);
+        el.dataset.questBound = "1";
+        el.classList.add("q-row-clickable");
+
+        const desc = pickDesc(el);
+        const parent = el.parentElement;
+        const sibs = parent ? parent.children : [el];
+        const idxInParent = Array.prototype.indexOf.call(sibs, el);
+        const cat = classifyRow(el, idxInParent, sibs.length);
+        const exp = 20 + (rows.length % 5) * 30;
+        rows.push({
+          el, title, desc, cat, exp,
+          isDone: el.classList.contains("done") || el.dataset.done === "1",
+          isPinned: el.classList.contains("pinned") || el.dataset.pinned === "1"
+        });
+      });
+    });
+    return rows;
+  }
+
+  function buildQuestSection(quests) {
+    if (document.querySelector(".quest.xueji-quest-log")) return;
+    const host = document.querySelector("main, .workarea") || document.body;
+
+    const section = document.createElement("section");
+    section.className = "quest xueji-quest-log";
+    section.style.cssText = "padding: 16px 24px;";
+    section.innerHTML = `
+      <div class="tabs" data-xueji-tabs>
+        ${QUEST_CATEGORIES.map((c, i) => `
+          <button type="button" class="tab ${i === 0 ? "active" : ""}" data-cat="${c.key}">
+            ${c.label}<span class="c">0</span>
+          </button>
+        `).join("")}
+      </div>
+      <div class="q-list" data-xueji-qlist></div>
+    `;
+    host.appendChild(section);
+
+    const tabsHost = section.querySelector("[data-xueji-tabs]");
+    const listHost = section.querySelector("[data-xueji-qlist]");
+    function recount() {
+      const counts = { all: quests.length, main: 0, side: 0, codex: 0, legend: 0 };
+      quests.forEach(q => { counts[q.cat] = (counts[q.cat] || 0) + 1; });
+      tabsHost.querySelectorAll(".tab").forEach(t => {
+        const k = t.dataset.cat;
+        const c = counts[k] || 0;
+        t.querySelector(".c").textContent = c;
+      });
+    }
+    recount();
+
+    function render(filter) {
+      const items = quests
+        .map((q, i) => ({ q, i }))
+        .filter(({ q }) => filter === "all" ? true : q.cat === filter);
+      listHost.innerHTML = items.map(({ q, i }) => {
+        const tagClass = "tag-" + q.cat;
+        const tagLabel = (QUEST_CATEGORIES.find(c => c.key === q.cat) || {}).label || "主线";
+        return `
+          <div class="q-row" data-idx="${i}" data-qidx="${quests.indexOf(q)}">
+            <span class="q-check ${q.isDone ? "" : "un"}">${q.isDone ? "✔" : "○"}</span>
+            <div>
+              <div class="q-title">${escapeHtml(q.title)}</div>
+              <div class="q-cat">${tagLabel} · 任务 #${(quests.indexOf(q) + 1).toString().padStart(2, "0")}${q.isPinned ? '<span class="q-pin"> ★ 置顶</span>' : ""}</div>
+            </div>
+            <span class="d-tag ${tagClass}">${tagLabel}</span>
+            <span class="q-exp">+${q.exp} EXP</span>
+          </div>
+        `;
+      }).join("") || `<div class="q-row" style="cursor:default"><span class="q-check un">○</span><div class="q-title">当前分类暂无任务</div><span></span><span></span></div>`;
+      listHost.querySelectorAll(".q-row").forEach(row => {
+        if (row.dataset.bound === "1") return;
+        row.dataset.bound = "1";
+        row.addEventListener("click", () => {
+          const idx = parseInt(row.dataset.qidx, 10);
+          openDialogue(quests[idx]);
+        });
+      });
+    }
+
+    tabsHost.querySelectorAll(".tab").forEach(t => {
+      t.addEventListener("click", () => {
+        tabsHost.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+        t.classList.add("active");
+        render(t.dataset.cat);
+      });
+    });
+
+    render("all");
+  }
+
+  function escapeHtml(s) {
+    return String(s || "").replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  /* --- 2.5 详情对话框 --- */
+  let dialogueOpen = false;
+  let dialogueList = [];
+  let dialogueIndex = 0;
+
+  function ensureDialogueHost() {
+    if (document.querySelector(".dialogue.xueji-dialogue")) return;
+    const d = document.createElement("div");
+    d.className = "dialogue xueji-dialogue";
+    d.setAttribute("hidden", "");
+    d.innerHTML = `
+      <div class="d-head">
+        <span class="d-name">NPC · 灯下书卷</span>
+        <span class="d-tag tag-main" data-xueji-dtag>主线</span>
+      </div>
+      <div class="d-body" data-xueji-dbody></div>
+      <div class="d-foot">
+        <span class="d-next" data-xueji-dnext>▼ 按 ESC 关闭 · 方向键切换</span>
+        <div class="d-actions">
+          <button type="button" data-xueji-dprev>◀ 上页</button>
+          <button type="button" data-xueji-dnext-btn>下页 ▶</button>
+          <button type="button" data-xueji-dclose>关闭 ✕</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(d);
+    d.querySelector("[data-xueji-dprev]").addEventListener("click", () => moveDialogue(-1));
+    d.querySelector("[data-xueji-dnext-btn]").addEventListener("click", () => moveDialogue(+1));
+    d.querySelector("[data-xueji-dclose]").addEventListener("click", closeDialogue);
+  }
+
+  function openDialogue(item) {
+    if (!item) return;
+    dialogueList = Array.from(document.querySelectorAll(".xueji-quest-log .q-row"))
+      .map(r => parseInt(r.dataset.qidx, 10))
+      .map(i => window.__xuejiQuests ? window.__xuejiQuests[i] : null)
+      .filter(Boolean);
+    dialogueIndex = dialogueList.indexOf(item);
+    if (dialogueIndex < 0) dialogueIndex = 0;
+    renderDialogue();
+  }
+
+  function renderDialogue() {
+    const d = document.querySelector(".dialogue.xueji-dialogue");
+    if (!d) return;
+    const item = dialogueList[dialogueIndex];
+    if (!item) {
+      closeDialogue();
+      return;
+    }
+    d.removeAttribute("hidden");
+    dialogueOpen = true;
+    const tag = d.querySelector("[data-xueji-dtag]");
+    const labelMap = { main: "主线", side: "支线", codex: "图鉴", legend: "传说" };
+    tag.className = "d-tag tag-" + item.cat;
+    tag.textContent = labelMap[item.cat] || "主线";
+    const body = d.querySelector("[data-xueji-dbody]");
+    const expLine = `<p style="color: var(--gold); font-family: var(--font-mono);">+${item.exp} EXP · 任务奖励</p>`;
+    body.innerHTML = `
+      <h2>${escapeHtml(item.title)}</h2>
+      <p>${item.desc ? escapeHtml(item.desc) : "本任务包含一段剧情或操作说明，点击「下页」可继续浏览；按 ESC 可关闭对话框。"}${item.isDone ? '<span style="color: var(--green); margin-left: 8px;">✔ 已完成</span>' : ""}</p>
+      ${expLine}
+      <h3>任务指引</h3>
+      <ul>
+        <li>查看顶部状态条（HP / MP / EXP）确认角色状态</li>
+        <li>点击主菜单「继续冒险」或「成就墙」可切换主屏</li>
+        <li>不确定时回「任务日志」切换分类（主线 / 支线 / 图鉴 / 传说）</li>
+      </ul>
+    `;
+    d.querySelector("[data-xueji-dprev]").disabled = dialogueIndex <= 0;
+    d.querySelector("[data-xueji-dnext-btn]").disabled = dialogueIndex >= dialogueList.length - 1;
+    d.querySelector("[data-xueji-dnext]").textContent =
+      `▼ 第 ${dialogueIndex + 1} / ${dialogueList.length} 条 · ESC 关闭 · 方向键切换`;
+  }
+
+  function moveDialogue(delta) {
+    if (!dialogueOpen) return;
+    const next = dialogueIndex + delta;
+    if (next < 0 || next >= dialogueList.length) return;
+    dialogueIndex = next;
+    renderDialogue();
+  }
+
+  function closeDialogue() {
+    const d = document.querySelector(".dialogue.xueji-dialogue");
+    if (!d) return;
+    d.setAttribute("hidden", "");
+    dialogueOpen = false;
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (!dialogueOpen) return;
+    if (e.key === "Escape") { closeDialogue(); e.preventDefault(); return; }
+    if (e.key === "ArrowLeft") { moveDialogue(-1); e.preventDefault(); }
+    if (e.key === "ArrowRight") { moveDialogue(+1); e.preventDefault(); }
+  });
+
   /* ===========================================================
-     3. Preview badge
+     3. Preview 徽章
      =========================================================== */
   function injectPreviewBadge() {
     if (!previewOn) return;
@@ -465,14 +685,14 @@
   }
 
   /* ===========================================================
-     4. 动效引擎
+     4. 动效引擎（沿用 v7）
      =========================================================== */
   function setupReveal() {
     if (reducedMotion) {
       document.querySelectorAll(".fx-reveal").forEach(el => el.classList.add("in"));
       return;
     }
-    const targets = document.querySelectorAll("section, .today-overview, .student-card, .guide-card, .ops-card, .today-cell, .trust-item, .step, .knowledge-card, .voice-card, .card, .auth-panel, .hero");
+    const targets = document.querySelectorAll("section, .today-overview, .student-card, .guide-card, .ops-card, .today-cell, .trust-item, .step, .knowledge-card, .voice-card, .card, .auth-panel, .hero, .quest");
     targets.forEach((el, idx) => {
       el.classList.add("fx-reveal");
       el.style.transitionDelay = Math.min(idx * 30, 200) + "ms";
@@ -533,26 +753,6 @@
     }, { passive: true });
   }
 
-  function setupTilt() {
-    if (reducedMotion || isMobile) return;
-    const targets = document.querySelectorAll(".student-card, .ops-card, .guide-card, .today-cell, .trust-item, .knowledge-card");
-    targets.forEach(el => {
-      let raf = 0;
-      el.addEventListener("pointermove", (e) => {
-        if (raf) cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(() => {
-          const rect = el.getBoundingClientRect();
-          const x = ((e.clientX - rect.left) / rect.width - 0.5) * 4;
-          const y = -((e.clientY - rect.top) / rect.height - 0.5) * 4;
-          el.style.transform = `perspective(800px) rotateX(${y}deg) rotateY(${x}deg) translateY(-2px)`;
-        });
-      });
-      el.addEventListener("pointerleave", () => {
-        el.style.transform = "";
-      });
-    });
-  }
-
   function setupMeterSheen() {
     if (reducedMotion) return;
     document.querySelectorAll(".meter span").forEach(span => {
@@ -563,119 +763,29 @@
     });
   }
 
+  function setupTitleLetters() {
+    if (reducedMotion) return;
+    document.querySelectorAll("[data-title-letters]").forEach(el => {
+      if (el.dataset.lettered === "1") return;
+      el.dataset.lettered = "1";
+      const text = el.textContent || "";
+      el.textContent = "";
+      el.classList.add("title-letters");
+      [...text].forEach((ch, i) => {
+        const span = document.createElement("span");
+        span.textContent = ch === " " ? "\u00A0" : ch;
+        span.style.animationDelay = (i * 60) + "ms";
+        el.appendChild(span);
+      });
+    });
+  }
+
   function setupCarousel() {
     document.querySelectorAll(".row-carousel").forEach(c => {
       c.setAttribute("tabindex", "0");
       c.setAttribute("role", "region");
       c.setAttribute("aria-label", "横向滑动浏览");
     });
-  }
-
-  /* ===========================================================
-   * 4.5 首屏低信息密度：横向滑动卡片轮播
-   * 把每个页面 hero 区之后的核心「下一步行动」浓缩成 3-5 张横向滑卡
-   * 首屏只露 1.x 张，其余靠滑动揭示 → 降低第一眼信息密度
-   * =========================================================== */
-  const CAROUSEL_PLANS = {
-    parent: {
-      eyebrow: "今日 · 一目了然",
-      title: "从这一步开始",
-      hint: "← 横向滑动 · 5 项待办",
-      tiles: [
-        { icon: "📒", name: "填写问卷", desc: "约 3 分钟", badge: "1" },
-        { icon: "🌱", name: "查看计划", desc: "今日节奏", badge: "2" },
-        { icon: "💬", name: "听孩子跟读", desc: "上传录音", badge: "3" },
-        { icon: "🪶", name: "本周反馈", desc: "AI 已就绪" },
-        { icon: "🎁", name: "邀请好友", desc: "解锁奖励" }
-      ]
-    },
-    student: {
-      eyebrow: "今天 · 灯下开始",
-      title: "先做一件事",
-      hint: "← 横向滑动 · 3 件小事",
-      tiles: [
-        { icon: "🎙", name: "今日跟读", desc: "开口即成长", badge: "1" },
-        { icon: "🃏", name: "知识卡", desc: "回顾 + 1", badge: "2" },
-        { icon: "📜", name: "昨日回顾", desc: "看看进步" }
-      ]
-    },
-    admin: {
-      eyebrow: "调度台",
-      title: "今天要看的三件事",
-      hint: "← 横向滑动",
-      tiles: [
-        { icon: "👥", name: "学生列表", desc: "今日活跃", badge: "12" },
-        { icon: "🛠", name: "调整队列", desc: "待处理", badge: "3" },
-        { icon: "✨", name: "AI 任务", desc: "运行中", badge: "5" }
-      ]
-    },
-    default: {
-      eyebrow: "快捷",
-      title: "从这里开始",
-      hint: "← 横向滑动",
-      tiles: [
-        { icon: "✨", name: "开始", desc: "进入下一步" },
-        { icon: "📒", name: "记录", desc: "今日点滴" },
-        { icon: "💬", name: "对话", desc: "跟 AI 聊聊" }
-      ]
-    }
-  };
-
-  function detectPage() {
-    const path = (location.pathname || "").toLowerCase();
-    if (path.includes("parent")) return "parent";
-    if (path.includes("student")) return "student";
-    if (path.includes("loop_tool") || path.includes("tool")) return "admin";
-    return "default";
-  }
-
-  function pickCarouselHost(page) {
-    const sels = {
-      parent: [".service-brief", ".tab-content", "main", "body"],
-      student: [".today-overview", "main", "body"],
-      admin: [".workarea", "main", "body"],
-      default: ["main", "body"]
-    }[page] || ["main", "body"];
-    for (const s of sels) {
-      const el = document.querySelector(s);
-      if (el) return el;
-    }
-    return document.body;
-  }
-
-  function buildQuickCarousel() {
-    const page = detectPage();
-    const plan = CAROUSEL_PLANS[page] || CAROUSEL_PLANS.default;
-    const host = pickCarouselHost(page);
-    if (!host) return;
-    if (host.querySelector(".row-carousel.xueji-quick")) return; // 防重复
-
-    const row = document.createElement("section");
-    row.className = "row-carousel xueji-quick fx-reveal";
-    row.setAttribute("aria-label", "快捷操作 · 横向滑动浏览");
-    row.innerHTML = `
-      <div class="quick-head">
-        <span class="quick-eyebrow">${plan.eyebrow}</span>
-        <h3 class="quick-title">${plan.title}</h3>
-        <span class="quick-hint">${plan.hint}</span>
-      </div>
-      <div class="quick-track">
-        ${plan.tiles
-          .map(
-            (t, i) => `
-          <article class="quick-tile" data-idx="${i}">
-            <span class="quick-ico" aria-hidden="true">${t.icon}</span>
-            <div class="quick-body">
-              <div class="quick-name">${t.name}</div>
-              <div class="quick-desc">${t.desc}</div>
-            </div>
-            ${t.badge ? `<span class="quick-badge">${t.badge}</span>` : ""}
-          </article>`
-          )
-          .join("")}
-      </div>
-    `;
-    host.appendChild(row);
   }
 
   /* ===========================================================
@@ -703,20 +813,43 @@
      6. 初始化
      =========================================================== */
   function init() {
-    injectFxBg();
-    injectLamp();
-    setupLamp();
-    setupCursorGlow();
-    setupMagneticButtons();
-    setupTitleLetters();
+    injectStars();
+    injectTitleScreen();
+    setupTitleScreen();
     injectPreviewBadge();
+    ensureDialogueHost();
     setupReveal();
     setupCountUp();
     setupRipple();
-    setupTilt();
     setupMeterSheen();
+    setupTitleLetters();
     setupCarousel();
-    buildQuickCarousel();
+
+    setTimeout(() => {
+      try {
+        wrapAsFrame();
+        const quests = buildQuestList();
+        window.__xuejiQuests = quests;
+        if (quests.length > 0) {
+          buildQuestSection(quests);
+        } else {
+          // 没有任何候选任务时，注入一段 RPG 教程任务
+          const seed = [
+            { title: "认识灯下书卷", desc: "学记是游戏化学习任务系统，把学习包装成主线 / 支线 / 图鉴 / 传说四类任务。", cat: "main", exp: 50 },
+            { title: "完成今日 5 步学习流", desc: "跟读 / 记忆故事 / 知识卡 / 往日回顾 / 今日打卡，每天 5 步。", cat: "main", exp: 80 },
+            { title: "查看家长端计划", desc: "家长端会按 5 科路径排计划，确认后再生成知识卡。", cat: "side", exp: 30 },
+            { title: "知识图鉴", desc: "复习 D1 / D3 / D7 间隔循环，错卡优先回炉。", cat: "codex", exp: 60 },
+            { title: "每日反馈", desc: "记录完成数、会了几张、情绪和★卡，决定下一版调整。", cat: "side", exp: 40 },
+            { title: "邀请好友", desc: "邀请其他家长加入，双方各得 7 天权益。", cat: "legend", exp: 200 }
+          ];
+          window.__xuejiQuests = seed;
+          buildQuestSection(seed);
+        }
+      } catch (err) {
+        console.warn("[xueji] v8 frame/quest 初始化失败：", err);
+      }
+    }, 60);
+
     if (previewOn) {
       setTimeout(() => {
         window.xuejiToast("预览模式：所有 /api/* 由本引擎模拟返回", { type: "warn", pos: "tr" });

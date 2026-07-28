@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZeroXCore · 传说</title>
+<link rel="preconnect" href="https://miaoda.feishu.cn" crossorigin>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Press+Start+2P&family=ZCOOL+QingKe+HuangYou&family=VT323&family=DotGothic16&family=Noto+Sans+SC:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body class="rpg" data-state="title">
+  <canvas class="stars" id="stars" aria-hidden="true"></canvas>
+
+  <!-- 标题屏 -->
+  <section class="screen title-screen" id="titleScreen">
+    <div class="console" role="button" tabindex="0" id="startBtn">
+      <div class="logo">ZEROXCORE</div>
+      <div class="subtitle">~ A Developer's Chronicle ~</div>
+      <div class="copy" id="copy">© 2026 ZXC STUDIO</div>
+      <div class="press-start" id="pressStart">▶ PRESS START</div>
+      <div class="hint" id="hint">[ 点击屏幕 / 按 Enter / 按 Space 开始 ]</div>
+    </div>
+  </section>
+
+  <!-- 角色卡 + 菜单 -->
+  <section class="screen card-screen" id="cardScreen" hidden>
+    <div class="frame">
+      <div class="frame-top">— CHARACTER STATUS —</div>
+      <div class="card-grid">
+        <div class="portrait" aria-hidden="true">
+          <div class="portrait-inner">
+            <div class="hat"></div>
+            <div class="face"></div>
+            <div class="body"></div>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="name">朱 曦 策 <span class="lv">LV.28</span></div>
+          <div class="class">职业 · 全栈工程师</div>
+          <div class="bars">
+            <div class="bar"><span class="lbl">HP · 精力</span><div class="track"><div class="fill hp" style="width:84%"></div></div><span class="val">84/100</span></div>
+            <div class="bar"><span class="lbl">MP · 灵感</span><div class="track"><div class="fill mp" style="width:62%"></div></div><span class="val">62/100</span></div>
+            <div class="bar"><span class="lbl">EXP · 经验</span><div class="track"><div class="fill exp" style="width:46%"></div></div><span class="val">4612/9999</span></div>
+          </div>
+          <div class="equips">
+            <div class="eq"><span class="k">武器</span><span>⌨ 机械键盘 · 87 键</span></div>
+            <div class="eq"><span class="k">副手</span><span>📷 富士 X-T5</span></div>
+            <div class="eq"><span class="k">坐骑</span><span>👟 Saucony 啡鹏</span></div>
+            <div class="eq"><span class="k">宠物</span><span>🐱 橘猫一只</span></div>
+          </div>
+          <div class="nums">
+            <div class="num"><b id="statPosts">8</b><span>已发表文章</span></div>
+            <div class="num"><b id="statCats">3</b><span>任务类别</span></div>
+            <div class="num"><b id="statDays">120</b><span>冒险天数</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="menu" id="menu">
+        <div class="menu-item" data-go="posts" tabindex="0">▶ 继续冒险 · 任务日志</div>
+        <div class="menu-item" data-go="about" tabindex="0">　成就墙</div>
+        <div class="menu-item" data-go="settings" tabindex="0">　设置 · 音效</div>
+        <div class="menu-item" data-go="quit" tabindex="0">　退出</div>
+      </div>
+      <div class="frame-foot">[ ↑/↓ 选择 · Enter 确认 ]</div>
+    </div>
+  </section>
+
+  <!-- 关于 RPG 风提示 -->
+  <section class="screen about-screen" id="aboutScreen" hidden>
+    <div class="frame">
+      <div class="frame-top">— 成就墙 · ACHIEVEMENTS —</div>
+      <ul class="ach">
+        <li>🥇 <b>开源先驱</b> · 在 GitHub 发布 12 个仓库</li>
+        <li>🎬 <b>影像记录者</b> · 完成 8 卷胶片扫描</li>
+        <li>🏃 <b>铁人新秀</b> · 完成首场标准距离铁三</li>
+        <li>🛠 <b>零号架构师</b> · 搭建 ZeroXCore 主体</li>
+        <li>⭐ <b>长文作者</b> · 单篇 2000+ 字技术文章 × 3</li>
+        <li>🌙 <b>夜行者</b> · 凌晨 4 点城市跑步解锁</li>
+      </ul>
+      <div class="menu"><div class="menu-item" data-go="back" tabindex="0">▶ 返回</div></div>
+    </div>
+  </section>
+
+  <script src="assets/data.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

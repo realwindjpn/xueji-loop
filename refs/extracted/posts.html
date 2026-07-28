@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>任务日志 · ZeroXCore</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Press+Start+2P&family=ZCOOL+QingKe+HuangYou&family=VT323&family=DotGothic16&family=Noto+Sans+SC:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body class="rpg" data-state="quest">
+  <canvas class="stars" aria-hidden="true"></canvas>
+
+  <section class="screen" id="questScreen">
+    <div class="frame" style="max-width: 960px;">
+      <div class="frame-top">— QUEST LOG · 任务日志 —</div>
+      <div class="quest">
+        <div class="tabs" id="tabs"></div>
+        <div id="rows"></div>
+        <div style="text-align:center; margin-top:16px;">
+          <a class="tab" href="index.html" style="background: var(--night); text-decoration: none; display: inline-block;">◀ 返回标题</a>
+        </div>
+      </div>
+      <div class="frame-foot">[ 点击任务查看 · 主线/支线/图鉴/传说 是分类 ]</div>
+    </div>
+  </section>
+
+  <section class="dialogue" id="dlg" hidden>
+    <div class="d-head">
+      <span class="d-tag" id="dTag">主线</span>
+      <span class="d-name" id="dName">—</span>
+    </div>
+    <div class="d-body" id="dBody">—</div>
+    <div class="d-foot">
+      <span class="d-next" id="dNext">▼ NEXT</span>
+      <span class="d-actions">
+        <button id="dPrev" disabled>◀ PREV</button>
+        <button id="dNext2">NEXT ▶</button>
+        <button id="dClose">CLOSE ✕</button>
+      </span>
+    </div>
+  </section>
+
+  <script src="assets/data.js"></script>
+  <script src="assets/app.js"></script>
+  <script>
+    (function () {
+      const D = window.ZX_DATA;
+      const TABS = [
+        { id: 'all',     n: '全部',   map: () => D.posts },
+        { id: 'dev',     n: '主线',   map: () => D.posts.filter(p => p.cat === 'dev') },
+        { id: 'daily',   n: '支线',   map: () => D.posts.filter(p => p.cat === 'daily') },
+        { id: 'media',   n: '图鉴',   map: () => D.posts.filter(p => p.cat === 'media') },
+        { id: 'starred', n: '传说',   map: () => D.posts.filter(p => p.starred) },
+      ];
+      const params = new URLSearchParams(location.search);
+      const cur = params.get('cat') || 'all';
+      const tabsEl = document.getElementById('tabs');
+      tabsEl.innerHTML = TABS.map(t => `<div class="tab ${t.id===cur?'active':''}" data-id="${t.id}">${t.n}<span class="c">${t.map().length}</span></div>`).join('');
+      tabsEl.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => { location.search = '?cat=' + t.dataset.id; }));
+
+      const rows = document.getElementById('rows');
+      let list = TABS.find(t => t.id === cur).map().slice().sort((a,b) => (b.pinned?1:0) - (a.pinned?1:0) || (a.date < b.date ? 1 : -1));
+      rows.innerHTML = list.map(p => `
+        <div class="q-row done" data-slug="${p.slug}">
+          <span class="q-check">✓</span>
+          <div>
+            <div class="q-title">${p.title}${p.pinned?'<span class="q-pin"> ★</span>':''}${p.starred?'<span class="q-star"> ♥</span>':''}</div>
+            <div class="q-cat">${p.catName} · 完成于 ${p.date}</div>
+          </div>
+          <span class="q-exp">+${p.minutes*10} EXP</span>
+          <span class="q-cat" style="text-align:right;">▼ READ</span>
+        </div>
+      `).join('');
+
+      // 对话框（逐段：标题 → 介绍 → 正文段落）
+      const dlg = document.getElementById('dlg');
+      const dTag = document.getElementById('dTag');
+      const dName = document.getElementById('dName');
+      const dBody = document.getElementById('dBody');
+      const dNext = document.getElementById('dNext');
+      const dNext2 = document.getElementById('dNext2');
+      const dPrev = document.getElementById('dPrev');
+      const dClose = document.getElementById('dClose');
+      let curPost = null, curPage = 0;
+      const pages = (p) => {
+        const out = [];
+        out.push(`<h2>${p.title}</h2><p>${p.catName} · ${p.date} · ${p.minutes} min${p.starred?' · ♥':''}</p>`);
+        // 拆分 html 的 h2/h3 块成页面
+        const blocks = p.html.split(/(?=<h[23]>)/);
+        blocks.forEach(b => { if (b.trim()) out.push(b); });
+        return out;
+      };
+      function open(slug) {
+        curPost = list.find(x => x.slug === slug); if (!curPost) return;
+        curPage = 0; render();
+        dlg.hidden = false;
+        dlg.scrollIntoView({ block: 'end' });
+      }
+      function render() {
+        const all = pages(curPost);
+        dTag.textContent = curPost.catName;
+        dName.textContent = '任务 #' + curPost.slug;
+        dBody.innerHTML = all[curPage] || '';
+        dPrev.disabled = curPage === 0;
+        dNext2.disabled = curPage >= all.length - 1;
+        dNext.style.visibility = curPage < all.length - 1 ? 'visible' : 'hidden';
+        // 逐字打字
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          const txt = dBody.textContent;
+          dBody.dataset.txt = txt;
+          dBody.textContent = '';
+          let i = 0;
+          const tick = () => {
+            if (i < txt.length) { dBody.textContent += txt[i++]; setTimeout(tick, 8); }
+          };
+          tick();
+        }
+      }
+      rows.querySelectorAll('.q-row').forEach(r => r.addEventListener('click', () => open(r.dataset.slug)));
+      dNext2.addEventListener('click', () => { if (curPage < pages(curPost).length - 1) { curPage++; render(); }});
+      dPrev.addEventListener('click', () => { if (curPage > 0) { curPage--; render(); }});
+      dClose.addEventListener('click', () => dlg.hidden = true);
+      dNext.addEventListener('click', () => { if (curPage < pages(curPost).length - 1) { curPage++; render(); }});
+      addEventListener('keydown', e => {
+        if (dlg.hidden) return;
+        if (e.key === 'Escape') dlg.hidden = true;
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); if (curPage < pages(curPost).length - 1) { curPage++; render(); } }
+        if (e.key === 'ArrowLeft') { if (curPage > 0) { curPage--; render(); } }
+      });
+
+      // 星空（独立页面，每次重新初始化）
+      const cv = document.getElementById('stars');
+      const ctx = cv.getContext('2d');
+      function resize() { cv.width = innerWidth; cv.height = innerHeight; }
+      resize(); addEventListener('resize', resize);
+      const stars = Array.from({ length: 50 }, () => ({ x: Math.random() * cv.width, y: Math.random() * cv.height, s: Math.random() * 2 + 0.5, v: Math.random() * 0.3 + 0.05 }));
+      function t() {
+        ctx.clearRect(0,0,cv.width,cv.height);
+        stars.forEach(s => { s.y += s.v; if (s.y > cv.height) s.y = -2; ctx.fillStyle = '#FFF8E7'; ctx.fillRect(s.x, s.y, s.s, s.s); });
+        requestAnimationFrame(t);
+      }
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) t();
+    })();
+  </script>
+</body>
+</html>

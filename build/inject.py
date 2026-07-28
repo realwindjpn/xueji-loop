@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-学记 · 灯下书卷 v7 — 注入器
+学记 · 灯下书卷 v8 — 注入器（像素 RPG 主题）
 从干净基线出发，单层重写视觉层：
   1) 替换 <style>...</style> 为新主题 CSS（内联）
   2) 注入 fx-engine.js 到 <head> 最前面（必须早于页面内联 script，让 fetch 拦截先行）
@@ -11,7 +11,7 @@ import os
 import re
 from pathlib import Path
 
-VERSION = 7
+VERSION = 8
 
 ROOT = Path(__file__).resolve().parent.parent  # xueji-loop/
 BUILD = ROOT / "build"
@@ -22,7 +22,7 @@ FX = (BUILD / "fx-engine.js").read_text(encoding="utf-8")
 # 注入到 <head> 最前面 —— 这样可以早于页面 body 内的内联 script 把 fetch 装好
 # 否则页面里的 refreshMe()、api("/health") 等会在 fx-engine 加载前就飞出去打 404
 FX_INLINE_HEAD = (
-    f"\n<!-- xueji-fx-engine v{VERSION} · 灯下书卷 预览模式 + 装饰 + 动效 -->\n"
+    f"\n<!-- xueji-fx-engine v{VERSION} · 像素 RPG · 标题屏 + 任务日志 + 对话框 -->\n"
     "<script>\n" + FX + "\n</script>\n"
 )
 
