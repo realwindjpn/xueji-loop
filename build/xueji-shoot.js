@@ -16,6 +16,23 @@ const PAGES = [
   { name: "admin", file: "xueji_loop_tool_api.html" }
 ];
 
+// 跨平台 Chrome/Chromium 候选 + 显式 CHROME_PATH 覆盖
+const chromeCandidates = [
+  process.env.CHROME_PATH,
+  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+  "/opt/chromium.org/chromium/chrome",
+  "/usr/bin/google-chrome",
+  "/usr/bin/chromium",
+  "/usr/bin/chromium-browser",
+  "/snap/bin/chromium"
+].filter(Boolean);
+const executablePath = chromeCandidates.find(p => { try { return fs.existsSync(p); } catch (_) { return false; } });
+if (!executablePath) {
+  throw new Error("未找到 Chrome/Chromium；请设置 CHROME_PATH。候选路径：" + chromeCandidates.join(", "));
+}
+console.log("[shoot] using chrome:", executablePath);
+
 const MIME = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "application/javascript", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
 
 const srv = http.createServer((req, res) => {
