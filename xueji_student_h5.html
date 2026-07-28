@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<!-- xueji-fx-engine v8.1 · 像素 RPG · 标题屏 + 任务日志 + 对话框 -->
+<!-- xueji-fx-engine v8.2 · 像素 RPG · 标题屏 + 任务日志 + 对话框 -->
 <script>
 /* ============================================================
    学记 · 灯下书卷  v8 — fx-engine.js
@@ -931,6 +931,14 @@
   --r-xl: 0;
   --container: 1200px;
 
+  /* === v8.2 布局系统 === */
+  --layout-max: 1180px;
+  --layout-gutter: clamp(8px, 2vw, 24px);
+  --section-pad: clamp(16px, 2.4vw, 28px);
+  --control-min-h: 42px;
+  --touch-min-h: 44px;
+  --sidebar-min: 340px;
+
   /* === 缓动（保留） === */
   --ease: cubic-bezier(.22,.61,.36,1);
   --ease-out: cubic-bezier(.16,1,.3,1);
@@ -1504,6 +1512,143 @@ label { display: block; font-family: var(--font-pixel); color: var(--blue); font
 .field { margin-bottom: var(--s-4); min-width: 0; }
 .field .hint { font-size: 13px; color: var(--panel-2); margin-top: 6px; line-height: 1.6; word-break: break-word; }
 
+/* ============================================================
+   v8.2 共享布局系统
+   - 页面容器：--layout-max 1180px + --layout-gutter 24px 安全边距
+   - 共享组件：.grid / .head / .actions / .split / .table-scroll / .toolbar-actions
+   - 通用溢出防御：min-width: 0 / overflow-wrap: anywhere
+   ============================================================ */
+html, body { max-width: 100%; overflow-x: clip; }
+main, header, nav, footer, section, form, fieldset, .frame, .workarea,
+.content, .body, .grid, .actions, .section-head, .head { min-width: 0; }
+
+button, .btn, input[type="submit"], input[type="button"] {
+  min-height: var(--control-min-h);
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+input, select, textarea {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+.content, .body {
+  padding: var(--section-pad);
+}
+
+.head, .section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-5) var(--section-pad) var(--s-4);
+  border-bottom: 3px solid var(--panel-2);
+  flex-wrap: wrap;
+}
+
+.head > div, .section-head > div { min-width: 0; }
+.head h2, .section-head h2 { margin: 0; }
+.head .hint, .section-head .section-helper { margin: 6px 0 0; max-width: 72ch; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-4);
+  align-items: start;
+}
+.grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid > div { min-width: 0; }
+.grid .span2 { grid-column: 1 / -1; }
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  margin-top: var(--s-5);
+}
+.actions > * { flex: 0 1 auto; min-width: 0; }
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr);
+  gap: var(--s-5);
+  align-items: start;
+}
+
+.notice, .helper, .hint, .result, pre, td, th {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+pre {
+  max-width: 100%;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+.table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  border: 3px solid var(--panel-2);
+}
+.table-scroll table { min-width: 760px; border: 0; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px 14px; vertical-align: top; text-align: left; }
+
+.tabs, nav {
+  width: min(var(--layout-max), calc(100% - (var(--layout-gutter) * 2)));
+  margin-inline: auto;
+}
+.tabs button, nav button {
+  min-width: min(150px, 100%);
+  flex: 1 1 150px;
+  min-height: var(--touch-min-h);
+}
+
+.frame > section, .workarea > section { min-width: 0; overflow: hidden; }
+.frame > section:not(.active), .workarea > section:not(.active) { display: none; }
+.frame > section.active, .workarea > section.active { display: block; }
+
+/* === 认证视图显示规则：登录/注册互斥 === */
+.auth-view { display: none; }
+body.auth-login .login-view { display: grid; }
+body.auth-register .register-view { display: grid; }
+.auth-view { gap: var(--s-3); }
+.auth-view .actions { margin-top: var(--s-2); }
+.auth-switch { margin: 0; }
+.link-button { display: inline-flex; width: auto; min-height: 36px; padding: 6px 10px; }
+
+/* === Toast / 对话框溢出兜底 === */
+.toast-host { max-width: calc(100vw - 32px); }
+.toast { max-width: min(360px, calc(100vw - 32px)); }
+.dialogue, .q-row, .d-body, .rich {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.dialogue .d-actions, .q-row { min-width: 0; }
+.dialogue .d-actions button { white-space: normal; }
+img, svg, canvas, video, audio, iframe { max-width: 100%; }
+
+/* === 焦点可见态（v8.2 可访问性）=== */
+:where(button, .btn, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
 /* === 状态徽章 / Pills === */
 .status-dot.dot-good     { color: var(--green); }
 .status-dot.dot-warn     { color: var(--gold-2); }
@@ -1895,6 +2040,8 @@ header .meta .warn { color: var(--cinnabar); }
 .toast-host {
   position: fixed; right: 16px; top: 70px; z-index: 30;
   display: flex; flex-direction: column; gap: var(--s-2); pointer-events: none;
+  max-width: calc(100vw - 32px);
+  overflow: hidden;
 }
 .toast {
   background: var(--night-2);
@@ -1905,9 +2052,10 @@ header .meta .warn { color: var(--cinnabar); }
   line-height: 1.65;
   padding: 10px 16px;
   letter-spacing: 0.04em;
+  box-sizing: border-box;
+  max-width: min(360px, calc(100vw - 32px));
   box-shadow: 4px 4px 0 var(--shadow);
   animation: toast-in .3s var(--ease-out) both;
-  max-width: 360px;
   overflow-wrap: anywhere;
 }
 .toast.info  { border-color: var(--blue); }
@@ -2028,6 +2176,24 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
   input, textarea, select { font-size: 15px; padding: 11px 12px; }
   .auth-shell { width: calc(100% - 24px); }
   .auth-panel { padding: var(--s-4); }
+  /* v8.2 共享布局：720px 下全部单列、按钮允许换行 */
+  :root { --section-pad: 16px; }
+  .grid, .grid.three, .ops-grid, .student-trust, .today-grid,
+  .steps, .trust-strip, .auth-shell, .split { grid-template-columns: minmax(0, 1fr); }
+  .grid .span2 { grid-column: auto; }
+  .head, .section-head { flex-direction: column; }
+  .actions { align-items: stretch; }
+  .actions > button, .actions > .btn { flex: 1 1 180px; }
+  .tabs button, nav button { flex-basis: calc(50% - 2px); min-width: 0; }
+  button, .btn, input[type="submit"], input[type="button"] { min-height: var(--touch-min-h); }
+  /* v8.2 任务行窄屏优化 */
+  .q-row { grid-template-columns: 32px minmax(0, 1fr); }
+  .q-row .q-cat, .q-row .q-exp, .q-row .q-status {
+    grid-column: 2;
+    justify-self: start;
+    white-space: normal;
+  }
+  .dialogue .d-actions button { flex: 1 1 160px; }
 }
 
 @media (max-width: 420px) {
@@ -2043,6 +2209,16 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
   .row-carousel > * { flex: 0 0 200px; }
   .dialogue { left: 6px; right: 6px; bottom: 6px; padding: var(--s-3); }
   .preview-badge { top: 60px; font-size: 9px; padding: 4px 8px; }
+  /* v8.2 共享布局：420px 下极致紧凑 */
+  :root { --layout-gutter: 8px; --section-pad: 14px; }
+  .frame { width: calc(100% - 16px); margin: 8px auto; }
+  .tabs, nav { width: calc(100% - 16px); }
+  .tabs button, nav button { flex-basis: 100%; }
+  .actions > button, .actions > .btn { flex-basis: 100%; width: 100%; }
+  th, td { padding: 10px 12px; }
+  /* 修复 knowledge base 等长表格内容在 420px 下 4px 突出 */
+  .workarea, .body { padding-left: 12px; padding-right: 12px; }
+  .section-head { padding: var(--s-3) 12px; }
 }
 
 </style>
