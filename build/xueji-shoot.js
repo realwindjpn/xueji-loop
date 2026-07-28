@@ -31,7 +31,8 @@ const srv = http.createServer((req, res) => {
 srv.listen(PORT, "127.0.0.1", async () => {
   console.log("[srv] up on 127.0.0.1:" + PORT);
   const browser = await puppeteer.launch({
-    executablePath: "/opt/chromium.org/chromium/chrome",
+    executablePath,
+    headless: true,
     args: ["--no-sandbox", "--disable-dev-shm-usage"]
   });
 

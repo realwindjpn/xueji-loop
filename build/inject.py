@@ -11,7 +11,7 @@ import os
 import re
 from pathlib import Path
 
-VERSION = 8  # v8.1 松绑布局（font-size ↑、padding ↑、line-height ↑、overflow 防御）
+VERSION = "8.2"  # v8.2 统一三端布局（共享 CSS 变量 + 响应式栅格 + .table-scroll 容器）
 
 ROOT = Path(__file__).resolve().parent.parent  # xueji-loop/
 BUILD = ROOT / "build"
@@ -22,7 +22,7 @@ FX = (BUILD / "fx-engine.js").read_text(encoding="utf-8")
 # 注入到 <head> 最前面 —— 这样可以早于页面 body 内的内联 script 把 fetch 装好
 # 否则页面里的 refreshMe()、api("/health") 等会在 fx-engine 加载前就飞出去打 404
 FX_INLINE_HEAD = (
-    f"\n<!-- xueji-fx-engine v{VERSION}.1 · 像素 RPG · 标题屏 + 任务日志 + 对话框 -->\n"
+    f"\n<!-- xueji-fx-engine v{VERSION} · 像素 RPG · 标题屏 + 任务日志 + 对话框 -->\n"
     "<script>\n" + FX + "\n</script>\n"
 )
 
