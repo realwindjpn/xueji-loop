@@ -2238,7 +2238,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
   </header>
 
   <main>
-    <nav>
+    <nav class="admin-nav" aria-label="后台功能导航">
       <button class="active" data-view="intake">初始建档</button>
       <button data-view="feedback">每日反馈</button>
       <button data-view="students">学生列表</button>
@@ -2251,7 +2251,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
       <button data-view="models">模型配置</button>
     </nav>
 
-    <div class="workarea">
+    <div class="workarea admin-workarea">
       <div class="ops-brief">
         <h2>老师工作台</h2>
         <p>后台优先处理三件事：看学生风险、处理调整队列、发布前复核方案。AI 负责整理初稿，老师负责判断是否适合当前孩子。</p>
@@ -2262,7 +2262,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
         </div>
       </div>
 
-      <section id="intake" class="active">
+      <section id="intake" class="admin-panel active">
         <div class="section-head">
           <h2>初始建档</h2>
           <button class="secondary" id="fillSample">填入样例</button>
@@ -2335,7 +2335,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
         </div>
       </section>
 
-      <section id="feedback">
+      <section id="feedback" class="admin-panel">
         <div class="section-head">
           <h2>每日反馈</h2>
           <button class="secondary" id="loadLatestStudent">使用最新学生</button>
@@ -2409,7 +2409,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
         </div>
       </section>
 
-      <section id="students">
+      <section id="students" class="admin-panel">
         <div class="section-head">
           <div>
             <h2>学生列表</h2>
@@ -2422,7 +2422,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
         </div>
       </section>
 
-      <section id="actions">
+      <section id="actions" class="admin-panel">
         <div class="section-head">
           <div>
             <h2>调整队列</h2>
@@ -2431,7 +2431,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
           <button class="secondary" id="refreshActions">刷新</button>
         </div>
         <div class="body">
-          <table>
+          <div class="table-scroll"><table>
             <thead>
               <tr>
                 <th style="width: 82px;">优先级</th>
@@ -2442,11 +2442,11 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               </tr>
             </thead>
             <tbody id="actionsBody"></tbody>
-          </table>
+          </table></div>
         </div>
       </section>
 
-      <section id="aiJobs">
+      <section id="aiJobs" class="admin-panel">
         <div class="section-head">
           <h2>AI任务队列</h2>
           <div class="actions" style="margin:0;">
@@ -2461,7 +2461,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
           </div>
         </div>
         <div class="body">
-          <table>
+          <div class="table-scroll"><table>
             <thead>
               <tr>
                 <th style="width:70px;">ID</th>
@@ -2474,12 +2474,12 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               </tr>
             </thead>
             <tbody id="aiJobsBody"></tbody>
-          </table>
+          </table></div>
           <p class="helper">排队中的任务可以取消；失败或已取消的任务可以重新排队。正在生成的任务不强制中断，避免结果刚好返回时被打断。</p>
         </div>
       </section>
 
-      <section id="detail">
+      <section id="detail" class="admin-panel">
         <div class="section-head">
           <div>
             <h2>学生详情</h2>
@@ -2514,7 +2514,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             </div>
           </div>
           <pre id="detailResult">输入学生ID查看档案、当前方案、反馈和调整动作。</pre>
-          <table style="margin-top:14px;">
+          <div class="table-scroll"><table>
             <thead>
               <tr>
                 <th style="width:110px;">依据类型</th>
@@ -2526,18 +2526,18 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             <tbody id="planEvidenceRefsBody">
               <tr><td colspan="4" class="muted">查看学生后显示当前方案引用的课标、资源、知识点和真题考法。</td></tr>
             </tbody>
-          </table>
+          </table></div>
         </div>
       </section>
 
-      <section id="voiceCheck">
+      <section id="voiceCheck" class="admin-panel">
         <div class="section-head">
           <h2>发音评测校准</h2>
           <button class="secondary" id="refreshVoiceSamples">刷新样本</button>
         </div>
         <div class="body">
           <div class="helper">只给老师后台使用：上传一段真实录音，或直接选最近一条系统里已有的真实录音，快速验收讯飞评测链路。本页不写入学生记录。</div>
-          <div class="grid three" style="margin-top:14px;">
+          <div class="grid three">
             <div class="span2">
               <label for="voice_sample_id">最近真实录音</label>
               <select id="voice_sample_id">
@@ -2574,11 +2574,11 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             <button class="secondary" id="clearVoiceAssessment">清空</button>
           </div>
           <div class="helper" id="voiceSampleHint">请选择一条样本，或上传一段录音。选择样本会自动带出学生ID、题型和目标文本。</div>
-          <pre id="voiceAssessmentResult" style="margin-top:14px;">等待选择录音并执行校准。</pre>
+          <pre id="voiceAssessmentResult">等待选择录音并执行校准。</pre>
         </div>
       </section>
 
-      <section id="knowledgeBase">
+      <section id="knowledgeBase" class="admin-panel">
         <div class="section-head">
           <div>
             <h2>学科知识库</h2>
@@ -2644,7 +2644,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             <button class="primary" id="saveKnowledgeResource">保存资源</button>
             <button class="secondary" id="clearKnowledgeResource">清空</button>
           </div>
-          <div class="grid three" style="margin-top:14px;">
+          <div class="grid three">
             <div>
               <label for="kb_search">搜索</label>
               <input id="kb_search" placeholder="学科/年级/考点/来源">
@@ -2658,7 +2658,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               <input id="kb_filter_grade" placeholder="七下">
             </div>
           </div>
-          <table style="margin-top:14px;">
+          <div class="table-scroll"><table>
             <thead>
               <tr>
                 <th style="width:70px;">ID</th>
@@ -2669,8 +2669,8 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               </tr>
             </thead>
             <tbody id="knowledgeResourcesBody"></tbody>
-          </table>
-          <pre id="knowledgeResourceResult" style="margin-top:14px;">知识库会先保存官方资源入口；老师整理的考点和真题规律会逐步补齐。</pre>
+          </table></div>
+          <pre id="knowledgeResourceResult">知识库会先保存官方资源入口；老师整理的考点和真题规律会逐步补齐。</pre>
 
           <div class="section-head" style="margin:16px -16px 0;">
             <div>
@@ -2679,7 +2679,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             </div>
             <button class="secondary" id="refreshKnowledgePoints">刷新知识点</button>
           </div>
-          <div class="grid three" style="margin-top:14px;">
+          <div class="grid three">
             <div>
               <label for="kp_resource_id">资源ID</label>
               <input id="kp_resource_id" type="number" min="1" placeholder="可选，关联上方资源">
@@ -2729,7 +2729,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             <button class="primary" id="saveKnowledgePoint">保存知识点</button>
             <button class="secondary" id="clearKnowledgePoint">清空</button>
           </div>
-          <div class="grid three" style="margin-top:14px;">
+          <div class="grid three">
             <div>
               <label for="kp_search">搜索知识点</label>
               <input id="kp_search" placeholder="单元/知识点/易错/提示">
@@ -2743,7 +2743,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               <input id="kp_filter_grade" placeholder="七下">
             </div>
           </div>
-          <table style="margin-top:14px;">
+          <div class="table-scroll"><table>
             <thead>
               <tr>
                 <th style="width:70px;">ID</th>
@@ -2754,8 +2754,8 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               </tr>
             </thead>
             <tbody id="knowledgePointsBody"></tbody>
-          </table>
-          <pre id="knowledgePointResult" style="margin-top:14px;">知识点用于让计划不只按年级匹配，还能按学生错法和考点精确命中。</pre>
+          </table></div>
+          <pre id="knowledgePointResult">知识点用于让计划不只按年级匹配，还能按学生错法和考点精确命中。</pre>
 
           <div class="section-head" style="margin:16px -16px 0;">
             <div>
@@ -2764,7 +2764,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             </div>
             <button class="secondary" id="refreshExamPatterns">刷新题型</button>
           </div>
-          <div class="grid three" style="margin-top:14px;">
+          <div class="grid three">
             <div>
               <label for="ep_knowledge_point_id">知识点ID</label>
               <input id="ep_knowledge_point_id" type="number" min="1" placeholder="可选，关联上方知识点">
@@ -2824,7 +2824,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             <button class="primary" id="saveExamPattern">保存题型</button>
             <button class="secondary" id="clearExamPattern">清空</button>
           </div>
-          <div class="grid three" style="margin-top:14px;">
+          <div class="grid three">
             <div>
               <label for="ep_search">搜索题型</label>
               <input id="ep_search" placeholder="题型/考点/答题点/来源">
@@ -2838,7 +2838,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               <input id="ep_filter_grade" placeholder="七下">
             </div>
           </div>
-          <table style="margin-top:14px;">
+          <div class="table-scroll"><table>
             <thead>
               <tr>
                 <th style="width:70px;">ID</th>
@@ -2849,8 +2849,8 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               </tr>
             </thead>
             <tbody id="examPatternsBody"></tbody>
-          </table>
-          <pre id="examPatternResult" style="margin-top:14px;">题型库用于让知识卡生成时兼顾课标、教材和历年真题规律。</pre>
+          </table></div>
+          <pre id="examPatternResult">题型库用于让知识卡生成时兼顾课标、教材和历年真题规律。</pre>
 
           <div class="section-head" style="margin:16px -16px 0;">
             <div>
@@ -2859,7 +2859,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             </div>
             <button class="secondary" id="refreshLearningCoverage">刷新覆盖率</button>
           </div>
-          <div class="grid three" style="margin-top:14px;">
+          <div class="grid three">
             <div>
               <label for="coverage_stage">学段</label>
               <select id="coverage_stage">
@@ -2878,7 +2878,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               <input id="coverage_subject" placeholder="英语/物理">
             </div>
           </div>
-          <table style="margin-top:14px;">
+          <div class="table-scroll"><table>
             <thead>
               <tr>
                 <th style="width:80px;">状态</th>
@@ -2890,9 +2890,9 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               </tr>
             </thead>
             <tbody id="learningCoverageBody"></tbody>
-          </table>
-          <pre id="learningCoverageResult" style="margin-top:14px;">ready=已有知识点和题型；partial=缺一边；seed=只有通用资源入口；empty=还没有任何可用依据。</pre>
-          <table style="margin-top:14px;">
+          </table></div>
+          <pre id="learningCoverageResult">ready=已有知识点和题型；partial=缺一边；seed=只有通用资源入口；empty=还没有任何可用依据。</pre>
+          <div class="table-scroll"><table>
             <thead>
               <tr>
                 <th style="width:86px;">优先级</th>
@@ -2905,8 +2905,8 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             <tbody id="learningCollectionTasksBody">
               <tr><td colspan="5" class="muted">覆盖率刷新后显示待采集队列。</td></tr>
             </tbody>
-          </table>
-          <pre id="learningCollectionTasksResult" style="margin-top:14px;">待采集队列从 partial、seed、empty 自动生成，用来安排下一批资料入库。</pre>
+          </table></div>
+          <pre id="learningCollectionTasksResult">待采集队列从 partial、seed、empty 自动生成，用来安排下一批资料入库。</pre>
           <div class="actions">
             <button class="primary" id="syncCollectionTasks">保存当前缺口为任务</button>
             <button class="secondary" id="refreshCollectionTaskRecords">刷新已保存任务</button>
@@ -2919,7 +2919,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               <option value="all">全部</option>
             </select>
           </div>
-          <div class="grid three" style="margin-top:14px;">
+          <div class="grid three">
             <div>
               <label for="collection_task_id">任务ID</label>
               <input id="collection_task_id" type="number" min="1" placeholder="点击下方任务回填">
@@ -2950,7 +2950,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
           <div class="actions">
             <button class="primary" id="saveCollectionTaskRecord">保存审核状态</button>
           </div>
-          <table style="margin-top:14px;">
+          <div class="table-scroll"><table>
             <thead>
               <tr>
                 <th style="width:64px;">ID</th>
@@ -2963,8 +2963,8 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             <tbody id="collectionTaskRecordsBody">
               <tr><td colspan="5" class="muted">保存缺口后显示可审核的采集任务。</td></tr>
             </tbody>
-          </table>
-          <pre id="collectionTaskRecordResult" style="margin-top:14px;">采集任务完成后，再把资料拆入资源、知识点和题型库。</pre>
+          </table></div>
+          <pre id="collectionTaskRecordResult">采集任务完成后，再把资料拆入资源、知识点和题型库。</pre>
 
           <div class="section-head" style="margin:16px -16px 0;">
             <div>
@@ -2973,7 +2973,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             </div>
             <button class="secondary" id="refreshScopeIndex">刷新索引</button>
           </div>
-          <div class="grid three" style="margin-top:14px;">
+          <div class="grid three">
             <div>
               <label for="scope_stage">学段</label>
               <select id="scope_stage">
@@ -2992,7 +2992,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               <input id="scope_subject" placeholder="语文/英语/物理">
             </div>
           </div>
-          <table style="margin-top:14px;">
+          <div class="table-scroll"><table>
             <thead>
               <tr>
                 <th style="width:80px;">学段</th>
@@ -3003,12 +3003,12 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               </tr>
             </thead>
             <tbody id="scopeIndexBody"></tbody>
-          </table>
-          <pre id="scopeIndexResult" style="margin-top:14px;">K12范围索引用于防止系统只围绕某个学生或某个年级建库。</pre>
+          </table></div>
+          <pre id="scopeIndexResult">K12范围索引用于防止系统只围绕某个学生或某个年级建库。</pre>
         </div>
       </section>
 
-      <section id="parents">
+      <section id="parents" class="admin-panel">
         <div class="section-head">
           <h2>家长权益</h2>
           <button class="secondary" id="refreshParents">刷新</button>
@@ -3073,8 +3073,8 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             <button class="primary" id="saveEntitlement">保存权益</button>
             <button class="warn" id="resetParentPassword">重置家长密码</button>
           </div>
-          <pre id="parentPasswordResult" style="margin-top:14px;">选中家长后，可由管理员重置登录密码。</pre>
-          <table style="margin-top:14px;">
+          <pre id="parentPasswordResult">选中家长后，可由管理员重置登录密码。</pre>
+          <div class="table-scroll"><table>
             <thead>
               <tr>
                 <th style="width:80px;">ID</th>
@@ -3087,11 +3087,11 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               </tr>
             </thead>
             <tbody id="parentsBody"></tbody>
-          </table>
+          </table></div>
         </div>
       </section>
 
-      <section id="models">
+      <section id="models" class="admin-panel">
         <div class="section-head">
           <h2>模型配置</h2>
           <button class="secondary" id="refreshModels">刷新</button>
@@ -3140,7 +3140,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             <button class="primary" id="saveModelConfig">保存模型配置</button>
             <button class="secondary" id="configureXiaomi">一键配置小米</button>
           </div>
-          <table style="margin-top:14px;">
+          <div class="table-scroll"><table>
             <thead>
               <tr>
                 <th>任务</th>
@@ -3153,8 +3153,8 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
               </tr>
             </thead>
             <tbody id="modelsBody"></tbody>
-          </table>
-          <pre id="modelResult" style="margin-top:14px;">API Key 请写入服务器环境变量，不要填在网页里。</pre>
+          </table></div>
+          <pre id="modelResult">API Key 请写入服务器环境变量，不要填在网页里。</pre>
         </div>
       </section>
     </div>
