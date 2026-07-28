@@ -2254,7 +2254,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
     </div>
     <div class="flow" id="flowGuide"></div>
 
-    <section id="account" class="active">
+    <section id="account" class="active portal-section">
       <div class="head">
         <h2>我的帐号</h2>
         <p class="hint">查看学生档案、学生端绑定和当前服务状态。</p>
@@ -2322,7 +2322,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
             </form>
           </div>
         </div>
-        <div class="actions">
+        <div class="actions account-toolbar">
           <button class="secondary" type="button" id="logoutBtn">退出登录</button>
         </div>
         <div id="myStudents" class="student-list"></div>
@@ -2331,7 +2331,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
       <div class="result" id="accountResult"></div>
     </section>
 
-    <section id="intake">
+    <section id="intake" class="portal-section">
       <div class="head">
         <h2>第1步：3分钟速填建档</h2>
         <p class="hint">先填写学生情况。建档完成后，系统会给出一份初步规划，先给家长确认方向。</p>
@@ -2448,7 +2448,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
       <div class="result" id="intakeResult"></div>
     </section>
 
-    <section id="plan">
+    <section id="plan" class="portal-section">
       <div class="head">
         <h2>第2步：初步规划确认</h2>
         <p class="hint">先看学习方向、每天卡量和家长执行方式。系统会按“小步重复 + 线索记忆”安排，家长确认后再进入知识卡片。</p>
@@ -2482,7 +2482,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
       <div class="result" id="planResult"></div>
     </section>
 
-    <section id="cards">
+    <section id="cards" class="portal-section">
       <div class="head">
         <h2>第3步：生成阶段知识卡片</h2>
         <p class="hint">确认初步规划后，再生成可打印知识卡DOCX。当前母版按 A4 每日一页、8格、常考样题 + 采分词 + 答题方法排版。</p>
@@ -2515,7 +2515,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
       <div class="result" id="cardsResult"></div>
     </section>
 
-    <section id="voice">
+    <section id="voice" class="portal-section">
       <div class="head">
         <h2>第4步：英语语音练习</h2>
         <p class="hint">先听标准音，再让孩子跟读。系统会记录识别结果和★语音卡，明天优先回炉。</p>
@@ -2543,7 +2543,7 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
       <div class="result" id="voiceResult"></div>
     </section>
 
-    <section id="feedback">
+    <section id="feedback" class="portal-section">
       <div class="head">
         <h2>第5步：每日反馈</h2>
         <p class="hint">有了卡片后再做反馈。每天只填完成、会了、★卡和情绪，用来决定是否减量、回炉或进入周调整。</p>
@@ -4022,4 +4022,5 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
       .catch(() => $("serviceState").textContent = "连接异常");
   </script>
 </body>
+</html>
 </html>
