@@ -1,50 +1,51 @@
 #!/usr/bin/env python3
 """
-学记 · 灯下书卷 v8 — 注入器（像素 RPG 主题）
-从干净基线出发，单层重写视觉层：
-  1) 替换 <style>...</style> 为新主题 CSS（内联）
-  2) 注入 fx-engine.js 到 <head> 最前面（必须早于页面内联 script，让 fetch 拦截先行）
-  3) 自动备份 .before-v<N>.bak（N 跟脚本内的 VERSION）
-  4) 重复注入时按版本号剥离旧的 fx-engine 块，不依赖具体版本字符串
+学记 · 灯下书卷 v8.4 — 注入器（双主题）
+- 学生端：像素 RPG（v8 主题 + 完整 fx-engine）
+- 家长端 / 管理端：极简现代·卡片式（新主题 + 极简 fx-engine）
 """
 import os
 import re
 from pathlib import Path
 
-VERSION = "8.3"  # v8.3 学生端宽屏平铺（>=1280px 真实填满 / 1600px 三列分布）
+VERSION = "8.4"  # v8.4 家长端/管理端切换为极简现代·卡片式主题
 
 ROOT = Path(__file__).resolve().parent.parent  # xueji-loop/
 BUILD = ROOT / "build"
 
-THEME = (BUILD / "theme-xueji.css").read_text(encoding="utf-8")
-FX = (BUILD / "fx-engine.js").read_text(encoding="utf-8")
+# === 双主题 ===
+THEME_PIXEL = (BUILD / "theme-xueji.css").read_text(encoding="utf-8")
+THEME_MINIMAL = (BUILD / "theme-minimal.css").read_text(encoding="utf-8")
+FX_PIXEL = (BUILD / "fx-engine.js").read_text(encoding="utf-8")
+FX_MINIMAL = (BUILD / "fx-engine-minimal.js").read_text(encoding="utf-8")
 
-# 注入到 <head> 最前面 —— 这样可以早于页面 body 内的内联 script 把 fetch 装好
-# 否则页面里的 refreshMe()、api("/health") 等会在 fx-engine 加载前就飞出去打 404
-FX_INLINE_HEAD = (
-    f"\n<!-- xueji-fx-engine v{VERSION} · 像素 RPG · 标题屏 + 任务日志 + 对话框 -->\n"
-    "<script>\n" + FX + "\n</script>\n"
-)
-
+# 文件 → (主题 css, fx-engine, 终端名)
 FILES = [
-    "xueji_parent_h5.html",
-    "xueji_student_h5.html",
-    "xueji_loop_tool_api.html",
+    ("xueji_parent_h5.html", THEME_MINIMAL, FX_MINIMAL, "PARENT"),
+    ("xueji_student_h5.html", THEME_PIXEL, FX_PIXEL, "STUDENT"),
+    ("xueji_loop_tool_api.html", THEME_MINIMAL, FX_MINIMAL, "ADMIN"),
 ]
+
+
+def make_fx_block(fx: str, terminal: str) -> str:
+    return (
+        f"\n<!-- xueji-fx-engine v{VERSION} · {terminal} -->\n"
+        "<script>\n" + fx + "\n</script>\n"
+    )
+
 
 STYLE_RE = re.compile(r"<style>.*?</style>", re.DOTALL)
 HEAD_OPEN_RE = re.compile(r"<head[^>]*>", re.IGNORECASE)
-# 旧版 fx-engine 块：版本号无关，能扫到任何 xueji-fx-engine vN
+# 旧版 fx-engine 块（任一版本）
 OLD_FX_BLOCK_RE = re.compile(
     r"<!--\s*xueji-fx-engine\s+v\d+.*?</script>\s*",
     re.DOTALL | re.IGNORECASE,
 )
 
 
-def inject(path: Path) -> None:
+def inject(path: Path, theme: str, fx: str, terminal: str) -> None:
     raw = path.read_text(encoding="utf-8")
 
-    # 备份：按当前 VERSION 命名；如已存在就跳过，避免反复覆盖历史
     bak = path.with_suffix(path.suffix + f".before-v{VERSION}.bak")
     if not bak.exists():
         bak.write_text(raw, encoding="utf-8")
@@ -52,29 +53,25 @@ def inject(path: Path) -> None:
     else:
         print(f"  ↳ backup exists, skip: {bak.name}")
 
-    # 1) 替换 <style>
-    new_style = "<style>\n" + THEME + "\n</style>"
+    new_style = "<style>\n" + theme + "\n</style>"
     if STYLE_RE.search(raw):
         new_raw = STYLE_RE.sub(new_style, raw, count=1)
     else:
-        # 没有 <style>，在 <head> 末尾插入
         new_raw = re.sub(r"</head>", new_style + "\n</head>", raw, count=1, flags=re.IGNORECASE)
 
-    # 2) 先剥掉任何旧版本 fx-engine 块
     new_raw = OLD_FX_BLOCK_RE.sub("", new_raw, count=1)
 
-    # 3) 把新版 fx-engine 插到 <head> 最前面 —— 早于 body 内联 script
+    fx_block = make_fx_block(fx, terminal)
     if HEAD_OPEN_RE.search(new_raw):
         new_raw = HEAD_OPEN_RE.sub(
-            lambda _m: _m.group(0) + FX_INLINE_HEAD,
+            lambda _m: _m.group(0) + fx_block,
             new_raw,
             count=1,
         )
     else:
-        # 没有 <head>，兜底塞到 body 前面
         new_raw = re.sub(
             r"<body[^>]*>",
-            lambda _m: _m.group(0) + FX_INLINE_HEAD,
+            lambda _m: _m.group(0) + fx_block,
             new_raw,
             count=1,
             flags=re.IGNORECASE,
@@ -82,18 +79,18 @@ def inject(path: Path) -> None:
 
     path.write_text(new_raw, encoding="utf-8")
     size = path.stat().st_size
-    print(f"  ✓ {path.name}: {size:,} bytes")
+    print(f"  ✓ {path.name} [{terminal}]: {size:,} bytes")
 
 
 def main() -> None:
     os.chdir(ROOT)
-    for name in FILES:
+    for name, theme, fx, terminal in FILES:
         p = ROOT / name
         if not p.exists():
             print(f"  ✗ missing: {name}")
             continue
-        print(f"[inject] {name}")
-        inject(p)
+        print(f"[inject] {name} → {terminal}")
+        inject(p, theme, fx, terminal)
     print("[inject] done")
 
 

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<!-- xueji-fx-engine v8.4 · STUDENT -->
+<!-- xueji-fx-engine v8.3 · 像素 RPG · 标题屏 + 任务日志 + 对话框 -->
 <script>
 /* ============================================================
    学记 · 灯下书卷  v8 — fx-engine.js
@@ -876,7 +876,7 @@
 
 <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>学记教育学生端</title>
+  <title>学记教育家长端</title>
   <style>
 /* ============================================================
    学记 · 灯下书卷  v8 — 像素 RPG 主题（参考 ZeroXCore 模板扩展）
@@ -2275,112 +2275,510 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
 
 </style>
 </head>
-<body>
+<body class="logged-out auth-login">
   <header>
-    <main>
-      <div class="hero">
-        <div class="hero-top">
-          <div>
-            <h1 id="title" data-title-letters>学记学生端</h1>
-            <p class="student-promise" id="subtitle">登录后查看今天的学习任务：先听、再练、再复习，一次只做眼前这一小步。</p>
-          </div>
-          <span class="student-badge">家长端已确认的学习安排</span>
-        </div>
-        <div class="student-trust" aria-label="今日学习说明">
-          <div class="trust-item">
-            <strong>只看今天</strong>
-            <span>不用翻整套计划，打开就是当天该做的内容。</span>
-          </div>
-          <div class="trust-item">
-            <strong>先听再说</strong>
-            <span>英语跟读会保留练习记录，方便之后回看。</span>
-          </div>
-          <div class="trust-item">
-            <strong>错卡回炉</strong>
-            <span>知识卡可展开答案，按反馈进入下一轮复习。</span>
-          </div>
-        </div>
-        <div class="steps" id="steps"></div>
-        <div class="login-panel">
-          <form class="login-form" id="loginForm">
-            <input id="phone" autocomplete="username" inputmode="numeric" placeholder="手机号">
-            <input id="password" autocomplete="current-password" type="password" placeholder="密码">
-            <button id="loginSubmitBtn" type="submit">登录</button>
-            <button class="secondary" id="logoutBtn" type="button" hidden>退出</button>
-          </form>
-          <div class="login-meta">
-            <p class="hint" id="loginHint">请输入学生手机号和密码，或由家长端进入。</p>
-            <div class="status" id="accountStatus"></div>
-          </div>
-          <div class="care-note">学生端只呈现学习任务和复习卡，不展示家长管理信息。遇到不会、太累或完成不了，可以让家长在每日反馈里说明。</div>
-        </div>
-      </div>
-    </main>
+    <div class="top">
+      <h1 data-title-letters>学记教育家长端</h1>
+      <span class="tag" id="serviceState">连接中</span>
+    </div>
   </header>
 
   <main>
-    <div id="studentContent" hidden>
-      <div class="today-overview" aria-label="今日学习概览">
-        <h2>今日安排</h2>
-        <p class="hint" id="todaySummary">登录后会显示今天的学习顺序和任务数量。</p>
-        <div class="today-grid">
-          <div class="today-cell">
-            <strong id="todayVoiceCount">0句</strong>
-            <span>英语跟读：先听标准音，再按住说一遍。</span>
+    <div class="service-brief">
+      <div class="brief-copy">
+        <h2>先看得见，再坚持得下去</h2>
+        <p>学记教育把建档、规划、知识卡、每日反馈和周调整串成一个闭环。家长先确认方向，学生每天只看当日任务，老师再根据反馈调节难度。</p>
+      </div>
+      <div class="brief-rail" aria-label="学记教育四步流程">
+        <div><span>1</span>诊断起点，先不盲补</div>
+        <div><span>2</span>家长确认，再生成方案</div>
+        <div><span>3</span>每天小步，卡片可打印</div>
+        <div><span>4</span>反馈回收，老师可复核</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="active" data-view="intake">1 建档</button>
+      <button data-view="plan">2 初步规划</button>
+      <button data-view="cards">3 知识卡片</button>
+      <button data-view="voice">4 语音练习</button>
+      <button data-view="feedback">5 每日反馈</button>
+      <button data-view="account">我的帐号</button>
+    </div>
+    <div class="flow" id="flowGuide"></div>
+
+    <section id="account" class="active portal-section">
+      <div class="head">
+        <h2>我的帐号</h2>
+        <p class="hint">查看学生档案、学生端绑定和当前服务状态。</p>
+      </div>
+      <div class="account-box" id="accountStatus">未登录</div>
+      <div class="content">
+        <div class="auth-shell">
+          <div class="auth-intro">
+            <h2>先把孩子的学习闭环跑通</h2>
+            <p>不承诺神奇提分，只把“今天做什么、做得怎么样、明天怎么调”变清楚。家长能看到过程，学生端只保留当日任务和复习卡。</p>
+            <div class="trust-strip" aria-label="学记教育服务承诺">
+              <div class="trust-card">
+                <strong>7天</strong>
+                <span>试运行先验证节奏，再决定是否长期跟进。</span>
+              </div>
+              <div class="trust-card">
+                <strong>1人1档</strong>
+                <span>按教材范围、薄弱点和家庭执行条件生成计划。</span>
+              </div>
+              <div class="trust-card">
+                <strong>可复核</strong>
+                <span>AI先整理，关键调整保留人工判断和家长确认。</span>
+              </div>
+            </div>
+            <div class="auth-points">
+              <div><span>1</span><strong>先建档，明确年级、范围、薄弱点和可用时间</strong></div>
+              <div><span>2</span><strong>先给家长看初步规划，确认后再生成知识卡</strong></div>
+              <div><span>3</span><strong>学生端只显示今日任务，减少选择和干扰</strong></div>
+            </div>
+            <div class="auth-note">资料只用于生成学习计划、知识卡和反馈分析；遇到研学、疲劳、抗拒等情况，可以通过每日反馈进入下一版调整。</div>
           </div>
-          <div class="today-cell">
-            <strong id="todayCardCount">0张</strong>
-            <span>知识卡：先自己想，再点开答案确认。</span>
-          </div>
-          <div class="today-cell">
-            <strong id="todayReviewCount">0天</strong>
-            <span>往日回顾：只复习系统安排的旧卡。</span>
+          <div class="auth-panel">
+            <form id="loginForm" class="auth-view login-view">
+              <h3>登录学记</h3>
+              <label for="login_phone">手机号</label>
+              <input id="login_phone" name="phone" autocomplete="tel" inputmode="numeric" placeholder="中国大陆11位手机号" required>
+              <label for="login_password">密码</label>
+              <input id="login_password" name="password" type="password" autocomplete="current-password" required>
+              <div class="actions">
+                <button class="primary" type="submit">登录</button>
+              </div>
+              <p class="auth-switch">还没有账号？<button class="link-button" id="showRegisterBtn" type="button">注册账号</button></p>
+            </form>
+            <form id="registerForm" class="auth-view register-view">
+              <h3>注册家长账号</h3>
+              <label for="reg_nickname">家长称呼</label>
+              <input id="reg_nickname" name="nickname" placeholder="如：陈妈妈">
+              <label for="reg_phone">手机号</label>
+              <input id="reg_phone" name="phone" autocomplete="tel" inputmode="numeric" placeholder="中国大陆11位手机号" required>
+              <label for="reg_password">设置密码</label>
+              <input id="reg_password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="64" required>
+              <p class="hint">密码至少8位，需同时包含字母和数字。</p>
+              <div class="student-bind-fields">
+                <strong>学生端登录</strong>
+                <p class="hint">可选。填了之后，建档成功会自动给孩子开通学生端。</p>
+                <label for="reg_student_phone">学生手机号</label>
+                <input id="reg_student_phone" name="student_phone" autocomplete="tel" inputmode="numeric" placeholder="孩子以后用这个登录">
+                <label for="reg_student_password">学生初始密码</label>
+                <input id="reg_student_password" name="student_password" type="password" autocomplete="new-password" minlength="8" maxlength="64" placeholder="至少8位，含字母和数字">
+              </div>
+              <div class="actions">
+                <button class="primary" type="submit">注册并登录</button>
+              </div>
+              <p class="auth-switch">已有账号？<button class="link-button" id="showLoginBtn" type="button">返回登录</button></p>
+            </form>
           </div>
         </div>
-        <div class="route-note" id="todayRoute">建议顺序：英语跟读 → 记忆故事 → 知识卡 → 往日回顾。</div>
+        <div class="actions account-toolbar">
+          <button class="secondary" type="button" id="logoutBtn">退出登录</button>
+        </div>
+        <div id="myStudents" class="student-list"></div>
+        <div id="referralPanel" class="referral-panel"></div>
       </div>
+      <div class="result" id="accountResult"></div>
+    </section>
 
-      <section class="student-section voice-section">
-        <h2>英语跟读</h2>
-        <p class="hint">先听标准音，再按住说话，最后提交练习。</p>
-        <div class="voice-list" id="voiceList"></div>
-      </section>
+    <section id="intake" class="portal-section">
+      <div class="head">
+        <h2>第1步：3分钟速填建档</h2>
+        <p class="hint">先填写学生情况。建档完成后，系统会给出一份初步规划，先给家长确认方向。</p>
+      </div>
+      <div class="section-guide" aria-label="建档说明">
+        <div class="guide-card"><strong>为什么要填</strong><span>先判断年级、范围、时间和配合度，避免一开始就给过量任务。</span></div>
+        <div class="guide-card"><strong>提交后会怎样</strong><span>生成学生档案和初步规划，家长先看方向，再决定是否进入卡片。</span></div>
+        <div class="guide-card"><strong>资料怎么用</strong><span>上传资料只用于定位范围和薄弱点；没有资料也可以先跑假设版。</span></div>
+      </div>
+      <form id="intakeForm">
+        <div class="grid">
+          <div>
+            <label for="parent_nickname">家长称呼</label>
+            <input id="parent_nickname" name="parent_nickname" placeholder="如：陈妈妈">
+          </div>
+          <div>
+            <label for="parent_phone">手机号</label>
+            <input id="parent_phone" name="parent_phone" autocomplete="tel" inputmode="numeric" placeholder="用于注册/登录">
+          </div>
+          <div>
+            <label for="student_name">学生称呼</label>
+            <input id="student_name" name="student_name" placeholder="如：小陈" required>
+          </div>
+          <div>
+            <label for="student_phone">学生手机号</label>
+            <input id="student_phone" name="student_phone" autocomplete="tel" inputmode="numeric" placeholder="用于学生端登录，可先不填">
+          </div>
+          <div>
+            <label for="student_password">学生初始密码</label>
+            <input id="student_password" name="student_password" type="password" autocomplete="new-password" minlength="8" maxlength="64" placeholder="填手机号时一起设置，至少8位">
+          </div>
+          <div>
+            <label for="grade_region">年级/地区</label>
+            <input id="grade_region" name="grade_region" placeholder="如：初一/湖南" required>
+          </div>
+          <div>
+            <label for="goal">目标</label>
+            <input id="goal" name="goal" placeholder="如：期末基础抢分" required>
+          </div>
+          <div>
+            <label for="exam_date_text">最近考试时间</label>
+            <input id="exam_date_text" name="exam_date_text" placeholder="如：2周后">
+          </div>
+          <div class="span2">
+            <label for="exam_scope">教材/考试范围</label>
+            <input id="exam_scope" name="exam_scope" placeholder="如：七年级下册期末；语文、英语、历史、道法；有老师复习范围可上传">
+          </div>
+          <div>
+            <label for="time_budget">每天可用时间</label>
+            <select id="time_budget" name="time_budget">
+              <option>5-10分钟</option>
+              <option selected>15-25分钟</option>
+              <option>30-40分钟</option>
+            </select>
+          </div>
+          <div>
+            <label for="cooperation">孩子配合度</label>
+            <select id="cooperation" name="cooperation">
+              <option>抗拒</option>
+              <option selected>一般</option>
+              <option>能接受</option>
+              <option>比较配合</option>
+            </select>
+          </div>
+          <div class="span2">
+            <label for="priority_subjects">必须覆盖科目/考试</label>
+            <input id="priority_subjects" name="priority_subjects" placeholder="如：语文、英语、历史、道法；或 GESP C++ 二级">
+          </div>
+          <div>
+            <label for="card_layout">期望卡片版式</label>
+            <select id="card_layout" name="card_layout">
+              <option selected>英语手机听读 + 五科知识卡打印</option>
+              <option>系统判断</option>
+              <option>8格五科路径：语文1、历史2、生物1、地理2、道法2</option>
+              <option>8格四科路径</option>
+              <option>每天3张保温卡</option>
+              <option>每天4-5张标准卡</option>
+              <option>每天6张完整卡</option>
+              <option>只要手机端，不打印</option>
+            </select>
+          </div>
+          <div>
+            <label for="material_status">资料证据</label>
+            <select id="material_status" name="material_status">
+              <option selected>暂时没有资料，先做版本假设版</option>
+              <option>有老师复习范围</option>
+              <option>有课本目录/单元范围</option>
+              <option>有试卷/错题照片</option>
+              <option>有已做卡片反馈</option>
+            </select>
+          </div>
+          <div>
+            <label for="difficulties">最大困难</label>
+            <textarea id="difficulties" name="difficulties" placeholder="如：记不住、一问就慌、启动困难"></textarea>
+          </div>
+          <div>
+            <label for="parent_support">家长能做什么</label>
+            <textarea id="parent_support" name="parent_support" placeholder="如：每天微信问3张，拍照反馈"></textarea>
+          </div>
+          <div>
+            <label for="extra_notes">补充情况</label>
+            <textarea id="extra_notes" name="extra_notes" placeholder="如：明后天研学，时间很碎"></textarea>
+          </div>
+          <div>
+            <label for="intakeFiles">上传资料</label>
+            <input id="intakeFiles" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx">
+          </div>
+        </div>
+        <div class="actions">
+          <button class="primary" type="submit">提交建档</button>
+          <button class="secondary" type="button" id="fillSample">查看建档样例</button>
+        </div>
+      </form>
+      <div class="result" id="intakeResult"></div>
+    </section>
 
-      <section class="student-section memory-section memory">
-        <h2>记忆故事</h2>
-        <p id="memoryStory">暂无记忆故事...</p>
-      </section>
+    <section id="plan" class="portal-section">
+      <div class="head">
+        <h2>第2步：初步规划确认</h2>
+        <p class="hint">先看学习方向、每天卡量和家长执行方式。系统会按“小步重复 + 线索记忆”安排，家长确认后再进入知识卡片。</p>
+      </div>
+      <div class="section-guide" aria-label="规划确认说明">
+        <div class="guide-card"><strong>先看方向</strong><span>重点看科目优先级、每天卡量、是否适合孩子当前状态。</span></div>
+        <div class="guide-card"><strong>再提修改</strong><span>研学、疲劳、抗拒、老师范围变化，都可以写进调整建议。</span></div>
+        <div class="guide-card"><strong>确认再消耗</strong><span>重复生成会消耗 AI 额度；方向没问题再进入卡片生成。</span></div>
+      </div>
+      <div class="content">
+        <div class="grid">
+          <div>
+            <label for="plan_student_id">选择学生</label>
+            <select id="plan_student_id"></select>
+          </div>
+          <div>
+            <label>当前动作</label>
+            <div class="notice">先查看已有初步规划；重复生成会消耗1次AI额度。</div>
+          </div>
+          <div class="span2">
+            <label for="plan_note">家长调整建议/档案补充</label>
+            <textarea id="plan_note" placeholder="如：古诗优先；孩子英语抗拒，先不要拼写；明后两天只有微信时间。"></textarea>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="primary" type="button" id="loadPlan">查看初步规划</button>
+          <button class="secondary" type="button" id="regeneratePlan">按调整建议重新生成规划</button>
+          <button class="secondary" type="button" id="planToCards">规划没问题，去生成卡片</button>
+        </div>
+      </div>
+      <div class="result" id="planResult"></div>
+    </section>
 
-      <section class="student-section review-section" id="reviewSection" hidden>
-        <h2>今日回炉</h2>
-        <p class="hint" id="reviewHint">按 D1/D3/D7 间隔复习，优先处理★卡。</p>
-        <div class="card-list" id="reviewList"></div>
-      </section>
+    <section id="cards" class="portal-section">
+      <div class="head">
+        <h2>第3步：生成阶段知识卡片</h2>
+        <p class="hint">确认初步规划后，再生成可打印知识卡DOCX。当前母版按 A4 每日一页、8格、常考样题 + 采分词 + 答题方法排版。</p>
+      </div>
+      <div class="section-guide" aria-label="知识卡说明">
+        <div class="guide-card"><strong>给孩子执行</strong><span>知识卡按天拆小步，适合打印、手机查看或家长微信抽问。</span></div>
+        <div class="guide-card"><strong>给家长监督</strong><span>家长只需要看当天几张、会了几张、哪些卡需要回炉。</span></div>
+        <div class="guide-card"><strong>给后续调整</strong><span>卡片完成情况会进入每日反馈，决定减量、加固或换版本。</span></div>
+      </div>
+      <div class="content">
+        <div class="grid">
+          <div>
+            <label for="cards_student_id">选择学生</label>
+            <select id="cards_student_id"></select>
+          </div>
+          <div>
+            <label>生成说明</label>
+            <div class="notice">卡片会按“题 + 答 + 法”生成常见考试题样例；若写明“语文2格、历史2格”等，会严格按格数分配。</div>
+          </div>
+          <div class="span2">
+            <label for="cards_note">卡片调整要求</label>
+            <textarea id="cards_note" placeholder="如：语文2格、历史2格、地理2格、生物1格、道法1格；语文加强阅读理解和文言翻译；不要重复已背过的考点。规划没问题可留空。"></textarea>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="primary" type="button" id="loadCards">查看当前卡片文件</button>
+          <button class="secondary" type="button" id="generateCards">生成知识卡DOCX</button>
+        </div>
+      </div>
+      <div class="result" id="cardsResult"></div>
+    </section>
 
-      <section class="student-section knowledge-section">
-        <h2>知识卡</h2>
-        <p class="hint">点击卡片可以展开答案，每天先复习今天的卡。</p>
-        <div class="card-list" id="cardList"></div>
-      </section>
+    <section id="voice" class="portal-section">
+      <div class="head">
+        <h2>第4步：英语语音练习</h2>
+        <p class="hint">先听标准音，再让孩子跟读。系统会记录识别结果和★语音卡，明天优先回炉。</p>
+      </div>
+      <div class="section-guide" aria-label="语音练习说明">
+        <div class="guide-card"><strong>先开口</strong><span>不追求一次完美，先让孩子愿意读完整个词句。</span></div>
+        <div class="guide-card"><strong>少量重复</strong><span>每天只练少量词句，错词第二天优先回炉，不额外压任务。</span></div>
+        <div class="guide-card"><strong>家长可旁听</strong><span>家长端可先测试流程，学生端再做当天正式练习。</span></div>
+      </div>
+      <div class="content">
+        <div class="grid">
+          <div>
+            <label for="voice_student_id">选择学生</label>
+            <select id="voice_student_id"></select>
+          </div>
+          <div>
+            <label>练习方式</label>
+            <div class="notice">每天5个词句：听一遍、按住说一遍，系统会边识别边提示缺了哪些词。当前先做文本级纠正，后续可接音素级发音评测。</div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="primary" type="button" id="loadVoicePractice">开始今天语音练习</button>
+        </div>
+      </div>
+      <div class="result" id="voiceResult"></div>
+    </section>
 
-      <section class="student-section history-section">
-        <h2>往日回顾</h2>
-        <p class="hint">这里可以复习以前每天的知识卡。</p>
-        <div class="history-list" id="historyList"></div>
-      </section>
-    </div>
+    <section id="feedback" class="portal-section">
+      <div class="head">
+        <h2>第5步：每日反馈</h2>
+        <p class="hint">有了卡片后再做反馈。每天只填完成、会了、★卡和情绪，用来决定是否减量、回炉或进入周调整。</p>
+      </div>
+      <div class="section-guide" aria-label="每日反馈说明">
+        <div class="guide-card"><strong>一分钟填完</strong><span>只记录完成数、会了几张、情绪和★卡，尽量不增加家长负担。</span></div>
+        <div class="guide-card"><strong>反馈决定节奏</strong><span>疲劳、抗拒、研学会触发减量或保温，不硬推新任务。</span></div>
+        <div class="guide-card"><strong>老师看到重点</strong><span>持续异常会进入调整队列，方便后续人工复核和周调整。</span></div>
+      </div>
+      <form id="feedbackForm">
+        <div class="grid">
+          <div>
+            <label for="fb_student_id">选择学生</label>
+            <select id="fb_student_id" name="student_id" required></select>
+          </div>
+          <div>
+            <label for="feedback_date">反馈日期</label>
+            <input id="feedback_date" name="feedback_date" type="date">
+          </div>
+          <div>
+            <label for="day_mode">今天模式</label>
+            <select id="day_mode" name="day_mode">
+              <option>正常</option>
+              <option>研学</option>
+              <option>疲劳</option>
+              <option>抗拒</option>
+            </select>
+          </div>
+          <div>
+            <label for="mood">情绪</label>
+            <select id="mood" name="mood">
+              <option>轻松</option>
+              <option selected>能接受</option>
+              <option>有点烦</option>
+              <option>明显抗拒</option>
+            </select>
+          </div>
+          <div>
+            <label for="planned_cards">计划张数</label>
+            <input id="planned_cards" name="planned_cards" type="number" min="0" value="3">
+          </div>
+          <div>
+            <label for="completed_cards">完成张数</label>
+            <input id="completed_cards" name="completed_cards" type="number" min="0" value="0">
+          </div>
+          <div>
+            <label for="known_cards">会了几张</label>
+            <input id="known_cards" name="known_cards" type="number" min="0" value="0">
+          </div>
+          <div>
+            <label for="evidence_type">证据</label>
+            <select id="evidence_type" name="evidence_type">
+              <option>无</option>
+              <option>照片</option>
+              <option>语音</option>
+              <option>视频</option>
+            </select>
+          </div>
+          <div class="span2">
+            <label for="star_card_codes">★卡编号</label>
+            <input id="star_card_codes" name="star_card_codes" placeholder="如：D1-03、D2-01">
+          </div>
+          <div>
+            <label for="parent_note">家长备注</label>
+            <textarea id="parent_note" name="parent_note" placeholder="如：路上语音答了两张，第三张不太想答"></textarea>
+          </div>
+          <div>
+            <label for="feedbackFiles">上传反馈照片</label>
+            <input id="feedbackFiles" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx">
+          </div>
+        </div>
+        <div class="actions">
+          <button class="primary" type="submit">提交反馈</button>
+          <button class="secondary" type="button" id="generateFeedbackAi">生成反馈分析</button>
+        </div>
+      </form>
+      <div class="result" id="feedbackResult"></div>
+    </section>
   </main>
 
   <script>
-    const prefix = location.pathname.startsWith("/xueji") ? "/xueji" : "";
-    const queryToken = new URLSearchParams(location.search).get("token") || "";
-    const tokenStorageKey = "xueji_student_token";
-    let token = queryToken || localStorage.getItem(tokenStorageKey) || "";
-    let today = null;
-    let attempts = {};
-    let currentAccount = null;
-
     const $ = (id) => document.getElementById(id);
+    const prefix = location.pathname.startsWith("/xueji") ? "/xueji" : "";
+    const initialReferralCode = new URLSearchParams(location.search).get("ref") || "";
+    const aiTaskLabels = {
+      initial_plan: "初步规划",
+      card_generation: "阶段知识卡片",
+      daily_feedback: "反馈分析",
+      weekly_adjustment: "周调整方案",
+      followup: "跟进建议"
+    };
+    let parentToken = localStorage.getItem("xueji_parent_token") || "";
+    let currentParent = null;
+    let myStudents = [];
+    let pendingIntakeAfterAuth = false;
+    let currentDetail = null;
+    let voicePractice = null;
+    let voiceAttempts = {};
+    const AI_COOLDOWN_SECONDS = 60;
+    const AI_TRIGGER_IDS = ["regeneratePlan", "generateCards", "generateFeedbackAi"];
+    const aiTriggerState = {
+      status: "idle",
+      timer: null,
+      activeButtonId: "",
+      cooldownResultId: "",
+      cooldownMessage: "",
+      cooldownUntil: 0
+    };
+
+    const api = async (path, options = {}) => {
+      const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+      if (parentToken) headers.Authorization = `Bearer ${parentToken}`;
+      const response = await fetch(prefix + path, { ...options, headers });
+      const data = await response.json();
+      if (!response.ok) {
+        const error = new Error(data.error || data.detail || "提交失败");
+        error.status = response.status;
+        error.payload = data;
+        throw error;
+      }
+      return data;
+    };
+
+    const publicApi = async (path, options = {}) => {
+      const response = await fetch(prefix + path, {
+        ...options,
+        headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        const error = new Error(data.error || data.detail || "提交失败");
+        error.status = response.status;
+        error.payload = data;
+        throw error;
+      }
+      return data;
+    };
+
+    const formJson = (form) => Object.fromEntries(new FormData(form).entries());
+    const mainlandMobilePattern = /^1[3-9]\d{9}$/;
+    const weakPasswords = new Set(["12345678", "123456789", "1234567890", "password1", "password123", "abc12345", "abcdefg1", "qwerty123"]);
+
+    function normalizePhoneInput(value) {
+      let phone = String(value || "").trim().replace(/[\s\-()（）]/g, "");
+      if (phone.startsWith("+86")) phone = phone.slice(3);
+      if (phone.startsWith("0086")) phone = phone.slice(4);
+      if (phone.startsWith("86") && phone.length === 13 && phone[2] === "1") phone = phone.slice(2);
+      return phone;
+    }
+
+    function validateMainlandPhone(value, label = "手机号") {
+      const phone = normalizePhoneInput(value);
+      if (!phone) throw new Error(`请输入${label}`);
+      if (!mainlandMobilePattern.test(phone)) throw new Error(`请输入有效的中国大陆11位${label}`);
+      return phone;
+    }
+
+    function validatePassword(value, phone = "", label = "密码") {
+      const password = String(value || "").trim();
+      if (!password) throw new Error(`请输入${label}`);
+      if (password.length < 8) throw new Error(`${label}至少8位`);
+      if (password.length > 64) throw new Error(`${label}不能超过64位`);
+      if (/\s/.test(password)) throw new Error(`${label}不能包含空格`);
+      if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) throw new Error(`${label}需同时包含字母和数字`);
+      if (new Set(password.toLowerCase()).size <= 2 || weakPasswords.has(password.toLowerCase())) throw new Error(`${label}过于简单，请换一个`);
+      if (phone && password === phone) throw new Error(`${label}不能和手机号相同`);
+      return password;
+    }
+
+    function validateOptionalStudentLogin(payload) {
+      const rawPhone = payload.student_phone || payload.student_login_phone || "";
+      const rawPassword = payload.student_password || payload.student_login_password || "";
+      if (!rawPhone && !rawPassword) return;
+      const phone = validateMainlandPhone(rawPhone, "学生手机号");
+      const password = validatePassword(rawPassword, phone, "学生初始密码");
+      payload.student_phone = phone;
+      payload.student_password = password;
+    }
+
+    function goStudentPortal(token) {
+      if (token) localStorage.setItem("xueji_student_token", token);
+      location.href = token ? `${prefix}/student?token=${encodeURIComponent(token)}` : `${prefix}/student`;
+    }
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -2391,200 +2789,692 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
         .replace(/'/g, "&#039;");
     }
 
-    async function api(path, options = {}) {
-      const response = await fetch(prefix + path, {
-        ...options,
-        headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+    function formatInline(text) {
+      return escapeHtml(text)
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/(https?:\/\/[^\s<]+)/g, `<a href="$1" target="_blank" rel="noopener">$1</a>`);
+    }
+
+    function formatRichText(text) {
+      const lines = String(text || "").replace(/\r\n/g, "\n").split("\n");
+      let html = "";
+      let list = "";
+      const closeList = () => {
+        if (list) {
+          html += `</${list}>`;
+          list = "";
+        }
+      };
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+        if (!line) {
+          closeList();
+          continue;
+        }
+        const heading = line.match(/^#{1,4}\s+(.+)$/);
+        if (heading) {
+          closeList();
+          html += `<h4>${formatInline(heading[1])}</h4>`;
+          continue;
+        }
+        const numbered = line.match(/^\d+[\.、]\s+(.+)$/);
+        if (numbered) {
+          if (list !== "ol") {
+            closeList();
+            html += "<ol>";
+            list = "ol";
+          }
+          html += `<li>${formatInline(numbered[1])}</li>`;
+          continue;
+        }
+        const bullet = line.match(/^[-*]\s+(.+)$/);
+        if (bullet) {
+          if (list !== "ul") {
+            closeList();
+            html += "<ul>";
+            list = "ul";
+          }
+          html += `<li>${formatInline(bullet[1])}</li>`;
+          continue;
+        }
+        closeList();
+        const keyValue = line.match(/^([^：:]{2,14})[：:]\s*(.+)$/);
+        if (keyValue) {
+          html += `<p><strong>${formatInline(keyValue[1])}：</strong>${formatInline(keyValue[2])}</p>`;
+        } else {
+          html += `<p>${formatInline(line)}</p>`;
+        }
+      }
+      closeList();
+      return html || "<p>暂无内容。</p>";
+    }
+
+    function setAppMode(loggedIn) {
+      document.body.classList.toggle("logged-out", !loggedIn);
+      document.body.classList.toggle("logged-in", !!loggedIn);
+    }
+
+    function setAuthView(view) {
+      const isRegister = view === "register";
+      document.body.classList.toggle("auth-register", isRegister);
+      document.body.classList.toggle("auth-login", !isRegister);
+      setTimeout(() => {
+        const target = isRegister ? $("reg_phone") : $("login_phone");
+        if (target && !target.value) target.focus();
+      }, 50);
+    }
+
+    function activate(view) {
+      if (!currentParent && view !== "account") view = "account";
+      document.querySelectorAll(".tabs button").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
+      document.querySelectorAll("section").forEach(section => section.classList.toggle("active", section.id === view));
+      renderFlowGuide(view);
+    }
+
+    function showResult(id, html) {
+      const box = $(id);
+      box.innerHTML = html;
+      box.classList.add("show");
+    }
+
+    function aiButtons() {
+      return AI_TRIGGER_IDS.map(id => $(id)).filter(Boolean);
+    }
+
+    function rememberAiButtonText(button) {
+      if (button && !button.dataset.defaultText) {
+        button.dataset.defaultText = button.textContent;
+      }
+    }
+
+    function restoreAiButtons() {
+      aiButtons().forEach(button => {
+        rememberAiButtonText(button);
+        button.disabled = false;
+        button.textContent = button.dataset.defaultText;
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || data.detail || "请求失败");
-      return data;
+      aiTriggerState.status = "idle";
+      aiTriggerState.activeButtonId = "";
+      aiTriggerState.cooldownResultId = "";
+      aiTriggerState.cooldownMessage = "";
+      aiTriggerState.cooldownUntil = 0;
     }
 
-    function renderSteps(steps) {
-      $("steps").innerHTML = (steps || []).map((item, idx) => `<div class="step">${idx + 1}. ${escapeHtml(item)}</div>`).join("");
+    function setAiRequestState(button, label) {
+      aiTriggerState.status = "requesting";
+      aiTriggerState.activeButtonId = button ? button.id : "";
+      aiButtons().forEach(item => {
+        rememberAiButtonText(item);
+        item.disabled = true;
+        item.textContent = item === button ? label : "有AI任务进行中";
+      });
     }
 
-    function renderTodayOverview() {
-      const student = today?.student || {};
-      const voiceCount = today?.voice?.items?.length || 0;
-      const cards = today?.knowledge?.cards || [];
-      const reviewCards = today?.knowledge?.review_cards || [];
-      const historyDays = today?.knowledge?.history_days || [];
-      const guideSteps = today?.guide?.steps || [];
-      $("todaySummary").textContent = `${student.display_name || "同学"}，今天按顺序完成就好：先开口，再复习，不需要一次做很多。`;
-      $("todayVoiceCount").textContent = `${voiceCount}句`;
-      $("todayCardCount").textContent = `${cards.length + reviewCards.length}张`;
-      $("todayReviewCount").textContent = `${historyDays.length}天`;
-      $("todayRoute").textContent = guideSteps.length
-        ? `建议顺序：${guideSteps.join(" → ")}`
-        : "建议顺序：英语跟读 → 记忆故事 → 知识卡 → 往日回顾。";
+    function updateAiRequestLabel(button, label) {
+      if (aiTriggerState.status === "requesting" && button) {
+        button.textContent = label;
+      }
     }
 
-    function renderVoice(items) {
-      const quota = today?.assessment?.quota || {};
+    function aiCooldownSeconds(error) {
+      const payloadSeconds = Number(error && error.payload && (error.payload.retry_after || error.payload.retry_after_seconds));
+      if (Number.isFinite(payloadSeconds) && payloadSeconds > 0) return payloadSeconds;
+      const message = String((error && error.message) || "");
+      const match = message.match(/(\d+)\s*(?:秒|s|S)/);
+      if (match) return Number(match[1]);
+      if (/频繁|rate|limit|too many/i.test(message)) return AI_COOLDOWN_SECONDS;
+      return 0;
+    }
+
+    function renderAiCooldown() {
+      const left = Math.max(0, Math.ceil((aiTriggerState.cooldownUntil - Date.now()) / 1000));
+      if (left <= 0) {
+        if (aiTriggerState.timer) clearInterval(aiTriggerState.timer);
+        aiTriggerState.timer = null;
+        restoreAiButtons();
+        return;
+      }
+      aiButtons().forEach(button => {
+        rememberAiButtonText(button);
+        button.disabled = true;
+        button.textContent = `冷却中 ${left}s`;
+      });
+      if (aiTriggerState.cooldownResultId) {
+        showResult(aiTriggerState.cooldownResultId, `
+          <p class="err">${escapeHtml(aiTriggerState.cooldownMessage)}</p>
+          <p class="warn">AI按钮冷却中，${left}秒后自动恢复。</p>
+        `);
+      }
+    }
+
+    function startAiCooldown(seconds, message, resultId) {
+      if (aiTriggerState.timer) clearInterval(aiTriggerState.timer);
+      aiTriggerState.status = "cooldown";
+      aiTriggerState.cooldownResultId = resultId || "";
+      aiTriggerState.cooldownMessage = message || "请稍后再试";
+      aiTriggerState.cooldownUntil = Date.now() + Math.max(1, Math.ceil(seconds)) * 1000;
+      renderAiCooldown();
+      aiTriggerState.timer = setInterval(renderAiCooldown, 1000);
+    }
+
+    function showAiError(resultId, error) {
+      if (error && error.aiCooldownHandled) return;
+      showResult(resultId, `<p class="err">${escapeHtml((error && error.message) || error)}</p>`);
+    }
+
+    function kv(items) {
+      return `<div class="kv">${items.map(([k, v]) => `<div>${escapeHtml(k)}</div><div>${escapeHtml(v || "")}</div>`).join("")}</div>`;
+    }
+
+    function ensureLogin() {
+      if (!parentToken || !currentParent) {
+        activate("account");
+        throw new Error("请先登录家长帐号");
+      }
+    }
+
+    function getIntakeDraft() {
+      try {
+        return JSON.parse(localStorage.getItem("xueji_pending_intake") || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function saveIntakeDraft() {
+      const draft = formJson($("intakeForm"));
+      localStorage.setItem("xueji_pending_intake", JSON.stringify(draft));
+      return draft;
+    }
+
+    function restoreIntakeDraft() {
+      const draft = getIntakeDraft();
+      Object.entries(draft).forEach(([key, value]) => {
+        const field = document.querySelector(`[name="${key}"]`);
+        if (field && value !== undefined && value !== null) field.value = value;
+      });
+      return draft;
+    }
+
+    function fillAuthFromDraft(draft = getIntakeDraft()) {
+      if (draft.parent_phone) {
+        $("login_phone").value = draft.parent_phone;
+        $("reg_phone").value = draft.parent_phone;
+      }
+      if (draft.parent_nickname) {
+        $("reg_nickname").value = draft.parent_nickname;
+      }
+      if (draft.student_phone) {
+        $("reg_student_phone").value = draft.student_phone;
+      }
+      if (draft.student_password) {
+        $("reg_student_password").value = draft.student_password;
+      }
+    }
+
+    function syncStudentLoginToIntake() {
+      const phone = $("reg_student_phone").value.trim();
+      const password = $("reg_student_password").value;
+      if (phone && !$("student_phone").value.trim()) $("student_phone").value = phone;
+      if (password && !$("student_password").value) $("student_password").value = password;
+    }
+
+    function promptAuthForIntake() {
+      const draft = saveIntakeDraft();
+      fillAuthFromDraft(draft);
+      pendingIntakeAfterAuth = true;
+      showResult("intakeResult", `<p class="warn">资料已保留。请先登录或注册家长帐号，完成后会自动保存学生档案。</p>`);
+      showResult("accountResult", `<p class="warn">请登录或注册。手机号和称呼已带入，刚才填写的学生资料会自动保存。</p>`);
+      activate("account");
+      setAuthView("login");
+      setTimeout(() => {
+        const target = $("login_phone").value ? $("login_password") : $("login_phone");
+        target.focus();
+      }, 60);
+    }
+
+    function rememberStudent(id) {
+      localStorage.setItem("xueji_student_id", id);
+      ["fb_student_id", "plan_student_id", "cards_student_id", "voice_student_id"].forEach(selectId => {
+        if ($(selectId)) $(selectId).value = id;
+      });
+    }
+
+    function setToken(token) {
+      parentToken = token || "";
+      if (parentToken) localStorage.setItem("xueji_parent_token", parentToken);
+      else localStorage.removeItem("xueji_parent_token");
+    }
+
+    function renderStudents() {
+      const box = $("myStudents");
+      if (!myStudents.length) {
+        box.innerHTML = `<div class="student-card"><strong>暂无学生档案</strong><p class="hint">登录后可以在“建档”里创建第一个学生。</p></div>`;
+      } else {
+        box.innerHTML = myStudents.map(item => `
+          <div class="student-card">
+            <strong>${escapeHtml(item.display_name || "学生")}｜${escapeHtml(item.student_code)}</strong>
+            <p>${escapeHtml(item.grade_region || "")}｜${escapeHtml(item.goal || "")}</p>
+            <p>${escapeHtml(item.current_level || "")}｜${escapeHtml(item.execution_mode || "")}</p>
+            <p>${item.student_account_phone ? `学生端：${escapeHtml(item.student_account_phone)}` : "学生端：未绑定手机号"}</p>
+            <div class="actions">
+              <button class="secondary" type="button" onclick="chooseStudent(${item.id}, 'plan')">规划</button>
+              <button class="secondary" type="button" onclick="chooseStudent(${item.id}, 'cards')">卡片</button>
+              <button class="secondary" type="button" onclick="chooseStudent(${item.id}, 'voice')">语音</button>
+              <button class="secondary" type="button" onclick="shareStudentPortal(${item.id})">分享学生端</button>
+              <button class="secondary" type="button" onclick="chooseStudent(${item.id}, 'feedback')">反馈</button>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      const options = myStudents.length
+        ? myStudents.map(item => `<option value="${item.id}">${escapeHtml(item.display_name || "学生")}｜${escapeHtml(item.student_code)}</option>`).join("")
+        : `<option value="">暂无学生，请先建档</option>`;
+      $("fb_student_id").innerHTML = options;
+      $("plan_student_id").innerHTML = options;
+      $("cards_student_id").innerHTML = options;
+      $("voice_student_id").innerHTML = options;
+
+      const savedId = localStorage.getItem("xueji_student_id") || (myStudents[0] && String(myStudents[0].id));
+      if (savedId && myStudents.some(item => String(item.id) === String(savedId))) {
+        rememberStudent(savedId);
+      }
+      renderFlowGuide(document.querySelector("section.active")?.id || "intake");
+    }
+
+    window.chooseStudent = (id, view) => {
+      rememberStudent(id);
+      activate(view);
+      if (view === "plan") loadPlanForStudent(id);
+      if (view === "cards") loadCardsForStudent(id);
+      if (view === "voice") loadVoicePracticeForStudent(id);
+    };
+
+    window.goCards = (id) => {
+      rememberStudent(id);
+      activate("cards");
+      loadCardsForStudent(id);
+    };
+
+    function isWeChatBrowser() {
+      return /MicroMessenger/i.test(navigator.userAgent || "");
+    }
+
+    async function copyText(value) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(value);
+        return true;
+      }
+      const input = document.createElement("textarea");
+      input.value = value;
+      input.setAttribute("readonly", "readonly");
+      input.style.position = "fixed";
+      input.style.left = "-9999px";
+      document.body.appendChild(input);
+      input.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(input);
+      return ok;
+    }
+
+    function referralStatusLabel(status) {
+      return {
+        pending: "待建档",
+        qualified: "已合格，待发放",
+        granted: "已发放",
+        rejected: "已作废"
+      }[status] || status || "未知";
+    }
+
+    function renderReferralPanel(data) {
+      const box = $("referralPanel");
+      if (!box || !currentParent) return;
+      const inviteUrl = `${location.origin}${data.invite_path || currentParent.referral_invite_path || ""}`;
+      const stats = data.stats || {};
+      const reward = data.reward || {};
+      const items = data.items || [];
+      box.innerHTML = `
+        <h3>邀请家长得AI额度</h3>
+        <div class="notice good">
+          邀请的新家长完成第一个学生建档后，你获得 ${Number(reward.inviter || 0)} 次AI额度，对方获得 ${Number(reward.invitee || 0)} 次AI额度。
+          为了防刷，每天最多自动奖励 ${Number(reward.daily_limit || 0)} 位有效邀请。
+        </div>
+        ${kv([
+          ["邀请码", data.referral_code || currentParent.referral_code || ""],
+          ["已发放", `${Number(stats.granted || 0)} 位 / +${Number(stats.earned || 0)} 次AI`],
+          ["待建档", `${Number(stats.pending || 0)} 位`],
+          ["待处理", `${Number(stats.qualified || 0)} 位`]
+        ])}
+        <div class="invite-link-row">
+          <input id="referralInviteLink" value="${escapeHtml(inviteUrl)}" readonly aria-label="邀请链接">
+          <button class="secondary" type="button" onclick="copyReferralLink()">复制链接</button>
+        </div>
+        <div class="referral-list">
+          ${items.length ? items.map(item => `
+            <div class="referral-item">
+              <strong>${escapeHtml(item.invitee_nickname || item.invitee_phone || "新家长")}</strong>
+              <span class="pill">${escapeHtml(referralStatusLabel(item.status))}</span>
+              <div class="hint">注册：${escapeHtml(item.created_at || "")}${item.reward_granted_at ? `；奖励：${escapeHtml(item.reward_granted_at)}` : ""}</div>
+            </div>
+          `).join("") : `<div class="referral-item">还没有邀请记录。复制链接发给其他家长，等对方建档后自动发放额度。</div>`}
+        </div>
+      `;
+    }
+
+    async function refreshReferrals() {
+      const box = $("referralPanel");
+      if (!box) return;
+      if (!parentToken || !currentParent) {
+        box.innerHTML = "";
+        return;
+      }
+      try {
+        const data = await api("/api/parents/me/referrals");
+        renderReferralPanel(data);
+      } catch (error) {
+        box.innerHTML = `<div class="notice warnbox">邀请信息暂时读取失败：${escapeHtml(error.message || error)}</div>`;
+      }
+    }
+
+    window.copyReferralLink = async () => {
+      const input = $("referralInviteLink");
+      if (!input) return;
+      try {
+        await copyText(input.value);
+        showResult("accountResult", `<p class="ok">邀请链接已复制，可以发给其他家长。</p>`);
+      } catch {
+        showResult("accountResult", `<p class="warn">复制失败，请手动长按/选择链接复制。</p>`);
+      }
+    };
+
+    function studentShareHtml(url, shared, copied) {
+      const wechatTip = isWeChatBrowser()
+        ? "当前在微信里：点右上角“...”选择“发送给朋友”，孩子打开后就是学生端。"
+        : "如果系统分享没有弹出，可以复制链接后发到孩子微信。";
+      return `
+        <h3>学生端链接</h3>
+        <div class="notice good">${shared ? "已调起分享面板。" : copied ? "链接已复制。" : "链接已生成。"}</div>
+        <div class="rich">
+          <p>${escapeHtml(wechatTip)}</p>
+          <p><a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a></p>
+        </div>
+        <div class="actions">
+          <button class="primary" type="button" onclick="window.open('${escapeHtml(url)}', '_blank', 'noopener')">打开学生端</button>
+          <button class="secondary" type="button" onclick="copyText('${escapeHtml(url)}')">复制链接</button>
+        </div>
+      `;
+    }
+
+    window.shareStudentPortal = async (id) => {
+      try {
+        ensureLogin();
+        const result = await api(`/api/students/${id}/student-link`, { method: "POST", body: "{}" });
+        const url = `${location.origin}${result.path}`;
+        const title = "学记教育学生端";
+        const text = "今天的英语跟读、知识卡和记忆故事在这里。";
+        if (navigator.share) {
+          try {
+            await navigator.share({ title, text, url });
+            showResult("accountResult", studentShareHtml(url, true, false));
+            activate("account");
+            return;
+          } catch {}
+        }
+        let copied = false;
+        try {
+          copied = await copyText(url);
+        } catch {}
+        showResult("accountResult", studentShareHtml(url, false, copied));
+        activate("account");
+      } catch (error) {
+        showResult("accountResult", `<p class="err">${escapeHtml(error.message || error)}</p>`);
+        activate("account");
+      }
+    };
+
+    function renderFlowGuide(activeView = "intake") {
+      if (!currentParent) {
+        $("flowGuide").innerHTML = "";
+        return;
+      }
+      const savedId = localStorage.getItem("xueji_student_id");
+      const hasStudent = myStudents.length > 0;
+      const detailMatches = currentDetail && (!savedId || String(currentDetail.student?.id) === String(savedId));
+      const hasPlan = hasStudent && (detailMatches ? !!currentDetail.current_plan : true);
+      const hasCards = detailMatches && currentDetail.current_plan && !!currentDetail.current_plan.file_url;
+      const steps = [
+        ["1", "建档", hasStudent ? "已保存学生资料" : "先填学生基础情况", "intake", hasStudent ? "done" : "current"],
+        ["2", "初步规划", hasStudent ? "确认卡量、重复节奏和记忆线索" : "建档后自动生成", "plan", !hasStudent ? "locked" : activeView === "plan" ? "current" : hasPlan ? "done" : ""],
+        ["3", "知识卡片", hasCards ? "DOCX已生成" : "确认规划后生成可打印卡", "cards", !hasStudent ? "locked" : activeView === "cards" ? "current" : hasCards ? "done" : ""],
+        ["4", "语音练习", hasStudent ? "听标准音并跟读" : "建档后开始", "voice", !hasStudent ? "locked" : activeView === "voice" ? "current" : ""],
+        ["5", "每日反馈", hasCards ? "每天记录完成和★卡" : "有卡片后再开始", "feedback", !hasStudent ? "locked" : activeView === "feedback" ? "current" : ""]
+      ];
+      $("flowGuide").innerHTML = steps.map(([num, title, desc, view, state]) => `
+        <div class="flow-step ${state}" onclick="activate('${view}')">
+          <strong>${num}. ${title}</strong>
+          <span>${desc}</span>
+        </div>
+      `).join("");
+    }
+
+    async function refreshMe() {
+      if (!parentToken) {
+        currentParent = null;
+        myStudents = [];
+        setAppMode(false);
+        $("accountStatus").innerHTML = `<span class="warn">未登录</span>`;
+        $("serviceState").textContent = "未登录";
+        $("referralPanel").innerHTML = "";
+        activate("account");
+        renderStudents();
+        return;
+      }
+      try {
+        const result = await api("/api/parents/me");
+        currentParent = result.parent;
+        myStudents = result.students || [];
+        $("accountStatus").innerHTML = `
+          <div class="ok">已登录</div>
+          ${kv([
+            ["家长", currentParent.nickname || "家长"],
+            ["手机号", currentParent.phone || ""],
+            ["套餐", currentParent.plan_name || "trial"],
+            ["有效期", currentParent.service_expires_at || "未设置"],
+            ["AI额度", currentParent.usage_limit == null ? "不限" : `${currentParent.usage_used || 0}/${currentParent.usage_limit}`],
+            ["学生数", myStudents.length],
+            ["试用权益", currentParent.is_trial ? "1个学生 + V1试运行 + 1次V2调整报告" : "正式会员权益"]
+          ])}
+          ${currentParent.is_trial ? `<div class="notice">${currentParent.trial_note}</div>` : ""}
+        `;
+        $("serviceState").textContent = "已登录";
+        setAppMode(true);
+        renderStudents();
+        await refreshReferrals();
+        const activeView = document.querySelector("section.active")?.id || "";
+        if (activeView === "account" || !activeView) {
+          activate(myStudents.length ? "account" : "intake");
+        }
+      } catch (error) {
+        setToken("");
+        currentParent = null;
+        myStudents = [];
+        setAppMode(false);
+        $("accountStatus").innerHTML = `<span class="err">${error.message || error}</span>`;
+        $("serviceState").textContent = "未登录";
+        $("referralPanel").innerHTML = "";
+        activate("account");
+        renderStudents();
+      }
+    }
+
+    async function loadStudentDetail(studentId) {
+      const detail = await api(`/api/students/${studentId}`);
+      currentDetail = detail;
+      renderFlowGuide(document.querySelector("section.active")?.id || "plan");
+      return detail;
+    }
+
+    function quotaText() {
+      if (!currentParent) return "当前AI额度：登录后可查看。";
+      return currentParent.usage_limit == null
+        ? "当前AI额度：不限。"
+        : `当前AI额度：已用 ${currentParent.usage_used || 0} / ${currentParent.usage_limit}。`;
+    }
+
+    function confirmAiGeneration(taskType, detail) {
+      const label = aiTaskLabels[taskType] || "AI内容";
+      const plan = detail?.current_plan || {};
+      let reason = `将生成“${label}”，会消耗1次AI额度。`;
+      if (taskType === "initial_plan" && plan.plan_summary) {
+        reason = "已经有一份初步规划。如果学生档案没有变化，重新生成的内容可能接近。建议先在调整建议里写清楚要改什么；继续会消耗1次AI额度。";
+      }
+      if (taskType === "card_generation" && plan.file_url) {
+        reason = "已经有一份知识卡片DOCX。重新生成会覆盖当前卡片文件，并消耗1次AI额度。";
+      }
+      if (taskType === "daily_feedback") {
+        reason = "生成反馈分析会消耗1次AI额度。若今天反馈内容没有变化，结果可能接近；建议先补充完成张数、会了几张和★卡。";
+      }
+      return window.confirm(`${reason}\n\n${quotaText()}\n\n确认继续吗？`);
+    }
+
+    function readinessHtml(detail) {
+      const readiness = detail.delivery_readiness || {};
+      const missing = readiness.missing || [];
+      const warnings = readiness.warnings || [];
+      if (missing.length) {
+        return `
+          <div class="notice warnbox">
+            生成知识卡片前还需要补充：${missing.map(escapeHtml).join("、")}。
+            可以回到第1步修改档案，或在本页调整建议里补清楚后再生成。
+          </div>
+        `;
+      }
+      if (warnings.length) {
+        return `<div class="notice warnbox">${warnings.map(escapeHtml).join("<br>")}</div>`;
+      }
+      return `<div class="notice good">生成信息已满足交付要求，可以进入知识卡片生成。</div>`;
+    }
+
+    function planHtml(detail) {
+      const student = detail.student || {};
+      const plan = detail.current_plan || {};
+      return `
+        <h3>${escapeHtml(student.display_name || "学生")}的初步规划</h3>
+        <div>
+          <span class="pill">${escapeHtml(plan.version_code || "V1_试运行")}</span>
+          <span class="pill">${escapeHtml(plan.status === "published" ? "已生成卡片" : "待家长确认")}</span>
+          <span class="pill">${escapeHtml(student.current_level || plan.level_name || "微型档")}</span>
+        </div>
+        ${kv([
+          ["学生编号", student.student_code || ""],
+          ["年级/地区", student.grade_region || ""],
+          ["目标", student.goal || ""],
+          ["建议卡量", plan.card_load || student.current_card_load || ""],
+          ["执行方式", plan.execution_mode || student.execution_mode || ""]
+        ])}
+        <div class="notice">执行方法：先低门槛启动；同一考点用不同问法重复；看到“线索”先想画面或动作，再说关键词。</div>
+        <div class="notice good">请先把这份初步规划发给家长确认。家长确认后，再进入第3步生成一周知识卡片DOCX。</div>
+        ${readinessHtml(detail)}
+        <h3>学习规划</h3>
+        <div class="rich">${formatRichText(plan.plan_summary || "暂无规划内容，请先完成建档。")}</div>
+        <h3>家长执行说明</h3>
+        <div class="rich">${formatRichText(plan.parent_instruction || "每天只问关键词，不追问长答案；不会的卡标★，第二天回炉。")}</div>
+        ${plan.upgrade_required ? `<div class="notice warnbox">${escapeHtml(plan.upgrade_message || "")}</div>` : ""}
+        <div class="actions">
+          <button class="primary" type="button" onclick="goCards(${Number(student.id || 0)})">规划没问题，去生成知识卡片</button>
+        </div>
+      `;
+    }
+
+    function cardsHtml(detail) {
+      const student = detail.student || {};
+      const plan = detail.current_plan || {};
+      const hasFile = !!plan.file_url;
+      return `
+        <h3>${escapeHtml(student.display_name || "学生")}的阶段知识卡片</h3>
+        ${kv([
+          ["学生编号", student.student_code || ""],
+          ["方案版本", plan.version_code || "V1_试运行"],
+          ["文件状态", hasFile ? "已生成DOCX" : "未生成"],
+          ["执行方式", plan.execution_mode || student.execution_mode || ""]
+        ])}
+        ${hasFile ? `
+          <div class="notice good">这份DOCX可以直接发给家长打印或手机查看。</div>
+          <a class="download" href="${escapeHtml(plan.file_url)}" target="_blank" rel="noopener">下载知识卡片DOCX</a>
+        ` : `
+          <div class="notice warnbox">还没有知识卡片文件。请先确认第2步初步规划，再生成DOCX。</div>
+        `}
+        <div class="notice">使用顺序：当天先做新卡，再问昨天★卡；不会时看10秒答案，5分钟后再答一次。</div>
+        ${readinessHtml(detail)}
+        <h3>当前说明</h3>
+        <div class="rich">${formatRichText(plan.parent_instruction || "生成后每天一页，卡住标★，第二天优先回炉。")}</div>
+      `;
+    }
+
+    function voicePracticeHtml(data) {
+      const items = data.items || [];
+      const history = data.history || [];
+      const weak = data.weak_items || [];
+      const quota = data.assessment?.quota || {};
       const quotaText = quota.limit
-        ? `今日还可专业评测 ${Number(quota.remaining || 0)}/${Number(quota.limit || 0)} 次，普通练习不占额度。`
-        : "普通练习可直接提交，专业评测按配置额度扣减。";
-      $("voiceList").innerHTML = `<div class="status">${escapeHtml(quotaText)}</div>` + (items || []).map((item, idx) => `
-        <div class="voice-card">
-          <div class="target">
+        ? `今日剩余 ${Number(quota.remaining || 0)}/${Number(quota.limit || 0)} 次；点专业评测才消耗`
+        : "普通提交只记录练习；需要时再点专业评测";
+      const support = "webkitSpeechRecognition" in window || "SpeechRecognition" in window;
+      return `
+        <h3>今天的英语开口练习</h3>
+        ${kv([
+          ["练习日期", data.practice_date || ""],
+          ["模式", data.mode || "生活化英语跟读"],
+          ["识别方式", support ? "浏览器语音识别 + 文本相似度" : "当前浏览器不支持自动识别，可手动输入孩子读出的内容"],
+          ["专业评测", quotaText],
+          ["TTS", data.tts?.server_available ? "服务器标准音优先" : "浏览器朗读兜底"]
+        ])}
+        <div class="notice">学生端已经支持像微信语音一样“按住说话”，并会边识别边提示缺词。家长端这里也可以先做测试：听标准音，再录一遍。</div>
+        ${weak.length ? `<div class="notice warnbox">语音★卡：${weak.map(item => escapeHtml(item.target_text)).join("、")}。明天先读这些。</div>` : ""}
+        <div class="voice-board">
+          ${items.map((item, idx) => voiceItemHtml(item, idx)).join("")}
+        </div>
+        ${history.length ? `
+          <h3>今天已提交</h3>
+          <div class="rich">${history.map(item => `
+            <p><strong>${escapeHtml(item.target_text)}</strong>：${escapeHtml(item.score)}分，${escapeHtml(item.feedback_text || item.status || "")}</p>
+          `).join("")}</div>
+        ` : ""}
+      `;
+    }
+
+    function voiceItemHtml(item, idx) {
+      const attempt = voiceAttempts[idx] || {};
+      return `
+        <div class="voice-item" id="voiceItem_${idx}">
+          <div class="voice-target">
             <strong>${escapeHtml(item.target_text)}</strong>
             <span>${escapeHtml(item.target_meaning || "")}</span>
             <span>${escapeHtml(item.scenario || "")}</span>
           </div>
           <div class="actions">
-            <button class="secondary" id="play_${idx}" data-voice-play="1" data-voice-label="听标准音" type="button" onclick="playTarget(${idx})">听标准音</button>
-            <button class="hold-button" id="hold_${idx}" type="button"
-              onpointerdown="startHoldRecord(event, ${idx})"
-              onpointerup="stopHoldRecord(${idx}, true)"
-              onpointercancel="stopHoldRecord(${idx}, true)"
-              onpointerleave="stopHoldRecord(${idx}, false)">按住说话</button>
-            <button class="secondary" type="button" onclick="submitTarget(${idx})">普通提交</button>
-            <button class="secondary" type="button" onclick="submitTarget(${idx}, 'professional')">专业评测</button>
+            <button class="secondary" type="button" onclick="playVoiceTarget(${idx})">听标准音</button>
+            <button class="primary" type="button" onclick="recordVoiceTarget(${idx})">跟读录音</button>
+            <button class="secondary" type="button" onclick="submitVoiceTarget(${idx})">提交这句</button>
+            <button class="secondary" type="button" onclick="submitVoiceTarget(${idx}, 'professional')">专业评测</button>
           </div>
-          <input id="transcript_${idx}" placeholder="也可以手动输入你刚才读的句子">
-          <div class="status" id="status_${idx}">等待练习</div>
-          <div class="meter"><span id="meter_${idx}"></span></div>
-        </div>
-      `).join("");
-    }
-
-    function knowledgeCardHtml(card, idx) {
-      return `
-        <div class="knowledge-card" onclick="this.classList.toggle('open')">
-          <h3>${escapeHtml(card.tag || `知识点 ${idx + 1}`)}</h3>
-          ${card.audio_url ? `<button class="secondary" type="button" onclick="event.stopPropagation(); playCardAudio('${escapeHtml(card.audio_url)}')">播放讲解</button>` : ""}
-          <p><strong>问：</strong>${escapeHtml(card.q || "")}</p>
-          <div class="answer"><strong>答：</strong>${escapeHtml(card.a || "")}</div>
+          <label for="voiceTranscript_${idx}">识别到的内容</label>
+          <input id="voiceTranscript_${idx}" value="${escapeHtml(attempt.transcript || "")}" placeholder="录音后自动填入；不支持识别时可手动输入">
+          <div class="voice-result" id="voiceStatus_${idx}">${escapeHtml(attempt.message || "等待跟读。")}</div>
+          <div class="meter"><span id="voiceMeter_${idx}" style="width:${Number(attempt.score || 0)}%"></span></div>
         </div>
       `;
     }
 
-    function renderCards(cards) {
-      $("cardList").innerHTML = (cards || []).map((card, idx) => knowledgeCardHtml(card, idx)).join("") || `<p class="hint">今天暂时没有知识卡，请让家长端先生成或上传。</p>`;
+    async function loadVoicePracticeForStudent(studentId) {
+      const data = await api(`/api/students/${studentId}/voice-practice/today`);
+      voicePractice = data;
+      voiceAttempts = {};
+      showResult("voiceResult", voicePracticeHtml(data));
+      return data;
     }
-
-    function renderReviewCards(cards) {
-      const items = cards || [];
-      $("reviewSection").hidden = !items.length;
-      $("reviewList").innerHTML = items.map((card, idx) => knowledgeCardHtml(card, idx)).join("");
-      $("reviewHint").textContent = today?.knowledge?.adjustment_note || "按 D1/D3/D7 间隔复习，优先处理★卡。";
-    }
-
-    let historyVoiceItems = [];
-
-    function historyEnglishHtml(items) {
-      const targets = items || [];
-      if (!targets.length) return "";
-      const cards = targets.map((item) => {
-        const voiceIdx = historyVoiceItems.push(item) - 1;
-        return `
-          <div class="voice-card">
-            <div class="target">
-              <strong>${escapeHtml(item.target_text || "")}</strong>
-              <span>${escapeHtml(item.target_meaning || "")}</span>
-              <span>${escapeHtml(item.scenario || "")}</span>
-            </div>
-            <div class="actions">
-              <button class="secondary" id="history_play_${voiceIdx}" data-voice-play="1" data-voice-label="听英语" type="button" onclick="playHistoryVoice(${voiceIdx})">听英语</button>
-            </div>
-            <div class="status" id="history_status_${voiceIdx}">可复听</div>
-          </div>
-        `;
-      }).join("");
-      return `
-        <p class="history-voice-title">英语回顾</p>
-        <div class="history-voice-list">${cards}</div>
-      `;
-    }
-
-    function renderHistory(days) {
-      historyVoiceItems = [];
-      const items = (days || []).map((day) => {
-        const cards = (day.cards || []).map((card, idx) => knowledgeCardHtml(card, idx)).join("");
-        const english = historyEnglishHtml(day.english_targets || []);
-        return `
-          <details class="history-day" ${today?.knowledge?.current_day_index === day.index ? "open" : ""}>
-            <summary>
-              <span>${escapeHtml(day.title || `Day ${Number(day.index || 0) + 1}`)}</span>
-              <span>${escapeHtml(day.module || "")}</span>
-            </summary>
-            <div class="history-body">
-              <p class="hint">${escapeHtml(day.memory_story || "")}</p>
-              ${english}
-              <div class="history-card-list">${cards || `<p class="hint">这一天暂无卡片。</p>`}</div>
-            </div>
-          </details>
-        `;
-      }).join("");
-      $("historyList").innerHTML = items || `<p class="hint">暂时没有历史记录。</p>`;
-    }
-
-    function setPortalState(authed) {
-      $("studentContent").hidden = !authed;
-      $("phone").hidden = authed;
-      $("password").hidden = authed;
-      $("loginSubmitBtn").hidden = authed;
-      $("logoutBtn").hidden = !authed;
-      $("loginHint").textContent = authed ? "已登录，今天的任务已加载。" : "请输入学生手机号和密码，或由家长端进入。";
-      if (authed) {
-        $("password").value = "";
-      }
-      if (!authed) {
-        $("accountStatus").textContent = "";
-      }
-    }
-
-    const learningSpeechRate = 0.8;
-    let currentLearningAudio = null;
-
-    function setVoicePlayButtonsBusy(activeButtonId, busy, label = "播放中...") {
-      document.querySelectorAll("[data-voice-play]").forEach((button) => {
-        const defaultLabel = button.dataset.voiceLabel || "听标准音";
-        button.disabled = busy;
-        button.textContent = busy && button.id === activeButtonId ? label : defaultLabel;
-      });
-    }
-
-    async function playAudioUrl(url, playbackRate = 1) {
-      if (currentLearningAudio) {
-        currentLearningAudio.pause();
-        currentLearningAudio = null;
-      }
-      const audio = new Audio(url);
-      currentLearningAudio = audio;
-      audio.preload = "auto";
-      audio.playbackRate = playbackRate;
-      return new Promise(async (resolve, reject) => {
-        const cleanup = () => {
-          audio.onended = null;
-          audio.onerror = null;
-          if (currentLearningAudio === audio) currentLearningAudio = null;
-        };
-        audio.onended = () => {
-          cleanup();
-          resolve(audio);
-        };
-        audio.onerror = () => {
-          cleanup();
-          reject(new Error("audio playback failed"));
-        };
-        try {
-          await audio.play();
-        } catch (error) {
-          cleanup();
-          reject(error);
-        }
-      });
-    }
-
-    window.playCardAudio = async (url) => {
-      if (!url) return;
-      try {
-        await playAudioUrl(url, learningSpeechRate);
-      } catch {}
-    };
 
     let cachedBrowserVoice = null;
 
@@ -2602,91 +3492,37 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
     }
 
     function browserSpeak(text) {
-      if (!("speechSynthesis" in window)) return Promise.resolve(false);
+      if (!("speechSynthesis" in window)) return;
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "en-US";
-      utterance.rate = learningSpeechRate;
+      utterance.rate = 0.82;
+      utterance.pitch = 1;
       const voice = pickBrowserVoice();
       if (voice) utterance.voice = voice;
-      return new Promise((resolve) => {
-        utterance.onend = () => resolve(true);
-        utterance.onerror = () => resolve(false);
-        window.speechSynthesis.speak(utterance);
-      });
+      window.speechSynthesis.speak(utterance);
     }
 
-    window.playTarget = async (idx) => {
-      const item = today?.voice?.items?.[idx];
+    window.playVoiceTarget = async (idx) => {
+      const item = voicePractice?.items?.[idx];
       if (!item) return;
-      const status = $(`status_${idx}`);
-      const playButton = $(`play_${idx}`);
-      if (playButton?.disabled) return;
-      setVoicePlayButtonsBusy(playButton?.id || "", true, "准备中...");
+      const status = $(`voiceStatus_${idx}`);
       status.textContent = "正在播放标准音...";
       try {
-        const result = await api(`/api/student-access/${encodeURIComponent(token)}/voice-practice/tts`, {
+        const result = await api(`/api/students/${voicePractice.student_id}/voice-practice/tts`, {
           method: "POST",
           body: JSON.stringify({ text: item.target_text })
         });
         if (result.audio_url) {
-          try {
-            setVoicePlayButtonsBusy(playButton?.id || "", true, "播放中...");
-            await playAudioUrl(result.audio_url, Number(result.playback_rate || 1));
-            status.textContent = "已播放标准音（0.8倍）。";
-          } catch {
-            setVoicePlayButtonsBusy(playButton?.id || "", true, "慢速朗读中...");
-            await browserSpeak(item.target_text);
-            status.textContent = "手机未能播放服务器音频，已改用浏览器慢速朗读。";
-          }
+          new Audio(result.audio_url).play();
+          status.textContent = "已播放服务器标准音。";
         } else {
-          setVoicePlayButtonsBusy(playButton?.id || "", true, "慢速朗读中...");
-          await browserSpeak(item.target_text);
+          browserSpeak(item.target_text);
           status.textContent = result.message || "已使用浏览器朗读。";
         }
-      } catch {
-        setVoicePlayButtonsBusy(playButton?.id || "", true, "慢速朗读中...");
-        await browserSpeak(item.target_text);
-        status.textContent = "已使用浏览器朗读。";
-      } finally {
-        setVoicePlayButtonsBusy(playButton?.id || "", false);
-      }
-    };
-
-    window.playHistoryVoice = async (idx) => {
-      const item = historyVoiceItems[idx];
-      if (!item) return;
-      const status = $(`history_status_${idx}`);
-      const playButton = $(`history_play_${idx}`);
-      if (playButton?.disabled) return;
-      setVoicePlayButtonsBusy(playButton?.id || "", true, "准备中...");
-      if (status) status.textContent = "正在播放英语回顾...";
-      try {
-        const result = await api(`/api/student-access/${encodeURIComponent(token)}/voice-practice/tts`, {
-          method: "POST",
-          body: JSON.stringify({ text: item.target_text })
-        });
-        if (result.audio_url) {
-          try {
-            setVoicePlayButtonsBusy(playButton?.id || "", true, "播放中...");
-            await playAudioUrl(result.audio_url, Number(result.playback_rate || 1));
-            if (status) status.textContent = "已播放英语回顾（0.8倍）。";
-          } catch {
-            setVoicePlayButtonsBusy(playButton?.id || "", true, "慢速朗读中...");
-            await browserSpeak(item.target_text);
-            if (status) status.textContent = "服务器音频未播放，已改用浏览器慢速朗读。";
-          }
-        } else {
-          setVoicePlayButtonsBusy(playButton?.id || "", true, "慢速朗读中...");
-          await browserSpeak(item.target_text);
-          if (status) status.textContent = result.message || "已使用浏览器朗读。";
-        }
-      } catch {
-        setVoicePlayButtonsBusy(playButton?.id || "", true, "慢速朗读中...");
-        await browserSpeak(item.target_text);
-        if (status) status.textContent = "已使用浏览器朗读。";
-      } finally {
-        setVoicePlayButtonsBusy(playButton?.id || "", false);
+      } catch (error) {
+        browserSpeak(item.target_text);
+        status.textContent = "服务器标准音暂不可用，已使用浏览器朗读。";
       }
     };
 
@@ -2699,221 +3535,544 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
       });
     }
 
-    function score(target, transcript) {
+    function localVoiceScore(target, transcript) {
       const clean = (value) => String(value || "").toLowerCase().replace(/[^a-z0-9'\s]/g, " ").replace(/\s+/g, " ").trim();
-      const words = clean(target).split(" ").filter(Boolean);
-      const heard = new Set(clean(transcript).split(" ").filter(Boolean));
-      if (!words.length || !heard.size) return 0;
-      return Math.round(words.filter(word => heard.has(word)).length / words.length * 92);
+      const a = clean(target);
+      const b = clean(transcript);
+      if (!a || !b) return 0;
+      const aw = a.split(" ");
+      const bw = new Set(b.split(" "));
+      const hit = aw.filter(word => bw.has(word)).length / Math.max(aw.length, 1);
+      return Math.round(hit * 92);
     }
 
-    function correctionHint(target, transcript) {
-      const clean = (value) => String(value || "").toLowerCase().replace(/[^a-z0-9'\s]/g, " ").replace(/\s+/g, " ").trim();
-      const words = clean(target).split(" ").filter(Boolean);
-      const heard = new Set(clean(transcript).split(" ").filter(Boolean));
-      const missing = words.filter(word => !heard.has(word));
-      if (!transcript) return "正在听。先不要急，慢慢把这一句读完。";
-      if (!missing.length) return "关键词都听到了。松开后我来给你打分。";
-      return `还差：${missing.slice(0, 3).join("、")}。先慢读这些词，再连起来。`;
-    }
-
-    let recording = null;
-
-    window.startHoldRecord = async (event, idx) => {
-      event.preventDefault();
-      if (recording) return;
-      const item = today?.voice?.items?.[idx];
+    window.recordVoiceTarget = async (idx) => {
+      const item = voicePractice?.items?.[idx];
       if (!item) return;
-      const status = $(`status_${idx}`);
-      const input = $(`transcript_${idx}`);
-      const button = $(`hold_${idx}`);
+      const status = $(`voiceStatus_${idx}`);
+      const input = $(`voiceTranscript_${idx}`);
+      status.textContent = "开始录音，请读这一句...";
+      let transcript = "";
+      let audioDataUrl = "";
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       let recognizer = null;
       if (SpeechRecognition) {
         recognizer = new SpeechRecognition();
         recognizer.lang = "en-US";
-        recognizer.interimResults = true;
-        recognizer.continuous = false;
+        recognizer.interimResults = false;
+        recognizer.maxAlternatives = 1;
         recognizer.onresult = (event) => {
-          let finalText = "";
-          let interimText = "";
-          for (let i = 0; i < event.results.length; i += 1) {
-            const result = event.results[i];
-            if (result.isFinal) finalText += result[0].transcript;
-            else interimText += result[0].transcript;
-          }
-          const heard = (finalText || interimText || "").trim();
-          input.value = heard;
-          const liveScore = score(item.target_text, heard);
-          $(`meter_${idx}`).style.width = `${liveScore}%`;
-          status.textContent = `听到：${heard || "..." }。${correctionHint(item.target_text, heard)}`;
+          transcript = event.results?.[0]?.[0]?.transcript || "";
+          input.value = transcript;
         };
       }
-      status.textContent = "正在听，请读这一句；松开后自动提交。";
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const chunks = [];
         const recorder = new MediaRecorder(stream);
         recorder.ondataavailable = event => { if (event.data && event.data.size) chunks.push(event.data); };
         const stopped = new Promise(resolve => { recorder.onstop = resolve; });
-        recording = { idx, item, status, input, button, stream, chunks, recorder, recognizer, stopped, startedAt: Date.now() };
         recorder.start();
-        button.classList.add("recording");
-        button.textContent = "松开结束";
         if (recognizer) {
           try { recognizer.start(); } catch {}
         }
-      } catch {
-        status.textContent = "无法打开麦克风。请检查微信/浏览器权限，或手动输入后提交。";
-      }
-    };
-
-    window.stopHoldRecord = async (idx, shouldSubmit) => {
-      if (!recording || recording.idx !== idx) return;
-      const current = recording;
-      recording = null;
-      const elapsed = Date.now() - current.startedAt;
-      current.button.classList.remove("recording");
-      current.button.textContent = "按住说话";
-      if (elapsed < 500) {
-        current.status.textContent = "按住时间太短了，请读完整一句。";
-        try { current.recorder.stop(); } catch {}
-        current.stream.getTracks().forEach(track => track.stop());
-        if (current.recognizer) {
-          try { current.recognizer.stop(); } catch {}
+        const recordWindow = Math.min(12000, Math.max(5000, 1800 + String(item.target_text || "").trim().split(/\s+/).filter(Boolean).length * 1200));
+        await new Promise(resolve => setTimeout(resolve, recordWindow));
+        recorder.stop();
+        stream.getTracks().forEach(track => track.stop());
+        if (recognizer) {
+          try { recognizer.stop(); } catch {}
         }
-        return;
-      }
-      current.status.textContent = "正在识别...";
-      try {
-        current.recorder.stop();
-      } catch {}
-      current.stream.getTracks().forEach(track => track.stop());
-      if (current.recognizer) {
-        try { current.recognizer.stop(); } catch {}
-      }
-      await current.stopped;
-      const audioDataUrl = current.chunks.length ? await blobToDataUrl(new Blob(current.chunks, { type: "audio/webm" })) : "";
-      const value = current.input.value;
-      const localScore = score(current.item.target_text, value);
-      attempts[idx] = { audioDataUrl, score: localScore };
-      $(`meter_${idx}`).style.width = `${localScore}%`;
-      if (!value) {
-        current.status.textContent = "没有识别到内容，可以手动输入后提交。";
-        return;
-      }
-      current.status.textContent = `识别：${value}。${correctionHint(current.item.target_text, value)} 正在提交...`;
-      if (shouldSubmit) {
-        await submitTarget(idx, "local");
+        await stopped;
+        if (chunks.length) {
+          audioDataUrl = await blobToDataUrl(new Blob(chunks, { type: "audio/webm" }));
+        }
+        transcript = input.value || transcript;
+        const score = localVoiceScore(item.target_text, transcript);
+        voiceAttempts[idx] = { transcript, audioDataUrl, score, message: transcript ? `识别：${transcript}，初步${score}分。` : "没有识别到内容，可以手动输入后提交。" };
+        input.value = transcript;
+        $(`voiceMeter_${idx}`).style.width = `${score}%`;
+        status.textContent = voiceAttempts[idx].message;
+      } catch (error) {
+        status.textContent = "无法打开麦克风。请检查浏览器权限，或手动输入孩子读出的内容后提交。";
       }
     };
 
-    window.submitTarget = async (idx, mode = "local") => {
-      const item = today?.voice?.items?.[idx];
+    window.submitVoiceTarget = async (idx, mode = "local") => {
+      const item = voicePractice?.items?.[idx];
       if (!item) return;
-      const input = $(`transcript_${idx}`);
-      const status = $(`status_${idx}`);
+      const input = $(`voiceTranscript_${idx}`);
+      const attempt = voiceAttempts[idx] || {};
+      const status = $(`voiceStatus_${idx}`);
       const professional = mode === "professional";
       status.textContent = professional ? "正在提交专业评测..." : "正在记录本次练习...";
       try {
-        const result = await api(`/api/student-access/${encodeURIComponent(token)}/voice-practice/submissions`, {
+        const result = await api(`/api/students/${voicePractice.student_id}/voice-practice/submissions`, {
           method: "POST",
           body: JSON.stringify({
             ...item,
-            practice_date: today.date,
+            practice_date: voicePractice.practice_date,
             transcript: input.value,
-            score: attempts[idx]?.score || score(item.target_text, input.value),
+            score: attempt.score || localVoiceScore(item.target_text, input.value),
             assessment_mode: professional ? "professional" : "local",
-            audio_data_url: professional ? attempts[idx]?.audioDataUrl || "" : ""
+            audio_data_url: professional ? attempt.audioDataUrl || "" : ""
           })
         });
-        $(`meter_${idx}`).style.width = `${Number(result.score || 0)}%`;
+        voiceAttempts[idx] = { ...attempt, transcript: result.transcript, score: result.score, message: result.feedback };
+        input.value = result.transcript || input.value;
+        $(`voiceMeter_${idx}`).style.width = `${Number(result.score || 0)}%`;
         status.textContent = `${result.score}分：${result.feedback}`;
       } catch (error) {
         status.textContent = error.message || "提交失败";
       }
     };
 
-    async function load() {
-      if (!token) {
-        today = null;
-        currentAccount = null;
-        setPortalState(false);
-        $("subtitle").textContent = "登录后查看今天的学习任务：先听、再练、再复习，一次只做眼前这一小步。";
-        renderSteps([]);
-        renderVoice([]);
-        $("memoryStory").textContent = "暂无记忆故事...";
-        renderReviewCards([]);
-        renderCards([]);
-        renderHistory([]);
-        return;
-      }
+    async function loadPlanForStudent(studentId) {
+      const detail = await loadStudentDetail(studentId);
+      showResult("planResult", planHtml(detail));
+      return detail;
+    }
+
+    async function loadCardsForStudent(studentId) {
+      const detail = await loadStudentDetail(studentId);
+      showResult("cardsResult", cardsHtml(detail));
+      return detail;
+    }
+
+    async function runAiGeneration({ studentId, taskType, note, resultId, button, onSuccess }) {
+      if (aiTriggerState.status !== "idle") return null;
+      setAiRequestState(button, "提交中");
       try {
-        today = await api(`/api/student-access/${encodeURIComponent(token)}/today`);
-        currentAccount = today.account || null;
-        localStorage.setItem(tokenStorageKey, token);
-        $("title").textContent = `${today.student.display_name || "同学"}的今日学习`;
-        $("subtitle").textContent = `${today.student.grade_region || ""}｜${today.student.goal || ""}｜${today.date}`;
-        renderSteps(today.guide?.steps || []);
-        renderTodayOverview();
-        renderVoice(today.voice?.items || []);
-        $("memoryStory").textContent = today.knowledge?.memory_story || "";
-        renderReviewCards(today.knowledge?.review_cards || []);
-        renderCards(today.knowledge?.cards || []);
-        renderHistory(today.knowledge?.history_days || []);
-        setPortalState(true);
-        $("accountStatus").textContent = currentAccount?.phone ? `账号：${currentAccount.phone}` : `学生：${today.student.display_name || "同学"}`;
+        const job = await api(`/api/students/${studentId}/ai-generate`, {
+          method: "POST",
+          body: JSON.stringify({
+            task_type: taskType,
+            note,
+            confirm_regenerate: true
+          })
+        });
+        showResult(resultId, `
+          <h3>${escapeHtml(job.task_label || aiTaskLabels[taskType] || "AI生成")}</h3>
+          <div class="notice">已提交生成任务，正在排队处理。</div>
+        `);
+        updateAiRequestLabel(button, "生成中");
+        for (let i = 0; i < 45; i += 1) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const result = await api(`/api/ai-jobs/${job.job_id}`);
+          if (result.status === "success") {
+            currentParent = result.parent || currentParent;
+            await refreshMe();
+            const detail = await loadStudentDetail(studentId);
+            if (onSuccess) {
+              await onSuccess(result, detail);
+            } else {
+              showResult(resultId, `
+                <h3>${escapeHtml(result.task_label || aiTaskLabels[taskType] || "AI生成")}</h3>
+                ${kv([
+                  ["任务状态", "已完成"],
+                  ["AI额度", result.parent && result.parent.usage_limit == null ? "不限" : `${result.parent?.usage_used || currentParent?.usage_used || 0}/${result.parent?.usage_limit || currentParent?.usage_limit || ""}`]
+                ])}
+                <div class="rich">${formatRichText(result.content || "")}</div>
+              `);
+            }
+            return result;
+          }
+          if (result.status === "error") {
+            throw new Error(result.error || "AI生成失败");
+          }
+          showResult(resultId, `
+            <h3>${escapeHtml(result.task_label || aiTaskLabels[taskType] || "AI生成")}</h3>
+            <div class="notice">任务${result.status === "running" ? "生成中" : "排队中"}，请稍候。</div>
+          `);
+        }
+        throw new Error("生成时间较长，请稍后重新查看");
       } catch (error) {
-        token = "";
-        localStorage.removeItem(tokenStorageKey);
-        today = null;
-        currentAccount = null;
-        setPortalState(false);
-        $("subtitle").innerHTML = `<span class="err">${escapeHtml(error.message || error)}</span>`;
-        renderSteps([]);
-        renderVoice([]);
-        $("memoryStory").textContent = "登录后再查看记忆故事。";
-        renderReviewCards([]);
-        renderCards([]);
-        renderHistory([]);
+        const cooldownSeconds = aiCooldownSeconds(error);
+        if (cooldownSeconds > 0) {
+          error.aiCooldownHandled = true;
+          startAiCooldown(cooldownSeconds, error.message, resultId);
+        }
+        throw error;
+      } finally {
+        if (aiTriggerState.status === "requesting") {
+          restoreAiButtons();
+        }
       }
     }
 
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function uploadFiles(studentId, inputId, fileType, description) {
+      const files = Array.from($(inputId).files || []);
+      const saved = [];
+      for (const file of files) {
+        const dataUrl = await readFileAsDataUrl(file);
+        const result = await api(`/api/students/${studentId}/evidence`, {
+          method: "POST",
+          body: JSON.stringify({
+            file_name: file.name,
+            file_type: fileType,
+            description,
+            data_url: dataUrl
+          })
+        });
+        saved.push(result);
+      }
+      return saved;
+    }
+
+    document.querySelectorAll(".tabs button").forEach(btn => {
+      btn.addEventListener("click", () => activate(btn.dataset.view));
+    });
+
+    $("showRegisterBtn").addEventListener("click", () => setAuthView("register"));
+    $("showLoginBtn").addEventListener("click", () => setAuthView("login"));
+
+    $("loadVoicePractice").addEventListener("click", async () => {
+      try {
+        ensureLogin();
+        const studentId = Number($("voice_student_id").value || localStorage.getItem("xueji_student_id") || 0);
+        if (!studentId) throw new Error("请先选择学生");
+        rememberStudent(studentId);
+        await loadVoicePracticeForStudent(studentId);
+      } catch (error) {
+        showResult("voiceResult", `<p class="err">${escapeHtml(error.message || error)}</p>`);
+      }
+    });
+
     $("loginForm").addEventListener("submit", async (event) => {
       event.preventDefault();
-      const phone = $("phone").value.trim();
-      const password = $("password").value;
-      $("loginHint").textContent = "登录中...";
+      const button = event.submitter;
+      button.disabled = true;
+      button.textContent = "登录中";
+      const credentials = formJson(event.currentTarget);
       try {
-        const result = await api("/api/students/login", {
+        const result = await publicApi("/api/parents/login", {
           method: "POST",
-          body: JSON.stringify({ phone, password })
+          body: JSON.stringify(credentials)
         });
-        token = result.token || "";
-        currentAccount = result.account || null;
-        if (token) localStorage.setItem(tokenStorageKey, token);
-        await load();
+        setToken(result.token);
+        await refreshMe();
+        if (pendingIntakeAfterAuth) {
+          pendingIntakeAfterAuth = false;
+          showResult("accountResult", `<p class="ok">登录成功，正在保存学生档案。</p>`);
+          restoreIntakeDraft();
+          activate("intake");
+          $("intakeForm").requestSubmit();
+        } else {
+          showResult("accountResult", `<p class="ok">登录成功。</p>`);
+          activate(myStudents.length ? "account" : "intake");
+        }
+      } catch (parentError) {
+        try {
+          const studentResult = await publicApi("/api/students/login", {
+            method: "POST",
+            body: JSON.stringify(credentials)
+          });
+          showResult("accountResult", `<p class="ok">已识别为学生账号，正在进入学生端。</p>`);
+          goStudentPortal(studentResult.token);
+        } catch {
+          showResult("accountResult", `<p class="err">${parentError.message || parentError}</p>`);
+        }
+      } finally {
+        button.disabled = false;
+        button.textContent = "登录";
+      }
+    });
+
+    $("registerForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = event.submitter;
+      button.disabled = true;
+      button.textContent = "注册中";
+      try {
+        fillAuthFromDraft();
+        const payload = formJson(event.currentTarget);
+        payload.phone = validateMainlandPhone(payload.phone, "手机号");
+        payload.password = validatePassword(payload.password, payload.phone, "密码");
+        validateOptionalStudentLogin(payload);
+        if (initialReferralCode) payload.ref = initialReferralCode;
+        const result = await api("/api/parents/register", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        setToken(result.token);
+        await refreshMe();
+        if (pendingIntakeAfterAuth) {
+          pendingIntakeAfterAuth = false;
+          showResult("accountResult", `<p class="ok">注册成功，正在保存学生档案。</p>`);
+          restoreIntakeDraft();
+          syncStudentLoginToIntake();
+          activate("intake");
+          $("intakeForm").requestSubmit();
+        } else {
+          syncStudentLoginToIntake();
+          showResult("accountResult", `<p class="ok">注册成功，可以开始给学生建档。</p>`);
+          activate("intake");
+        }
       } catch (error) {
-        $("loginHint").innerHTML = `<span class="err">${escapeHtml(error.message || error)}</span>`;
+        showResult("accountResult", `<p class="err">${error.message || error}</p>`);
+      } finally {
+        button.disabled = false;
+        button.textContent = "注册并登录";
       }
     });
 
     $("logoutBtn").addEventListener("click", async () => {
       try {
-        if (token) {
-          await api("/api/students/logout", { method: "POST", body: "{}" });
-        }
+        if (parentToken) await api("/api/parents/logout", { method: "POST", body: "{}" });
       } catch {}
-      token = "";
-      currentAccount = null;
-      localStorage.removeItem(tokenStorageKey);
-      $("phone").value = "";
-      $("password").value = "";
-      await load();
+      setToken("");
+      await refreshMe();
+      setAuthView("login");
+      activate("account");
     });
 
+    $("fillSample").addEventListener("click", () => {
+      const sample = {
+        student_name: "小陈",
+        grade_region: "初一/湖南",
+        goal: "期末基础抢分",
+        exam_date_text: "2周后",
+        exam_scope: "七年级下册期末；英语手机听读；知识卡覆盖语文、历史、生物、地理、道法",
+        time_budget: "15-25分钟",
+        cooperation: "抗拒",
+        priority_subjects: "语文、历史、生物、地理、道法；英语手机听读",
+        card_layout: "英语手机听读 + 五科知识卡打印",
+        material_status: "暂时没有资料，先做版本假设版",
+        difficulties: "记不住，一问就慌，背了3天有一点印象但不稳",
+        parent_support: "研学期间可以微信问3张，平时每天10分钟抽查",
+        extra_notes: "明后天研学，时间碎片化"
+      };
+      Object.entries(sample).forEach(([key, value]) => { if ($(key)) $(key).value = value; });
+    });
 
-    load();
+    $("intakeForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = event.submitter || $("intakeForm").querySelector("button[type='submit']");
+      button.disabled = true;
+      button.textContent = "提交中";
+      try {
+        if (!parentToken || !currentParent) {
+          promptAuthForIntake();
+          return;
+        }
+        const payload = { source: "h5_parent", ...formJson(event.currentTarget) };
+        validateOptionalStudentLogin(payload);
+        const result = await api("/api/students/intake", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        rememberStudent(result.student_id);
+        const uploaded = await uploadFiles(result.student_id, "intakeFiles", "intake_evidence", "初始建档资料");
+        await refreshMe();
+        rememberStudent(result.student_id);
+        localStorage.removeItem("xueji_pending_intake");
+        showResult("intakeResult", `
+          <h3>建档已提交</h3>
+          ${kv([
+            ["学生ID", result.student_id],
+            ["学生编号", result.student_code],
+            ["学生端账号", result.student_account?.phone ? `已绑定 ${result.student_account.phone}` : "未绑定，可稍后在后台补设"],
+            ["初始档位", result.initial_level],
+            ["建议卡量", result.card_load],
+            ["执行方式", result.execution_mode],
+            ["试运行", `${result.trial_days}天`],
+            ["已上传", `${uploaded.length}个文件`],
+            ["下一步", result.next_step]
+          ])}
+          <div class="notice">${escapeHtml(result.current_plan.parent_instruction)}</div>
+        `);
+        activate("plan");
+        await loadPlanForStudent(result.student_id);
+      } catch (error) {
+        showResult("intakeResult", `<p class="err">${escapeHtml(error.message || error)}</p>`);
+      } finally {
+        button.disabled = false;
+        button.textContent = "提交建档";
+      }
+    });
+
+    $("feedbackForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = event.submitter;
+      button.disabled = true;
+      button.textContent = "提交中";
+      try {
+        ensureLogin();
+        const payload = formJson(event.currentTarget);
+        const studentId = payload.student_id;
+        if (!studentId) throw new Error("请先选择学生");
+        delete payload.student_id;
+        ["planned_cards", "completed_cards", "known_cards"].forEach(key => payload[key] = Number(payload[key] || 0));
+        const result = await api(`/api/students/${studentId}/daily-feedback`, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        rememberStudent(studentId);
+        const uploaded = await uploadFiles(studentId, "feedbackFiles", "feedback_evidence", "每日反馈资料");
+        showResult("feedbackResult", `
+          <h3>反馈已提交</h3>
+          ${kv([
+            ["完成率", `${Math.round(result.completion_rate * 100)}%`],
+            ["答对率", `${Math.round(result.known_rate * 100)}%`],
+            ["已上传", `${uploaded.length}个文件`],
+            ["下一步", result.next_plan_hint]
+          ])}
+          <div class="notice">${result.actions.map(item => `<p><span class="warn">${escapeHtml(item.trigger_reason)}</span>：${escapeHtml(item.action_text)}</p>`).join("")}</div>
+        `);
+      } catch (error) {
+        showResult("feedbackResult", `<p class="err">${escapeHtml(error.message || error)}</p>`);
+      } finally {
+        button.disabled = false;
+        button.textContent = "提交反馈";
+      }
+    });
+
+    $("loadPlan").addEventListener("click", async () => {
+      try {
+        ensureLogin();
+        const studentId = $("plan_student_id").value;
+        if (!studentId) throw new Error("请先选择学生");
+        rememberStudent(studentId);
+        await loadPlanForStudent(studentId);
+      } catch (error) {
+        showResult("planResult", `<p class="err">${escapeHtml(error.message || error)}</p>`);
+      }
+    });
+
+    $("regeneratePlan").addEventListener("click", async () => {
+      const button = $("regeneratePlan");
+      try {
+        ensureLogin();
+        const studentId = $("plan_student_id").value;
+        if (!studentId) throw new Error("请先选择学生");
+        rememberStudent(studentId);
+        const detail = await loadStudentDetail(studentId);
+        if (!confirmAiGeneration("initial_plan", detail)) return;
+        await runAiGeneration({
+          studentId,
+          taskType: "initial_plan",
+          note: $("plan_note").value,
+          resultId: "planResult",
+          button,
+          onSuccess: async (_result, updatedDetail) => {
+            showResult("planResult", planHtml(updatedDetail));
+          }
+        });
+      } catch (error) {
+        showAiError("planResult", error);
+      }
+    });
+
+    $("planToCards").addEventListener("click", async () => {
+      try {
+        ensureLogin();
+        const studentId = $("plan_student_id").value;
+        if (!studentId) throw new Error("请先选择学生");
+        rememberStudent(studentId);
+        activate("cards");
+        await loadCardsForStudent(studentId);
+      } catch (error) {
+        showResult("planResult", `<p class="err">${escapeHtml(error.message || error)}</p>`);
+      }
+    });
+
+    $("loadCards").addEventListener("click", async () => {
+      try {
+        ensureLogin();
+        const studentId = $("cards_student_id").value;
+        if (!studentId) throw new Error("请先选择学生");
+        rememberStudent(studentId);
+        await loadCardsForStudent(studentId);
+      } catch (error) {
+        showResult("cardsResult", `<p class="err">${escapeHtml(error.message || error)}</p>`);
+      }
+    });
+
+    $("generateCards").addEventListener("click", async () => {
+      const button = $("generateCards");
+      try {
+        ensureLogin();
+        const studentId = $("cards_student_id").value;
+        if (!studentId) throw new Error("请先选择学生");
+        rememberStudent(studentId);
+        const detail = await loadStudentDetail(studentId);
+        const missing = detail.delivery_readiness?.missing || [];
+        if (missing.length && !$("cards_note").value.trim()) {
+          throw new Error(`生成前请先补充：${missing.join("、")}。也可以在“卡片调整要求”里写清楚后再生成。`);
+        }
+        if (!confirmAiGeneration("card_generation", detail)) return;
+        await runAiGeneration({
+          studentId,
+          taskType: "card_generation",
+          note: $("cards_note").value,
+          resultId: "cardsResult",
+          button,
+          onSuccess: async (_result, updatedDetail) => {
+            showResult("cardsResult", cardsHtml(updatedDetail));
+          }
+        });
+      } catch (error) {
+        showAiError("cardsResult", error);
+      }
+    });
+
+    $("generateFeedbackAi").addEventListener("click", async () => {
+      const button = $("generateFeedbackAi");
+      try {
+        ensureLogin();
+        const studentId = $("fb_student_id").value;
+        if (!studentId) throw new Error("请先选择学生");
+        rememberStudent(studentId);
+        const detail = await loadStudentDetail(studentId);
+        if (!confirmAiGeneration("daily_feedback", detail)) return;
+        const note = [
+          "请根据最新每日反馈生成家长能看懂、能照做的反馈分析。",
+          $("parent_note").value ? `家长补充：${$("parent_note").value}` : "",
+          $("star_card_codes").value ? `★卡：${$("star_card_codes").value}` : ""
+        ].filter(Boolean).join("\n");
+        await runAiGeneration({
+          studentId,
+          taskType: "daily_feedback",
+          note,
+          resultId: "feedbackResult",
+          button,
+          onSuccess: async (result) => {
+            showResult("feedbackResult", `
+              <h3>反馈分析已生成</h3>
+              ${kv([
+                ["任务状态", "已完成"],
+                ["AI额度", result.parent?.usage_limit == null ? "不限" : `${result.parent?.usage_used}/${result.parent?.usage_limit}`]
+              ])}
+              <div class="rich">${formatRichText(result.content || "")}</div>
+            `);
+          }
+        });
+      } catch (error) {
+        showAiError("feedbackResult", error);
+      }
+    });
+
+    $("feedback_date").valueAsDate = new Date();
+    restoreIntakeDraft();
+    $("intakeForm").addEventListener("input", () => saveIntakeDraft());
+    if (initialReferralCode && !parentToken) {
+      setAuthView("register");
+      showResult("accountResult", `<p class="ok">已带入邀请链接。注册并完成学生建档后，双方都会获得AI额度奖励。</p>`);
+    }
+    refreshMe();
+    api("/health")
+      .then(() => { if (!parentToken) $("serviceState").textContent = "可注册"; })
+      .catch(() => $("serviceState").textContent = "连接异常");
   </script>
 </body>
+</html>
 </html>
