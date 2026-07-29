@@ -15,65 +15,292 @@
   const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
   /* ===========================================================
-     0. 占位数据 + fetch 拦截
+     0. 占位数据 + fetch 拦截（v8.6：统一 mock 层，拦截相对 /api/* 路径）
      =========================================================== */
   const previewFlag = new URLSearchParams(location.search).get("preview");
   const previewOn = previewFlag !== "0" && localStorage.getItem("xueji_preview_mode") !== "0";
   if (previewOn) localStorage.setItem("xueji_preview_mode", "1");
+  // 预览模式自动填充 admin key，跳过口令弹窗
+  if (previewOn && !localStorage.getItem("xueji_admin_key")) {
+    localStorage.setItem("xueji_admin_key", "preview-admin-key");
+  }
+
+  const placeholder = {
+    ok: (data) => ({ ok: true, status: 200, json: async () => data, text: async () => JSON.stringify(data) }),
+    fail: (msg, code = 503) => ({
+      ok: false, status: code,
+      json: async () => ({ error: msg, detail: msg }),
+      text: async () => JSON.stringify({ error: msg })
+    })
+  };
 
   function pickApiMock(url, method) {
-    const u = String(url || "").toLowerCase();
-    if (u.includes("/health")) return { code: 0, data: { status: "ok", mode: "preview" } };
-    if (u.includes("/login") || u.includes("/auth")) return { code: 0, data: { token: "preview-token", user: { id: "u-001", name: "预览用户" } } };
-    if (u.includes("/user")) return { code: 0, data: { id: "u-001", name: "预览用户", role: "parent" } };
-    if (u.includes("/children") || u.includes("/students")) return { code: 0, data: { items: [
-      { id: "s-001", name: "小明", grade: "三年级", avatar: "明" },
-      { id: "s-002", name: "小红", grade: "五年级", avatar: "红" }
-    ]}};
-    if (u.includes("/progress") || u.includes("/learning")) return { code: 0, data: { items: [
-      { id: "p-001", subject: "语文", progress: 72, updated: "今天" },
-      { id: "p-002", subject: "数学", progress: 85, updated: "昨天" },
-      { id: "p-003", subject: "英语", progress: 64, updated: "2 天前" }
-    ]}};
-    if (u.includes("/notice") || u.includes("/announce")) return { code: 0, data: { items: [
-      { id: "n-001", title: "家长会通知", time: "今天 10:00" },
-      { id: "n-002", title: "期中复习安排", time: "昨天" }
-    ]}};
-    if (u.includes("/task") || u.includes("/todo")) return { code: 0, data: { items: [
-      { id: "t-001", title: "检查作业", status: "pending" },
-      { id: "t-002", title: "签到", status: "done" }
-    ]}};
-    if (u.includes("/metric") || u.includes("/stats") || u.includes("/kpi")) return { code: 0, data: {
-      items: [
-        { label: "本周学习", value: "18.5h", delta: "+12%" },
-        { label: "完成率", value: "92%", delta: "+4%" },
-        { label: "待办", value: "3", delta: "-1" }
+    if (!previewOn) return null;
+    const m = String(url || "");
+    const path = m.replace(/^https?:\/\/[^/]+/, "").replace(/^\/xueji/, "");
+    const isApi = /\/api\//.test(path) || /\/health$/.test(path) || /\/xueji\/health$/.test(m) || /\/xueji\/api\//.test(m);
+    if (!isApi) return null;
+
+    if (/health|ping|status/.test(path)) return placeholder.ok({ status: "ok", mode: "preview" });
+
+    // 学生端
+    if (/\/api\/student-access\/[^/]+\/today$/.test(path) && method === "GET") {
+      return placeholder.ok(studentTodayMock());
+    }
+    if (/\/api\/student-access\/[^/]+\/voice-practice\/tts$/.test(path)) {
+      return placeholder.ok({ audio_url: "", message: "预览模式：用浏览器朗读" });
+    }
+    if (/\/api\/student-access\/[^/]+\/voice-practice\/submissions$/.test(path)) {
+      const score = 70 + Math.floor(Math.random() * 25);
+      return placeholder.ok({ score, feedback: "预览模式评分：完成度不错，多读两遍更稳。" });
+    }
+    if (/\/api\/students\/login$/.test(path) && method === "POST") {
+      return placeholder.ok({ token: "preview-student-token", account: { phone: "13800000000" } });
+    }
+    if (/\/api\/students\/logout$/.test(path)) {
+      return placeholder.ok({ ok: true });
+    }
+
+    // 家长端
+    if (/\/api\/parents\/login$/.test(path) && method === "POST") {
+      return placeholder.ok({ token: "preview-parent-token", parent: { phone: "13800000000", nickname: "预览家长" } });
+    }
+    if (/\/api\/parents\/register$/.test(path) && method === "POST") {
+      return placeholder.ok({ token: "preview-parent-token", parent: { phone: "13800000000", nickname: "预览家长" } });
+    }
+    if (/\/api\/parents\/me$/.test(path)) {
+      return placeholder.ok({ parent: { phone: "13800000000", nickname: "预览家长" }, students: parentStudentsMock() });
+    }
+    if (/\/api\/parents\/intake$/.test(path) && method === "POST") {
+      return placeholder.ok({ student: { id: 1, display_name: "预览同学", student_code: "PREVIEW-001" } });
+    }
+    if (/\/api\/parents\/logout$/.test(path)) {
+      return placeholder.ok({ ok: true });
+    }
+    if (/plan$/.test(path) && method === "GET") {
+      return placeholder.ok(planMock());
+    }
+    if (/plan$/.test(path) && method === "POST") {
+      return placeholder.ok({ status: "queued", job_id: "preview-job-" + Date.now() });
+    }
+    if (/cards$/.test(path) && method === "GET") {
+      return placeholder.ok({ docx_url: "https://example.com/preview.docx", updated_at: "2026-07-28" });
+    }
+    if (/cards$/.test(path) && method === "POST") {
+      return placeholder.ok({ status: "queued", job_id: "preview-cards-" + Date.now() });
+    }
+    if (/voice-practice$/.test(path) && method === "GET") {
+      return placeholder.ok({ items: voiceItemsMock() });
+    }
+    if (/feedbacks$/.test(path) && method === "POST") {
+      return placeholder.ok({ status: "saved", feedback_id: "preview-fb-" + Date.now() });
+    }
+    if (/feedback-ai$/.test(path) && method === "POST") {
+      return placeholder.ok({ status: "queued", job_id: "preview-ai-" + Date.now() });
+    }
+    if (/referrals$/.test(path)) {
+      return placeholder.ok({ code: "PREVIEW-CODE", total_rewards: 0, items: [] });
+    }
+
+    // 后台 / tool-api
+    if (/parents\/list$/.test(path)) {
+      return placeholder.ok({ items: adminParentsMock() });
+    }
+    if (/students\/list$/.test(path)) {
+      return placeholder.ok({ items: adminStudentsMock() });
+    }
+    if (/actions\/list$/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/ai-jobs\/list$/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/voice-samples$/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/knowledge-points$/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/knowledge-resources$/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/exam-patterns$/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/model-configs$/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/entitlements$/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/scope-index$/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/coverage$/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/collection-tasks$/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/collection-task-records$/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/student-detail$/.test(path) && method === "GET") {
+      return placeholder.ok({ student: adminStudentsMock()[0], feedbacks: [], plans: [] });
+    }
+
+    // 后台 v8.6 补充：admin 实际路径（/api/students, /api/admin/...）
+    if (/\/api\/students$/.test(path) && method === "GET") {
+      return placeholder.ok({ items: adminStudentsMock() });
+    }
+    if (/\/api\/admin\/parents/.test(path)) {
+      return placeholder.ok({ items: adminParentsMock() });
+    }
+    if (/\/api\/admin\/adjustments/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/\/api\/admin\/ai-jobs/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/\/api\/admin\/entitlement-presets/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/\/api\/admin\/model-configs/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/\/api\/admin\/voice-practice\/samples/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/\/api\/admin\/learning-resources/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/\/api\/admin\/knowledge-points/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/\/api\/admin\/exam-patterns/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/\/api\/admin\/learning-coverage/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/\/api\/admin\/learning-collection-tasks/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/\/api\/admin\/learning-collection-task-records/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/\/api\/admin\/learning-scope-index/.test(path)) {
+      return placeholder.ok({ items: [] });
+    }
+    if (/\/api\/admin\/voice-assessment\/calibrate/.test(path)) {
+      return placeholder.ok({ status: "ok", message: "预览模式：校准完成" });
+    }
+    if (/\/api\/students\/[^/]+\/weekly-report/.test(path)) {
+      return placeholder.ok({ status: "ok", message: "预览模式：周报已生成" });
+    }
+    if (/\/api\/plans\/[^/]+\/publish/.test(path)) {
+      return placeholder.ok({ status: "ok", message: "预览模式：方案已发布" });
+    }
+    if (/\/api\/students\/intake/.test(path)) {
+      return placeholder.ok({ student: { id: 1, display_name: "预览同学", student_code: "PREVIEW-001" } });
+    }
+    if (/\/api\/students\/[^/]+\/daily-feedback/.test(path)) {
+      return placeholder.ok({ status: "saved", feedback_id: "preview-fb-" + Date.now() });
+    }
+    return placeholder.fail("预览模式：该接口无占位数据", 503);
+  }
+
+  function studentTodayMock() {
+    return {
+      student: { display_name: "预览同学", grade_region: "初一 · 北京", goal: "期末基础抢分" },
+      date: "2026-07-28",
+      guide: { steps: ["英语跟读", "记忆故事", "知识卡", "往日回顾", "今日打卡"] },
+      voice: {
+        items: [
+          { target_text: "Good morning, my friend.", target_meaning: "早上好，我的朋友。", scenario: "日常问候" },
+          { target_text: "I finished my homework on time.", target_meaning: "我按时完成了作业。", scenario: "日常表达" },
+          { target_text: "The weather is wonderful today.", target_meaning: "今天天气真好。", scenario: "天气描述" }
+        ]
+      },
+      assessment: { quota: { limit: 5, remaining: 5 } },
+      knowledge: {
+        memory_story: "今天有一条新的记忆故事：一只小猫在灯下读完了整本书。重复一遍，关键词会留在脑海里。",
+        cards: [
+          { tag: "语文·古诗", q: "「床前明月光」的下一句？", a: "疑是地上霜。" },
+          { tag: "数学·单位", q: "1 小时等于多少分钟？", a: "60 分钟。" },
+          { tag: "英语·词汇", q: "\"book\" 的复数？", a: "books" }
+        ],
+        review_cards: [
+          { tag: "复习 D1", q: "昨天记过的古诗第二句？", a: "疑是地上霜。" }
+        ],
+        history_days: [],
+        current_day_index: 0,
+        adjustment_note: "按 D1/D3/D7 间隔复习，优先处理★卡。"
+      },
+      account: { phone: "13800000000" }
+    };
+  }
+
+  function parentStudentsMock() {
+    return [
+      { id: 1, display_name: "预览同学", student_code: "PREVIEW-001", grade_region: "初一 · 北京", goal: "期末基础抢分", current_level: "中等", execution_mode: "标准", student_account_phone: "13800000001" }
+    ];
+  }
+
+  function planMock() {
+    return {
+      plan: {
+        student_name: "预览同学",
+        summary: "本周按 5 科路径排：语文 1 + 数学 1 + 英语 2 + 历史 1 + 道法 1，每天 6 格小步。",
+        subjects: [
+          { name: "语文", sessions: 1, focus: "古诗 + 字词" },
+          { name: "数学", sessions: 1, focus: "方程基础" },
+          { name: "英语", sessions: 2, focus: "跟读 + 词汇" },
+          { name: "历史", sessions: 1, focus: "近代史脉络" },
+          { name: "道法", sessions: 1, focus: "时政 + 答题方法" }
+        ],
+        weekly_pace: "5 天 / 周，每天 15-25 分钟"
+      },
+      versions: [
+        { version_code: "V1", published_at: "2026-07-21", status: "published" }
       ]
-    }};
-    return { code: 0, data: { items: [] } };
+    };
   }
 
-  function isApiCall(url) {
-    const u = String(url || "");
-    return /^https?:\/\//i.test(u) && !u.includes(location.host);
+  function voiceItemsMock() {
+    return [
+      { id: 1, target_text: "Open your book, please.", target_meaning: "请打开你的书。", scenario: "课堂指令" },
+      { id: 2, target_text: "I have a question.", target_meaning: "我有一个问题。", scenario: "主动发言" }
+    ];
   }
 
-  if (previewOn && !isApiCall("")) {
-    const _fetch = window.fetch.bind(window);
-    window.fetch = function (input, init) {
-      const url = typeof input === "string" ? input : (input && input.url) || "";
-      if (isApiCall(url)) {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            const mock = pickApiMock(url, (init && init.method) || "GET");
-            resolve(new Response(JSON.stringify(mock), {
-              status: 200,
-              headers: { "Content-Type": "application/json" }
-            }));
-          }, 80);
-        });
+  function adminParentsMock() {
+    return [
+      { id: 1, phone: "13800000000", nickname: "预览家长", students_count: 1, package: "试用 7 天" }
+    ];
+  }
+
+  function adminStudentsMock() {
+    return [
+      { id: 1, display_name: "预览同学", student_code: "PREVIEW-001", grade_region: "初一 · 北京", goal: "期末基础抢分", parent_phone: "13800000000", status: "在读" }
+    ];
+  }
+
+  /* ===========================================================
+     0.1 拦截 fetch（拦截相对 /api/* 路径，返回 Response-like mock）
+     =========================================================== */
+  if (previewOn && !window.__xuejiFetchPatched) {
+    window.__xuejiFetchPatched = true;
+    const origFetch = window.fetch.bind(window);
+    window.fetch = async function (input, init) {
+      let url = typeof input === "string" ? input : (input && input.url) || "";
+      const method = (init && init.method) || (input && input.method) || "GET";
+      const mock = pickApiMock(url, method);
+      if (mock) {
+        await new Promise(r => setTimeout(r, 80 + Math.random() * 100));
+        return mock;
       }
-      return _fetch(input, init);
+      return origFetch(input, init);
     };
   }
 

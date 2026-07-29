@@ -37,7 +37,7 @@
     if (!previewOn) return null;
     const m = String(url || "");
     const path = m.replace(/^https?:\/\/[^/]+/, "").replace(/^\/xueji/, "");
-    const isApi = /\/api\//.test(path) || /\/xueji\/health$/.test(m) || /\/xueji\/api\//.test(m);
+    const isApi = /\/api\//.test(path) || /\/health$/.test(path) || /\/xueji\/health$/.test(m) || /\/xueji\/api\//.test(m);
     if (!isApi) return null;
 
     if (/health|ping|status/.test(path)) return placeholder.ok({ status: "ok", mode: "preview" });
@@ -147,6 +147,28 @@
     if (/student-detail$/.test(path) && method === "GET") {
       return placeholder.ok({ student: adminStudentsMock()[0], feedbacks: [], plans: [] });
     }
+
+    // 后台 v8.6 补充：admin 实际路径
+    if (/\/api\/students$/.test(path) && method === "GET") {
+      return placeholder.ok({ items: adminStudentsMock() });
+    }
+    if (/\/api\/admin\/parents/.test(path)) return placeholder.ok({ items: adminParentsMock() });
+    if (/\/api\/admin\/adjustments/.test(path)) return placeholder.ok({ items: [] });
+    if (/\/api\/admin\/ai-jobs/.test(path)) return placeholder.ok({ items: [] });
+    if (/\/api\/admin\/entitlement-presets/.test(path)) return placeholder.ok({ items: [] });
+    if (/\/api\/admin\/model-configs/.test(path)) return placeholder.ok({ items: [] });
+    if (/\/api\/admin\/voice-practice\/samples/.test(path)) return placeholder.ok({ items: [] });
+    if (/\/api\/admin\/learning-resources/.test(path)) return placeholder.ok({ items: [] });
+    if (/\/api\/admin\/knowledge-points/.test(path)) return placeholder.ok({ items: [] });
+    if (/\/api\/admin\/exam-patterns/.test(path)) return placeholder.ok({ items: [] });
+    if (/\/api\/admin\/learning-coverage/.test(path)) return placeholder.ok({ items: [] });
+    if (/\/api\/admin\/learning-collection/.test(path)) return placeholder.ok({ items: [] });
+    if (/\/api\/admin\/learning-scope-index/.test(path)) return placeholder.ok({ items: [] });
+    if (/\/api\/admin\/voice-assessment/.test(path)) return placeholder.ok({ status: "ok" });
+    if (/\/api\/students\/[^/]+\/weekly-report/.test(path)) return placeholder.ok({ status: "ok" });
+    if (/\/api\/plans\/[^/]+\/publish/.test(path)) return placeholder.ok({ status: "ok" });
+    if (/\/api\/students\/intake/.test(path)) return placeholder.ok({ student: { id: 1, display_name: "预览同学", student_code: "PREVIEW-001" } });
+    if (/\/api\/students\/[^/]+\/daily-feedback/.test(path)) return placeholder.ok({ status: "saved" });
     return placeholder.fail("预览模式：该接口无占位数据", 503);
   }
 
