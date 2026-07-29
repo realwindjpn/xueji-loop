@@ -126,6 +126,132 @@
   .card.green  { border-color: var(--green);  }
   .card.blue   { border-color: var(--blue);   }
 
+  /* ============================================================
+     v8.5 · 家长/管理端入口卡：极简现代（与学生端像素 RPG 形成反差）
+     - 浅色卡片 + 圆角 + 系统字体，"双主题架构"在着陆页上被具象化
+     ============================================================ */
+  .card.minimal {
+    background: #FFFFFF;
+    color: #1A1D24;
+    border: 0;
+    border-radius: 18px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    padding: 26px 24px 24px;
+    font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+    transition: transform 0.18s cubic-bezier(.22,.61,.36,1), box-shadow 0.18s cubic-bezier(.22,.61,.36,1);
+  }
+  .card.minimal:hover, .card.minimal:focus-visible {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+    outline: none;
+  }
+  .card.minimal:active {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  }
+
+  /* 角色标识：扁平 chip，主色 */
+  .card.minimal .role {
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #FFFFFF;
+    background: var(--accent, #E5533D);
+    padding: 4px 10px;
+    border: 0;
+    border-radius: 999px;
+    display: inline-block;
+    align-self: flex-start;
+  }
+  /* 中文角色名（小字）：浅色文字，不与主色 chip 冲突 */
+  .card.minimal .zh {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent, #E5533D);
+    background: rgba(229, 83, 61, 0.08);
+    padding: 3px 8px;
+    border: 0;
+    border-radius: 999px;
+    letter-spacing: 0.2em;
+    margin-top: 4px;
+  }
+  /* 标题：系统字体，深色 */
+  .card.minimal h2 {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(20px, 2.2vw, 24px);
+    letter-spacing: -0.02em;
+    margin: 12px 0 4px;
+    color: #1A1D24;
+  }
+  /* 描述段落：灰色调 */
+  .card.minimal p {
+    font-size: 13px;
+    line-height: 1.65;
+    color: #4A5060;
+    margin: 12px 0 16px;
+    font-family: "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+  }
+
+  /* 主色：按角色变体 */
+  .card.minimal.parent-accent { --accent: #E5533D; --accent-soft: #FDECE8; --accent-deep: #C13E2A; }
+  .card.minimal.admin-accent  { --accent: #2C6FBF; --accent-soft: #E5EEF8; --accent-deep: #1F5290; }
+
+  /* 进度条：扁平、圆角、主色渐变 */
+  .card.minimal .stat-label {
+    font-family: "Inter", "PingFang SC", system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: #8C93A2;
+    letter-spacing: 0;
+  }
+  .card.minimal .stat-label .v {
+    color: #1A1D24;
+    font-weight: 700;
+    font-feature-settings: "tnum" 1;
+  }
+  .card.minimal .bar {
+    position: relative;
+    height: 6px;
+    background: #E7E9EE;
+    border: 0;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .card.minimal .bar > i {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, var(--accent), var(--accent-deep));
+    border-radius: inherit;
+    image-rendering: auto;
+  }
+  .card.minimal .bar.gold > i, .card.minimal .bar.blue > i,
+  .card.minimal .bar.pink > i, .card.minimal .bar.cinna > i {
+    background: linear-gradient(90deg, var(--accent), var(--accent-deep));
+  }
+
+  /* ENTER 按钮：主色实心 */
+  .card.minimal .enter {
+    margin-top: 16px;
+    font-family: "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+    background: var(--accent);
+    border: 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    padding: 12px 14px;
+    text-align: center;
+    align-self: stretch;
+    transition: background 0.16s cubic-bezier(.22,.61,.36,1), transform 0.16s cubic-bezier(.22,.61,.36,1);
+  }
+  .card.minimal:hover .enter {
+    background: var(--accent-deep);
+    transform: translateY(-1px);
+  }
+
   .card .role {
     font-family: "Press Start 2P", monospace;
     font-size: 13px;
@@ -265,7 +391,7 @@
 
   <main class="party" aria-label="三端角色卡">
 
-    <a class="card gold" href="parent.html?preview=1">
+    <a class="card gold minimal parent-accent" href="parent.html?preview=1">
       <span class="role">PARENT</span>
       <h2>家长端</h2>
       <span class="zh">双 亲</span>
@@ -309,7 +435,7 @@
       <span class="enter">▶ 进入学生端</span>
     </a>
 
-    <a class="card blue" href="admin.html?preview=1">
+    <a class="card blue minimal admin-accent" href="admin.html?preview=1">
       <span class="role">ADMIN</span>
       <h2>管理端</h2>
       <span class="zh">掌 柜</span>

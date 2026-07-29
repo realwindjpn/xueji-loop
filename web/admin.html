@@ -1877,6 +1877,361 @@ header > *, .topbar > *, .admin-topbar > * {
 /* pill 在窄屏可收缩 */
 .pill { max-width: 100%; min-width: 0; word-break: break-word; }
 
+
+
+/* ============================================================
+   极简主题 · v8.5：输入框 / 表单 / 按钮 抛光
+   ============================================================ */
+
+/* 字段容器：宽松行距 */
+.form-row, .field, .form-field {
+  margin-bottom: var(--s-4);
+}
+.form-row.row-2, .form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-3) var(--s-4);
+  margin-bottom: var(--s-4);
+}
+.form-row.row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--s-3) var(--s-4);
+  margin-bottom: var(--s-4);
+}
+@media (max-width: 720px) {
+  .form-row.row-2, .form-row.row-3, .form-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* label 紧凑化 + 必填星号 */
+label, .form-label, .field-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+label::after, .form-label::after, .field-label::after { content: ""; }
+label.required::before, .form-label.required::before, .field-label.required::before {
+  content: "*";
+  color: var(--danger);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* input / select / textarea：标准化高度、圆角、focus */
+input, select, textarea {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 14px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+  -webkit-appearance: none;
+  appearance: none;
+}
+input:hover:not(:disabled):not(:focus), select:hover:not(:disabled):not(:focus), textarea:hover:not(:disabled):not(:focus) {
+  border-color: var(--ink-3);
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+  background: #fff;
+}
+input::placeholder, textarea::placeholder {
+  color: var(--placeholder);
+  font-size: 13px;
+}
+input:disabled, select:disabled, textarea:disabled {
+  background: var(--bg-3);
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+input[type="checkbox"], input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  padding: 0;
+  margin-right: 8px;
+  vertical-align: middle;
+  accent-color: var(--primary);
+}
+input[type="file"] {
+  padding: 8px 12px;
+  min-height: 40px;
+}
+
+/* select 自定义下拉箭头 */
+select {
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='%238C93A2' d='M4 6l4 4 4-4z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+}
+
+/* textarea */
+textarea {
+  padding: 10px 14px;
+  min-height: 96px;
+  line-height: 1.6;
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* 帮助文字 / 错误文字 */
+.form-helper, .helper, .help {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+.form-error, .error-msg {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--danger);
+  line-height: 1.5;
+}
+
+/* 字段聚焦态包装器 */
+.field.has-error input, .field.has-error select, .field.has-error textarea,
+input.is-error, select.is-error, textarea.is-error {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+}
+.field.has-error input:focus, .field.has-error select:focus, .field.has-error textarea:focus,
+input.is-error:focus, select.is-error:focus, textarea.is-error:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+/* 按钮 — 加大视觉权重 */
+.btn, button, [role="button"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 18px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  letter-spacing: 0.01em;
+}
+.btn:hover, button:hover, [role="button"]:hover {
+  background: var(--bg-3);
+  border-color: var(--ink-3);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(20, 24, 36, .08);
+}
+.btn:active, button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.btn:focus-visible, button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.btn-primary, button.primary, .btn--primary {
+  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(229, 83, 61, .25);
+}
+.btn-primary:hover, button.primary:hover, .btn--primary:hover {
+  background: var(--primary-2);
+  border-color: var(--primary-2);
+  box-shadow: 0 4px 14px rgba(229, 83, 61, .35);
+}
+
+/* 主按钮尺寸变体 */
+.btn-sm, button.btn-sm { min-height: 32px; padding: 0 12px; font-size: 13px; border-radius: var(--r-sm); }
+.btn-lg, button.btn-lg { min-height: 48px; padding: 0 24px; font-size: 15px; font-weight: 600; }
+.btn-xl, button.btn-xl { min-height: 56px; padding: 0 32px; font-size: 16px; font-weight: 700; }
+.btn-block, button.btn-block { width: 100%; }
+
+/* 加载态 */
+.btn.is-loading, button.is-loading {
+  color: transparent !important;
+  position: relative;
+  pointer-events: none;
+}
+.btn.is-loading::after, button.is-loading::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 16px; height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  color: #fff;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 行动区 */
+.actions, .action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: var(--s-4);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+}
+.actions.end { justify-content: flex-end; }
+.actions.between { justify-content: space-between; }
+.actions.center { justify-content: center; }
+@media (max-width: 540px) {
+  .actions { flex-direction: column-reverse; }
+  .actions > * { width: 100%; }
+}
+
+/* 输入框前缀 / 后缀（输入栏） */
+.input-group {
+  display: flex;
+  align-items: stretch;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  background: var(--bg-2);
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.input-group:hover { border-color: var(--ink-3); }
+.input-group:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.input-group > .addon, .input-group > .input-group-text {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 13px;
+  color: var(--ink-3);
+  background: var(--bg-3);
+  border-right: 1px solid var(--line);
+  white-space: nowrap;
+  min-height: 40px;
+}
+.input-group > .addon:last-child, .input-group > .input-group-text:last-child {
+  border-right: 0;
+  border-left: 1px solid var(--line);
+}
+.input-group > input, .input-group > select {
+  flex: 1;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  min-height: 40px;
+}
+.input-group > input:focus, .input-group > select:focus {
+  box-shadow: none;
+  background: transparent;
+}
+.input-group > button {
+  border: 0;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--primary);
+  color: #fff;
+  min-height: 40px;
+  padding: 0 16px;
+  font-weight: 600;
+}
+.input-group > button:hover { background: var(--primary-2); transform: none; box-shadow: none; }
+
+/* 搜索栏（顶栏内） */
+.search-bar, .topbar .search {
+  flex: 1;
+  max-width: 480px;
+  min-width: 200px;
+}
+.search-bar .input-group { background: var(--bg-3); }
+.search-bar .input-group > input {
+  background: transparent;
+}
+
+/* 进度条变细 */
+.progress, .bar, .meter {
+  height: 6px;
+  background: var(--line);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.progress.lg, .meter.lg { height: 10px; }
+
+/* 字段对齐：图标 + 输入 */
+.field-icon {
+  position: relative;
+}
+.field-icon .icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-3);
+  font-size: 14px;
+  pointer-events: none;
+}
+.field-icon input, .field-icon select {
+  padding-left: 38px;
+}
+
+
+
+/* ============================================================
+   极简主题 · v8.5.1：admin .body.split 右栏顶部对齐（按钮不再被纵向拉长）
+   ============================================================ */
+.admin-panel .body, .admin-panel .body.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-4);
+  min-width: 0;
+  align-items: start;  /* 关键：右栏顶部对齐，不被左栏 form 拉长 */
+}
+.admin-panel .body > *, .admin-panel .body.split > * {
+  min-width: 0;
+  align-self: start;
+}
+/* 右栏若是纯按钮，居顶且只取自然高度 */
+.admin-panel .body.split > .actions,
+.admin-panel .body.split > button {
+  align-self: start;
+  height: auto;
+  min-height: 0;
+}
+/* 右栏若是空容器，按钮应自动高度 */
+.admin-panel .body.split > * > button,
+.admin-panel .body.split button {
+  height: auto;
+  min-height: 40px;
+}
+@media (max-width: 900px) {
+  .admin-panel .body, .admin-panel .body.split { grid-template-columns: 1fr; }
+}
+
 </style>
 </head>
 <body>
