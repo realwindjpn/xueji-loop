@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>学记 · 灯下书卷  v8.2 — 像素 RPG 主题预览</title>
+<style>
+  @import url('https://miaoda.feishu.cn/fonts/css2?family=Press+Start+2P&family=ZCOOL+QingKe+HuangYou&family=VT323&family=DotGothic16&family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+
+  :root {
+    --night:   #1a1033;
+    --night-2: #0d0820;
+    --panel:   #2a1f4d;
+    --gold:    #f5c542;
+    --green:   #5dd05d;
+    --blue:    #5da9ff;
+    --pink:    #ff6b9d;
+    --cinnabar:#e85a4f;
+    --white:   #f4ead0;
+    --shadow:  #000000;
+    --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px; --s-9:96px;
+    --layout-max: 1180px;
+    --layout-gutter: clamp(12px, 2.4vw, 28px);
+    --section-pad: clamp(20px, 3vw, 36px);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    max-width: 100%;
+    overflow-x: clip;
+    background: var(--night);
+    color: var(--white);
+    font-family: "ZCOOL QingKe HuangYou", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: clamp(15px, 1.6vw, 18px);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(245, 197, 66, 0.08) 0, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(93, 169, 255, 0.08) 0, transparent 50%),
+      var(--night);
+    image-rendering: pixelated;
+  }
+  #starfield {
+    position: fixed; inset: 0; z-index: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    image-rendering: pixelated;
+  }
+
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: var(--layout-max);
+    margin: 0 auto;
+    padding: var(--s-7) var(--layout-gutter) var(--s-8);
+  }
+
+  .title { text-align: center; margin-bottom: var(--s-7); }
+  .title h1 {
+    font-family: "Press Start 2P", "ZCOOL QingKe HuangYou", monospace;
+    font-size: clamp(20px, 3.4vw, 36px);
+    line-height: 1.35;
+    margin: 0 0 var(--s-3);
+    color: var(--gold);
+    text-shadow:
+      4px 0 0 var(--shadow), -4px 0 0 var(--shadow),
+      0 4px 0 var(--shadow), 0 -4px 0 var(--shadow),
+      4px 4px 0 var(--shadow), -4px -4px 0 var(--shadow),
+      4px -4px 0 var(--shadow), -4px 4px 0 var(--shadow),
+      6px 6px 0 var(--cinnabar);
+    letter-spacing: 1px;
+  }
+  .title .sub {
+    font-family: "VT323", "DotGothic16", monospace;
+    font-size: clamp(14px, 1.6vw, 18px);
+    color: var(--green);
+    letter-spacing: 2px;
+    margin: 0 0 var(--s-4);
+  }
+  .title .ver {
+    display: inline-block;
+    font-family: "Press Start 2P", monospace;
+    font-size: 11px;
+    color: var(--white);
+    background: var(--cinnabar);
+    padding: 4px 10px;
+    border: 4px solid var(--white);
+    box-shadow: 4px 4px 0 var(--shadow);
+    margin-top: var(--s-3);
+  }
+  .blink { animation: blink 1.1s steps(2, start) infinite; }
+  @keyframes blink { to { visibility: hidden; } }
+
+  .party {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-5);
+  }
+  @media (max-width: 880px) { .party { grid-template-columns: 1fr; } }
+
+  .card {
+    position: relative;
+    background: var(--panel);
+    border: 4px solid var(--white);
+    box-shadow: 8px 8px 0 var(--shadow);
+    padding: var(--s-5);
+    color: var(--white);
+    text-decoration: none;
+    display: flex; flex-direction: column;
+    transition: transform 0.12s steps(4, end), box-shadow 0.12s steps(4, end);
+    min-width: 0;
+  }
+  .card:hover, .card:focus-visible {
+    transform: translate(-4px, -4px);
+    box-shadow: 12px 12px 0 var(--shadow);
+    outline: none;
+  }
+  .card:active {
+    transform: translate(2px, 2px);
+    box-shadow: 4px 4px 0 var(--shadow);
+  }
+  .card.gold   { border-color: var(--gold);   }
+  .card.green  { border-color: var(--green);  }
+  .card.blue   { border-color: var(--blue);   }
+
+  .card .role {
+    font-family: "Press Start 2P", monospace;
+    font-size: 13px;
+    color: var(--night-2);
+    background: var(--white);
+    padding: 4px 10px;
+    display: inline-block;
+    align-self: flex-start;
+    border: 2px solid var(--night-2);
+  }
+  .card.gold  .role { background: var(--gold);  }
+  .card.green .role { background: var(--green); }
+  .card.blue  .role { background: var(--blue);  }
+
+  .card h2 {
+    font-family: "ZCOOL QingKe HuangYou", "Noto Sans SC", sans-serif;
+    font-size: clamp(22px, 2.4vw, 28px);
+    margin: var(--s-3) 0 var(--s-1);
+    color: var(--white);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .card .zh {
+    font-family: "Press Start 2P", monospace;
+    font-size: 11px;
+    color: var(--night-2);
+    background: var(--gold);
+    padding: 2px 8px;
+    display: inline-block;
+    align-self: flex-start;
+    border: 2px solid var(--night-2);
+  }
+  .card.blue  .zh { background: var(--blue);   color: var(--night-2); }
+  .card.green .zh { background: var(--green);  color: var(--night-2); }
+
+  .card p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(244, 234, 208, 0.85);
+    margin: var(--s-3) 0 var(--s-4);
+    overflow-wrap: anywhere;
+  }
+
+  .stats { margin-top: auto; }
+  .stat { margin-bottom: var(--s-2); }
+  .stat-label {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: "VT323", "DotGothic16", monospace;
+    font-size: 14px;
+    color: var(--gold);
+    margin-bottom: 2px;
+  }
+  .stat-label .v { color: var(--white); }
+  .bar {
+    position: relative;
+    height: 14px;
+    background: var(--night-2);
+    border: 2px solid var(--white);
+  }
+  .bar > i {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: var(--green);
+    image-rendering: pixelated;
+  }
+  .bar.gold  > i { background: var(--gold);  }
+  .bar.blue  > i { background: var(--blue);  }
+  .bar.pink  > i { background: var(--pink);  }
+  .bar.cinna > i { background: var(--cinnabar); }
+
+  .enter {
+    margin-top: var(--s-4);
+    font-family: "Press Start 2P", monospace;
+    font-size: 12px;
+    color: var(--night-2);
+    background: var(--white);
+    border: 4px solid var(--night-2);
+    box-shadow: 4px 4px 0 var(--shadow);
+    padding: 10px 14px;
+    text-align: center;
+    align-self: stretch;
+    transition: transform 0.08s steps(2, end);
+  }
+  .card:hover .enter { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--shadow); }
+
+  .links {
+    margin-top: var(--s-7);
+    display: flex; flex-wrap: wrap;
+    gap: var(--s-3); justify-content: center;
+  }
+  .links a {
+    font-family: "VT323", "DotGothic16", monospace;
+    font-size: 16px;
+    color: var(--white);
+    background: var(--night-2);
+    border: 3px solid var(--white);
+    padding: 8px 14px;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 var(--shadow);
+    transition: transform 0.08s steps(2, end);
+  }
+  .links a:hover { transform: translate(-2px, -2px); color: var(--gold); }
+
+  footer {
+    margin-top: var(--s-8);
+    padding: var(--s-4) var(--layout-gutter);
+    text-align: center;
+    color: rgba(244, 234, 208, 0.6);
+    font-family: "VT323", "DotGothic16", monospace;
+    font-size: 14px;
+    border-top: 2px dashed rgba(244, 234, 208, 0.2);
+  }
+  footer a { color: var(--gold); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blink { animation: none; }
+    .card, .links a, .enter { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<div class="wrap">
+
+  <header class="title">
+    <h1>学记 · 灯下书卷</h1>
+    <p class="sub">XUEJI · LAMP-LIT BOOKS  ·  v8.2 PIXEL RPG</p>
+    <p style="margin: 6px 0 0; color: rgba(244,234,208,0.75); font-size: 14px;">
+      三端预览：选择你的角色进入主屏 →
+    </p>
+    <span class="ver">v8.2</span>
+    <p class="blink" style="font-family: 'Press Start 2P', monospace; font-size: 11px; color: var(--gold); margin-top: var(--s-3);">
+      ▶ PRESS START ◀
+    </p>
+  </header>
+
+  <main class="party" aria-label="三端角色卡">
+
+    <a class="card gold" href="parent.html?preview=1">
+      <span class="role">PARENT</span>
+      <h2>家长端</h2>
+      <span class="zh">双 亲</span>
+      <p>6 段门户：建档 → 规划 → 战报 → 课表 → 错题 → 复盘。支线任务列表，支持批量操作与工具栏。</p>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label"><span>HP · 学情洞察</span><span class="v">88/100</span></div>
+          <div class="bar gold"><i style="width:88%"></i></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label"><span>MP · 计划执行</span><span class="v">72/100</span></div>
+          <div class="bar blue"><i style="width:72%"></i></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label"><span>EXP · 复盘深度</span><span class="v">61/100</span></div>
+          <div class="bar pink"><i style="width:61%"></i></div>
+        </div>
+      </div>
+      <span class="enter">▶ 进入家长端</span>
+    </a>
+
+    <a class="card green" href="student.html?preview=1">
+      <span class="role">STUDENT</span>
+      <h2>学生端</h2>
+      <span class="zh">学 子</span>
+      <p>5 段学习舱：语音签到 → 知识记忆 → 复盘答题 → 知识图鉴 → 历史轨迹。HP/MP/EXP 实时跳动。</p>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label"><span>HP · 学习专注</span><span class="v">94/100</span></div>
+          <div class="bar"><i style="width:94%"></i></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label"><span>MP · 知识容量</span><span class="v">85/100</span></div>
+          <div class="bar blue"><i style="width:85%"></i></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label"><span>EXP · 复盘深度</span><span class="v">77/100</span></div>
+          <div class="bar gold"><i style="width:77%"></i></div>
+        </div>
+      </div>
+      <span class="enter">▶ 进入学生端</span>
+    </a>
+
+    <a class="card blue" href="admin.html?preview=1">
+      <span class="role">ADMIN</span>
+      <h2>管理端</h2>
+      <span class="zh">掌 柜</span>
+      <p>10 段工作区：仪表盘 → 知识库 → 学生/家长/老师 → 学籍/课程/排课/财务。12 张数据表横向滚动。</p>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label"><span>HP · 系统稳定</span><span class="v">96/100</span></div>
+          <div class="bar"><i style="width:96%"></i></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label"><span>MP · 数据吞吐</span><span class="v">82/100</span></div>
+          <div class="bar gold"><i style="width:82%"></i></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label"><span>EXP · 治理深度</span><span class="v">68/100</span></div>
+          <div class="bar cinna"><i style="width:68%"></i></div>
+        </div>
+      </div>
+      <span class="enter">▶ 进入管理端</span>
+    </a>
+
+  </main>
+
+  <nav class="links" aria-label="附加链接">
+    <a href="parent.html?preview=1">家长端 · 预览</a>
+    <a href="student.html?preview=1">学生端 · 预览</a>
+    <a href="admin.html?preview=1">管理端 · 预览</a>
+    <a href="parent.html">家长端 · 登录</a>
+    <a href="student.html">学生端 · 登录</a>
+    <a href="admin.html">管理端 · 登录</a>
+  </nav>
+
+  <footer>
+    v8.2 像素 RPG · 共享响应式布局 · 12/12 视口审计通过 · commit 82c142b<br>
+    GitHub: realwindjpn/xueji-loop  ·  branch <code>feat/frontend-rebuild</code>  ·  字体：Press Start 2P + ZCOOL QingKe HuangYou + VT323
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let stars = [];
+    let raf = 0;
+
+    function resize() {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.floor((window.innerWidth * window.innerHeight) / 9000);
+      stars = [];
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          s: Math.random() < 0.85 ? 1 : 2,
+          c: ['#f5c542', '#5dd05d', '#5da9ff', '#ff6b9d', '#f4ead0'][Math.floor(Math.random() * 5)],
+          v: Math.random() * 0.3 + 0.05
+        });
+      }
+    }
+
+    function tick() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach(s => {
+        s.y += s.v;
+        if (s.y > window.innerHeight) { s.y = -2; s.x = Math.random() * window.innerWidth; }
+        ctx.fillStyle = s.c;
+        ctx.fillRect(Math.floor(s.x), Math.floor(s.y), s.s, s.s);
+      });
+      if (!reduced) raf = requestAnimationFrame(tick);
+    }
+
+    resize();
+    if (!reduced) tick();
+    else {
+      stars.forEach(s => {
+        ctx.fillStyle = s.c;
+        ctx.fillRect(Math.floor(s.x), Math.floor(s.y), s.s, s.s);
+      });
+    }
+    window.addEventListener('resize', resize);
+  })();
+</script>
+
+</body>
+</html>

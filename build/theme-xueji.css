@@ -1340,3 +1340,55 @@ p, li, dd, dt, .body, .hint, .notice, .status, .result, .muted, .tag, .pill, .ca
   .workarea, .body { padding-left: 12px; padding-right: 12px; }
   .section-head { padding: var(--s-3) 12px; }
 }
+
+/* === v8.3 宽屏平铺（>=1280px）· 学生端内容真正"展开填满" === */
+@media (min-width: 1280px) {
+  /* 0. 关键修复：header 内部嵌套的 <main> 需突破"display:flex 收缩"，
+        拿到 100% 宽度后，.hero 才能继续按比例平铺。 */
+  header > main { width: 100%; flex: 1 1 100%; min-width: 0; }
+
+  /* 0.5 wrapAsFrame() 运行时把 .hero 包进 .frame（max-width:1180px），
+        这里是真正的瓶颈，必须把 .frame 也解锁。 */
+  .frame { max-width: min(96vw, 1600px); }
+
+  /* 1. 登录屏 .hero 解锁 1180px 顶板，左上 hero-top 横跨整行，
+        中段分 2 列（左：3 个信任卡；右：5 步学习流），底部登录面板横跨整行 */
+  .hero {
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    column-gap: var(--s-6);
+    row-gap: var(--s-5);
+  }
+  .hero-top { grid-column: 1 / -1; }
+  .student-trust { grid-column: 1; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
+  .steps { grid-column: 2; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
+  .login-panel { grid-column: 1 / -1; max-width: 720px; margin: 0 auto; }
+
+  /* 2. 仪表盘：内容层加安全边距，section 块自身用更宽的内边距 */
+  #studentContent {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--s-4) var(--layout-gutter) var(--s-6);
+  }
+  .today-overview { padding: var(--s-5) var(--s-5); }
+  .student-section { padding: var(--s-5) var(--s-5); }
+
+  /* 3. 今日概览 + 仪表盘 cards 列表平铺成多列 */
+  .today-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4); }
+  .voice-list, .card-list, .history-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-4);
+  }
+}
+
+/* === v8.3 宽屏平铺（>=1600px）· 更激进的 3 列分布 === */
+@media (min-width: 1600px) {
+  .frame { max-width: min(96vw, 1840px); }
+  .student-trust { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .steps { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  #studentContent { max-width: 1840px; }
+  .voice-list, .card-list, .history-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

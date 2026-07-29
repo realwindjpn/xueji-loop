@@ -11,7 +11,7 @@ import os
 import re
 from pathlib import Path
 
-VERSION = "8.2"  # v8.2 统一三端布局（共享 CSS 变量 + 响应式栅格 + .table-scroll 容器）
+VERSION = "8.3"  # v8.3 学生端宽屏平铺（>=1280px 真实填满 / 1600px 三列分布）
 
 ROOT = Path(__file__).resolve().parent.parent  # xueji-loop/
 BUILD = ROOT / "build"
