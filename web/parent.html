@@ -4226,6 +4226,85 @@ input.is-error:focus, select.is-error:focus, textarea.is-error:focus {
       .then(() => { if (!parentToken) $("serviceState").textContent = "可注册"; })
       .catch(() => $("serviceState").textContent = "连接异常");
   </script>
+
+  <!-- v8.6 步骤分页跳转（上一步 / 下一步） -->
+  <style>
+    .step-pager {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--s-3); margin-top: 28px; padding-top: 22px;
+      border-top: 1px dashed var(--line);
+    }
+    .step-pager-pos {
+      font-size: 13px; color: var(--ink); opacity: .55;
+      letter-spacing: .02em; white-space: nowrap;
+    }
+    .step-pager-spacer { width: 1px; flex: 0 0 auto; }
+    .step-pager-btn {
+      flex: 0 0 auto; border: none; cursor: pointer;
+      border-radius: 999px; padding: 11px 22px;
+      font-size: 14px; font-weight: 600; line-height: 1;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .step-pager-btn.next {
+      background: var(--primary); color: #fff;
+      box-shadow: 0 4px 14px rgba(229, 83, 61, .28);
+    }
+    .step-pager-btn.next:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(229, 83, 61, .36); }
+    .step-pager-btn.next:active { transform: translateY(0); }
+    .step-pager-btn.prev {
+      background: transparent; color: var(--primary);
+      border: 1.5px solid rgba(229, 83, 61, .42);
+    }
+    .step-pager-btn.prev:hover { background: rgba(229, 83, 61, .08); }
+    .step-pager-btn.prev:active { background: rgba(229, 83, 61, .14); }
+    @media (max-width: 640px) {
+      .step-pager { flex-wrap: wrap; justify-content: center; gap: 10px; }
+      .step-pager-pos { order: -1; width: 100%; text-align: center; }
+      .step-pager-btn { padding: 12px 18px; font-size: 13px; }
+    }
+  </style>
+  <script>
+    (function () {
+      var STEPS = [
+        { id: "intake", label: "建档" },
+        { id: "plan", label: "初步规划" },
+        { id: "cards", label: "知识卡片" },
+        { id: "voice", label: "语音练习" },
+        { id: "feedback", label: "每日反馈" }
+      ];
+      function go(view) {
+        if (typeof window.activate === "function") window.activate(view);
+        try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { window.scrollTo(0, 0); }
+      }
+      STEPS.forEach(function (step, i) {
+        var section = document.getElementById(step.id);
+        if (!section) return;
+        var prev = STEPS[i - 1];
+        var next = STEPS[i + 1];
+        var html = "";
+        if (prev) {
+          html += '<button type="button" class="step-pager-btn prev" data-go="' + prev.id + '">\u2190 \u4e0a\u4e00\u6b65 \u00b7 ' + prev.label + '</button>';
+        } else {
+          html += '<span class="step-pager-spacer"></span>';
+        }
+        html += '<span class="step-pager-pos">\u7b2c ' + (i + 1) + ' \u6b65 / \u5171 ' + STEPS.length + ' \u6b65 \u00b7 ' + step.label + '</span>';
+        if (next) {
+          html += '<button type="button" class="step-pager-btn next" data-go="' + next.id + '">\u4e0b\u4e00\u6b65 \u00b7 ' + next.label + ' \u2192</button>';
+        } else {
+          html += '<button type="button" class="step-pager-btn next" data-go="account">\u5b8c\u6210 \u00b7 \u6211\u7684\u5e10\u53f7 \u2192</button>';
+        }
+        var pager = document.createElement("div");
+        pager.className = "step-pager";
+        pager.innerHTML = html;
+        pager.addEventListener("click", function (e) {
+          var btn = e.target.closest("[data-go]");
+          if (btn) go(btn.dataset.go);
+        });
+        section.appendChild(pager);
+      });
+    })();
+  </script>
 </body>
 </html>
 </html>
